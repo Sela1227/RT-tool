@@ -3,7 +3,7 @@
 // ──────────────────────────────────────────────────────────
 
 const App = (() => {
-  const VERSION = 'V2.8';
+  const VERSION = 'V3.0';
 
   const DEFAULT_SETTINGS = {
     enabledTools: {
@@ -11,7 +11,8 @@ const App = (() => {
       bed:true, treatmentgap:true, hypofrac:true,
       electron:true, 'mu-calc':true, 'ssd-corr':true, isl:true, hvl:true,
       // Calc
-      childpugh:true, roach:true, albi:true, meld:true,
+      childpugh:true, roach:true, albi:true, meld:true, psadt:true,
+      anc:true, nccnprostate:true,
       calvert:true, cockcroftgault:true, bsa:true, cisplatin:true,
       // Score
       gpa:true, sins:true, tokuhashi:true, rpa:true, ecogkps:true
@@ -115,13 +116,13 @@ const App = (() => {
       {key:'hypofrac',label:'Hypofractionation Converter'},
       {key:'electron',label:'電子線劑量計算'},{key:'mu-calc',label:'MU 計算（光子線）'},
       {key:'ssd-corr',label:'SSD 修正（Mayneord）'},{key:'isl',label:'平方反比定律'},
-      {key:'hvl',label:'屏蔽 / HVL 計算'},
+      {key:'hvl',label:'屏蔽 / HVL 計算'},{key:'eqd2acc',label:'EQD2 累加 / 再程評估'},{key:'equivsq',label:'等效方形野'},
     ];
     const calcTools = [
       {key:'childpugh',label:'Child-Pugh + BCLC'},{key:'roach',label:"Roach Formula + D'Amico"},
       {key:'albi',label:'ALBI Score'},{key:'meld',label:'MELD Score'},
       {key:'calvert',label:'Calvert Formula'},{key:'cockcroftgault',label:'Cockcroft-Gault (CrCl)'},
-      {key:'bsa',label:'BSA Calculator'},{key:'cisplatin',label:'Cisplatin 累積劑量'},
+      {key:'bsa',label:'BSA Calculator'},{key:'cisplatin',label:'Cisplatin 累積劑量'},{key:'psadt',label:'PSA Doubling Time'},{key:'anc',label:'ANC 計算'},{key:'nccnprostate',label:'NCCN 攝護腺風險'},
     ];
     const scoreTools = [
       {key:'gpa',label:'GPA Score (DS-GPA)'},{key:'sins',label:'SINS Score'},

@@ -7,8 +7,16 @@ const ToolsRT = (() => {
     const body = `
       ${U.stepper('bed-dpf','每次劑量 (Dose/fx)',2,0.5,20,0.5,'Gy')}
       ${U.stepper('bed-n','分次數 (Fractions)',25,1,60,1,'fx')}
-      ${U.pills('bed-ab','α/β ratio',[['10','α/β=10'],['3','α/β=3'],['1.5','α/β=1.5'],['custom','自訂']],10,'onBEDAbChange')}
-      <div id="bed-custom-row" class="hidden">${U.stepper('bed-custom-ab','自訂 α/β',2,0.1,20,0.1)}</div>
+      <div class="mb-3">
+        <div class="text-xs mb-1.5" style="color:var(--t2);">自訂 α/β（選填，會加入結果列）</div>
+        <div class="flex items-center gap-2">
+          <button class="step-btn" onclick="stepAdj('bed-custom-ab',-.1,0.1,30)">−</button>
+          <input type="number" id="bed-custom-ab" placeholder="—" step="0.1" min="0.1" max="30"
+            class="inp text-center mono flex-1" style="font-size:15px;" oninput="calcBED()">
+          <button class="step-btn" onclick="stepAdj('bed-custom-ab',.1,0.1,30)">+</button>
+          <span class="text-xs mono flex-shrink-0" style="color:var(--t2);min-width:28px;"></span>
+        </div>
+      </div>
       <div id="bed-result"></div>
       ${U.calcBtn('calcBED()')}`;
     return U.cardWrap('bed',
@@ -17,21 +25,25 @@ const ToolsRT = (() => {
   }
   window.calcBED = function() {
     const dpf = numVal('bed-dpf'), n = numVal('bed-n');
-    const abMode = gel('bed-ab')?.value || '10';
-    let customAB = numVal('bed-custom-ab');
-    const abList = abMode === 'custom' ? [customAB] : [10, 3, 1.5];
     const totalD = dpf * n;
-    const rows = abList.map(ab => {
+    const customInput = gel('bed-custom-ab');
+    const customAB = customInput && customInput.value !== '' ? parseFloat(customInput.value) : null;
+    const makeRow = (ab, highlight) => {
       const bed = totalD * (1 + dpf/ab);
       const eqd2 = bed / (1 + 2/ab);
-      return `<tr>
-        <td class="py-1 text-xs" style="color:var(--t2);">α/β = ${ab}</td>
-        <td class="py-1 text-xs text-right mono font-semibold" style="color:var(--t1);">${bed.toFixed(1)} Gy</td>
-        <td class="py-1 text-xs text-right mono font-semibold" style="color:var(--t1);">${eqd2.toFixed(1)} Gy</td>
+      const c1 = highlight ? 'var(--accent)' : 'var(--t2)';
+      const c2 = highlight ? 'var(--accent)' : 'var(--t1)';
+      const bg = highlight ? 'background:var(--acc-bg);' : '';
+      return `<tr style="${bg}">
+        <td class="py-1 text-xs${highlight?' font-semibold':''}" style="color:${c1};">α/β = ${ab}</td>
+        <td class="py-1 text-xs text-right mono font-semibold" style="color:${c2};">${bed.toFixed(1)} Gy</td>
+        <td class="py-1 text-xs text-right mono font-semibold" style="color:${c2};">${eqd2.toFixed(1)} Gy</td>
       </tr>`;
-    }).join('');
-    const html = `<div class="result-panel">
-      <div class="text-xs mb-2" style="color:var(--t3);">Total: ${totalD} Gy / ${n} fx (${dpf} Gy/fx)</div>
+    };
+    const rows = [10, 3, 1.5].map(ab => makeRow(ab, false)).join('')
+      + (customAB && customAB > 0 ? makeRow(customAB, true) : '');
+    const html = `<div class="result-panel" id="bed-result">
+      <div class="text-xs mb-2" style="color:var(--t3);">Total ${totalD} Gy / ${n} fx (${dpf} Gy/fx)</div>
       <table class="w-full"><thead><tr>
         <th class="text-left text-xs pb-1" style="color:var(--t3);">α/β</th>
         <th class="text-right text-xs pb-1" style="color:var(--t3);">BED</th>
@@ -234,16 +246,128 @@ const ToolsRT = (() => {
     const e = gel('hvl-result'); if (e) e.outerHTML = html;
   };
 
-  window.onBEDAbChange = function(val) {
-    const cr = gel('bed-custom-row');
-    if (cr) cr.classList.toggle('hidden', val !== 'custom');
-  };
   window.onHypAbChange = function(val) {
     const cr = gel('hyp-custom-row');
     if (cr) cr.classList.toggle('hidden', val !== 'custom');
   };
 
   // ── getTools / render API ─────────────────────────────────
+
+  // ─── 9. EQD2 Accumulator (Reirradiation) ─────────────────
+  function renderEQD2Acc() {
+    const courseRow = (n, label) => `
+      <div class="mb-4">
+        <div class="sec-label mb-2">${label}</div>
+        <div class="flex gap-2">
+          <div class="flex-1">${U.stepper('acc-dpf'+n,'Dose/fx',2,0.1,20,0.5,'Gy')}</div>
+          <div class="flex-1">${U.stepper('acc-n'+n,'Fractions',25,1,60,1,'fx')}</div>
+        </div>
+        <div class="flex gap-2 items-center mt-1">
+          <div class="text-xs flex-shrink-0" style="color:var(--t2);width:60px;">α/β</div>
+          <input type="number" id="acc-ab${n}" value="${n===1?3:3}" step="0.5" min="0.5" max="20"
+            class="inp text-center mono" style="font-size:13px;width:80px;" placeholder="α/β">
+          <span class="text-xs" style="color:var(--t3);">（腫瘤建議 3 Gy）</span>
+        </div>
+      </div>`;
+    const body = `
+      ${courseRow(1,'第一療程')}
+      <div style="height:1px;background:var(--border);margin:0 0 16px;"></div>
+      ${courseRow(2,'第二療程（再程 / 補做）')}
+      ${U.calcBtn('calcEQD2Acc()')}
+      <div id="acc-result"></div>`;
+    return U.cardWrap('eqd2acc',
+      `<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 14h3l2-4 2 8 2-10 2 6h3"/></svg>`,
+      'EQD2 累加 / 再程評估', body);
+  }
+  window.calcEQD2Acc = function() {
+    const row = (n) => {
+      const dpf = numVal('acc-dpf'+n), fr = numVal('acc-n'+n);
+      const ab  = parseFloat(gel('acc-ab'+n)?.value) || 3;
+      const total = dpf * fr;
+      const bed  = total * (1 + dpf/ab);
+      const eqd2 = bed / (1 + 2/ab);
+      return { dpf, fr, ab, total, bed, eqd2 };
+    };
+    const r1 = row(1), r2 = row(2);
+    const sumTotal = r1.total + r2.total;
+    const sumEQD2  = r1.eqd2  + r2.eqd2;
+    const sumBED   = r1.bed   + r2.bed;
+
+    let warn = '', warnColor = 'var(--t2)';
+    if (sumEQD2 > 100 && r1.ab === r2.ab) {
+      warn = '⚠️ 累計 EQD2 > 100 Gy，再程需嚴格評估 OAR 耐受度';
+      warnColor = 'var(--danger)';
+    } else if (sumEQD2 > 70) {
+      warn = '注意累計劑量，需核對脊髓、直腸、膀胱等 OAR 限制';
+      warnColor = '#7A4B20';
+    }
+
+    const eRow = (label, v1, v2, sum) => `<tr>
+      <td class="py-1 text-xs" style="color:var(--t2);">${label}</td>
+      <td class="py-1 text-xs text-right mono" style="color:var(--t1);">${v1}</td>
+      <td class="py-1 text-xs text-right mono" style="color:var(--t1);">${v2}</td>
+      <td class="py-1 text-xs text-right mono font-semibold" style="color:var(--accent);">${sum}</td>
+    </tr>`;
+
+    const e = gel('acc-result');
+    if (e) e.outerHTML = `<div class="result-panel mt-3" id="acc-result">
+      <table class="w-full mb-2">
+        <thead><tr>
+          <th class="text-left text-xs pb-1" style="color:var(--t3);">　</th>
+          <th class="text-right text-xs pb-1" style="color:var(--t3);">療程 1</th>
+          <th class="text-right text-xs pb-1" style="color:var(--t3);">療程 2</th>
+          <th class="text-right text-xs pb-1" style="color:var(--accent);">合計</th>
+        </tr></thead>
+        <tbody>
+          ${eRow('Total (Gy)',r1.total.toFixed(1),r2.total.toFixed(1),sumTotal.toFixed(1)+' Gy')}
+          ${eRow('BED (Gy)',r1.bed.toFixed(1),r2.bed.toFixed(1),sumBED.toFixed(1)+' Gy')}
+          ${eRow('EQD2 (Gy)',r1.eqd2.toFixed(1),r2.eqd2.toFixed(1),sumEQD2.toFixed(1)+' Gy')}
+        </tbody>
+      </table>
+      ${warn ? `<div class="text-xs mt-1 font-medium" style="color:${warnColor};">${warn}</div>` : ''}
+    </div>`;
+  };
+
+  // ─── 10. Equivalent Square Field ──────────────────────────
+  function renderEquivSquare() {
+    const body = `
+      ${U.stepper('esf-x','照野寬 X (cm)',10,1,50,0.5,'cm')}
+      ${U.stepper('esf-y','照野長 Y (cm)',15,1,50,0.5,'cm')}
+      ${U.calcBtn('calcEquivSquare()')}
+      <div id="esf-result"></div>`;
+    return U.cardWrap('equivsq',
+      `<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="2" y="4" width="14" height="10" rx="1"/><line x1="9" y1="4" x2="9" y2="14"/></svg>`,
+      '等效方形野 (Equivalent Square)', body);
+  }
+  window.calcEquivSquare = function() {
+    const x = numVal('esf-x'), y = numVal('esf-y');
+    // Sterling approximation: Seq = 4·A/P = 2·X·Y/(X+Y)
+    const seq = (2 * x * y / (x + y)).toFixed(2);
+    // Side of square with same area
+    const sqrtArea = Math.sqrt(x * y).toFixed(2);
+    const perimeter = 2*(x+y);
+    const area = (x*y).toFixed(1);
+
+    const e = gel('esf-result');
+    if (e) e.outerHTML = `<div class="result-panel mt-3" id="esf-result">
+      <div class="flex justify-between items-start mb-3">
+        <div>
+          <div class="sec-label mb-1">等效方形邊長</div>
+          <div class="result-val">${seq} <span style="font-size:13px;font-weight:400;">cm</span></div>
+          <div class="text-xs mt-0.5" style="color:var(--t3);">Sterling 公式 2XY/(X+Y)</div>
+        </div>
+        <div class="text-right">
+          <div class="sec-label mb-1">等面積方邊</div>
+          <div class="result-val text-lg">${sqrtArea} <span style="font-size:13px;font-weight:400;">cm</span></div>
+          <div class="text-xs mt-0.5" style="color:var(--t3);">√(X×Y)</div>
+        </div>
+      </div>
+      <div class="text-xs" style="color:var(--t2);">
+        原始照野：${x} × ${y} cm　面積：${area} cm²　周長：${perimeter} cm
+      </div>
+    </div>`;
+  };
+
   const ALL_TOOLS = [
     {key:'bed',          label:'BED/EQD2',      fn:renderBED},
     {key:'treatmentgap', label:'Gap 修正',       fn:renderGap},
@@ -253,6 +377,8 @@ const ToolsRT = (() => {
     {key:'ssd-corr',     label:'SSD 修正',       fn:renderSSD},
     {key:'isl',          label:'ISL',            fn:renderISL},
     {key:'hvl',          label:'HVL 屏蔽',       fn:renderHVL},
+    {key:'eqd2acc',      label:'EQD2 累加',       fn:renderEQD2Acc},
+    {key:'equivsq',      label:'等效方形野',        fn:renderEquivSquare},
   ];
 
   function getTools(settings) {

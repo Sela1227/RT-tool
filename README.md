@@ -7,6 +7,32 @@
 
 ## 版本歷程
 
+### V3.0 — 補齊建議工具清單：4 個新工具
+
+**新增（RT 工具）**
+- EQD2 累加 / 再程評估：兩療程各填 Dose/fx、Fractions、α/β，自動列出 Total / BED / EQD2 及合計，> 70 Gy 提示 OAR 注意，> 100 Gy 警示
+- 等效方形野（Equivalent Square）：Sterling 公式 2XY/(X+Y) + 等面積方邊 √(XY)，用於 TMR/Sc 查表
+
+**新增（計算工具）**
+- ANC 計算：WBC × 中性球% → CTCAE Grade 分級 + 化療調整建議
+- NCCN 攝護腺風險分組（2025）：PSA / Gleason GG / T 分期 / 陽性切片比例 → Very Low/Low/Intermediate Favorable/Unfavorable/High/Very High + RT 策略 + ADT 建議
+
+---
+
+### V2.9 — PSA DT 新工具 + BED 重設計 + 劑量建議 2025
+
+**新增**
+- PSA Doubling Time 計算器（最小二乘回歸，支援 2+ 筆資料點，自動風險分層）
+
+**改善**
+- BED/EQD2：移除 α/β 切換 pills，改為永遠顯示 α/β=10/3/1.5 三列，自訂值填入後即時加入第四列（accent 色標示）
+
+**資料更新**
+- 劑量建議庫更新至 NCCN 2025：65 筆
+  - 新增 PACIFIC Durvalumab 後維持、FAST-Forward 5fx 乳癌、TNT 直腸、SBRT 寡轉移前列腺 MDT、GBM TTFields、HA-WBRT + Memantine、分次 SRS、H&N 再程放療等
+
+---
+
 ### V2.8 — Child-Pugh INR + header 配色
 
 - Child-Pugh PT 欄位：「PT 延長（秒）」→「PT / INR」（< 1.7 / 1.7–2.3 / > 2.3）

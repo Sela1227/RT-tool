@@ -371,6 +371,105 @@ const ToolsCalc = (() => {
   };
 
   // ── getTools / render API ─────────────────────────────────
+
+  // ── 10. ANC Calculator ───────────────────────────────────
+  const ANCICON = `<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="9" cy="9" r="3"/><circle cx="9" cy="9" r="6"/><line x1="9" y1="3" x2="9" y2="6"/><line x1="9" y1="12" x2="9" y2="15"/><line x1="3" y1="9" x2="6" y2="9"/><line x1="12" y1="9" x2="15" y2="9"/></svg>`;
+
+  function renderANC() {
+    const body = `
+      ${U.stepper('anc-wbc','WBC (×10³/μL)',5.0,0.1,50,0.1,'×10³/μL')}
+      ${U.stepper('anc-neu','中性球比例 (%)',65,1,99,1,'%')}
+      ${U.calcBtn('calcANC()')}
+      <div id="anc-result"></div>`;
+    return U.cardWrap('anc', ANCICON, 'ANC 計算', body);
+  }
+  window.calcANC = function() {
+    const wbc = numVal('anc-wbc'), pct = numVal('anc-neu');
+    const anc = (wbc * pct / 100).toFixed(2);
+    const v = parseFloat(anc);
+    let grade = 0, gradeLabel = 'Normal', color = 'var(--t2)', action = '正常，不需調整劑量';
+    if      (v < 0.5)  { grade=4; gradeLabel='Grade 4'; color='var(--danger)'; action='禁止化療，G-CSF，考慮隔離'; }
+    else if (v < 1.0)  { grade=3; gradeLabel='Grade 3'; color='var(--danger)'; action='延遲化療，G-CSF 考慮'; }
+    else if (v < 1.5)  { grade=2; gradeLabel='Grade 2'; color='#7A4B20';       action='多數方案需減量或延遲'; }
+    else if (v < 2.0)  { grade=1; gradeLabel='Grade 1'; color='var(--t2)';     action='可繼續，部分方案需觀察'; }
+    const e = gel('anc-result');
+    if (e) e.outerHTML = `<div class="result-panel mt-3" id="anc-result">
+      <div class="flex items-start justify-between">
+        <div>
+          <div class="sec-label mb-1">ANC</div>
+          <div class="result-val">${anc} <span style="font-size:13px;font-weight:400;">×10³/μL</span></div>
+          ${grade>0 ? `<div class="text-xs font-semibold mt-1" style="color:${color};">${gradeLabel}</div>` : ''}
+        </div>
+        <div class="text-right text-xs leading-relaxed" style="color:var(--t2);max-width:55%;">${action}</div>
+      </div>
+    </div>`;
+  };
+
+  // ── 11. NCCN Prostate Risk ────────────────────────────────
+  const NCCNPICON = `<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="9" cy="9" r="6"/><circle cx="9" cy="9" r="2.5"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="9" y1="14" x2="9" y2="17"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="14" y1="9" x2="17" y2="9"/></svg>`;
+
+  function renderNCCNProstate() {
+    const body = `
+      ${U.stepper('np-psa','PSA (ng/mL)',8,0.1,200,0.5,'ng/mL')}
+      ${U.fld('np-gs','Gleason Score / Grade Group',[
+        ['6_1','GS 3+3=6 (GG1)'],['7f_2','GS 3+4=7 (GG2)'],['7u_3','GS 4+3=7 (GG3)'],
+        ['8_4','GS 4+4 / 3+5 / 5+3=8 (GG4)'],['9_5','GS 9–10 (GG5)']],'6_1')}
+      ${U.fld('np-t','臨床 T 分期',[['1c','T1c（PSA 偵測）'],['2a','T2a（單葉 ≤1/2）'],['2b','T2b（單葉 >1/2）'],['2c','T2c（雙葉）'],['3a','T3a（ECE）'],['3b','T3b（SV+）'],['4','T4（鄰近器官侵犯）']],'1c')}
+      ${U.fld('np-cores','陽性切片比例',[['lt50','< 50% 陽性切片'],['gte50','≥ 50% 陽性切片']],'lt50')}
+      ${U.calcBtn('calcNCCNProstate()')}
+      <div id="np-result"></div>`;
+    return U.cardWrap('nccnprostate', NCCNPICON, 'NCCN 攝護腺風險分組', body);
+  }
+  window.calcNCCNProstate = function() {
+    const psa = numVal('np-psa');
+    const gs = selVal('np-gs'), gsNum = parseInt(gs.split('_')[1]);
+    const t = selVal('np-t');
+    const cores = selVal('np-cores');
+
+    let risk='', color='var(--t2)', tx='', adt='';
+    const tHigh = t==='3a'||t==='3b'||t==='4';
+    const tInt  = t==='2a'||t==='2b'||t==='2c';
+    const tLow  = t==='1c';
+
+    if (t==='4' || gsNum===5 || (tHigh && gsNum>=4) || psa>40 || (psa>20 && gsNum>=4)) {
+      risk='Very High Risk'; color='var(--danger)';
+      tx='根治性 RT（IMRT 78–81 Gy）+ 長程 ADT（2–3 年）+ ENI';
+      adt='長程 ADT 18–36 個月（LHRH agonist ± anti-androgen）';
+    } else if (tHigh || gsNum>=4 || psa>20) {
+      risk='High Risk'; color='var(--danger)';
+      tx='根治性 RT（IMRT 78–81 Gy）+ 長程 ADT（2–3 年）';
+      adt='長程 ADT 18–36 個月';
+    } else if (gsNum===3 && psa>10 && psa<=20) {
+      risk='Intermediate Unfavorable'; color='#7A4B20';
+      tx='RT（70–78 Gy 或 SBRT 36.25 Gy/5fx）+ 短程 ADT 4–6 個月';
+      adt='短程 ADT 4–6 個月（視情況）';
+    } else if ((psa>10 && psa<=20) || gsNum===3 || (tInt && cores==='gte50')) {
+      risk='Intermediate Favorable'; color='#7A4B20';
+      tx='RT（70–78 Gy 或 SBRT）± 短程 ADT（Unfavorable 因素時）';
+      adt='短程 ADT 可選（4–6 個月）';
+    } else if (tLow && gsNum<=1 && psa<10 && psa<0.15*2) {
+      risk='Very Low Risk'; color='var(--t2)';
+      tx='主動監測（AS）首選；預後良好才考慮 RT';
+      adt='不建議';
+    } else {
+      risk='Low Risk'; color='var(--t2)';
+      tx='主動監測（AS）或根治性 RT（不需 ADT）';
+      adt='不建議';
+    }
+
+    const e = gel('np-result');
+    if (e) e.outerHTML = `<div class="result-panel mt-3" id="np-result">
+      <div class="sec-label mb-1">NCCN 2025 Risk Group</div>
+      <div class="result-val" style="color:${color};">${risk}</div>
+      <div class="mt-3 text-xs leading-relaxed" style="color:var(--t2);">
+        <div class="font-semibold mb-0.5" style="color:var(--t1);">建議 RT 策略</div>${tx}
+      </div>
+      <div class="mt-2 text-xs leading-relaxed" style="color:var(--t2);">
+        <div class="font-semibold mb-0.5" style="color:var(--t1);">ADT</div>${adt}
+      </div>
+    </div>`;
+  };
+
   const ALL_CALC = [
     {key:'childpugh',      label:'Child-Pugh',  fn:renderChildPugh},
     {key:'roach',          label:'Roach',        fn:renderRoach},
@@ -380,6 +479,9 @@ const ToolsCalc = (() => {
     {key:'cockcroftgault', label:'CrCl',         fn:renderCG},
     {key:'bsa',            label:'BSA',          fn:renderBSA},
     {key:'cisplatin',      label:'Cisplatin',    fn:renderCisplatin},
+    {key:'psadt',           label:'PSA DT',       fn:renderPSADT},
+    {key:'anc',             label:'ANC',          fn:renderANC},
+    {key:'nccnprostate',    label:'NCCN 攝護腺',  fn:renderNCCNProstate},
   ];
 
   function getTools(settings) {
