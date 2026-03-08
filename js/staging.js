@@ -22,7 +22,6 @@ const Staging = (() => {
   // ─── 1. LUNG ─────────────────────────────────────────────
   function renderLung() {
     return U.cardWrap('lung', IC.lung, '肺癌 AJCC 9th', `
-      <div class="text-xs mb-3" style="color:var(--t3);">Non-small cell lung cancer — T/N/M staging</div>
       ${U.fld('lung-t','T 分類',[['1a','T1a ≤1cm'],['1b','T1b 1-2cm'],['1c','T1c 2-3cm'],['2a','T2a 3-4cm'],['2b','T2b 4-5cm'],['3','T3 5-7cm / 胸壁/心包/膈神經'],['4','T4 >7cm / 縱膈/心臟/大血管/隆突']],'1a')}
       ${U.fld('lung-n','N 分類',[['0','N0 無淋巴結'],['1','N1 同側支氣管旁/肺門'],['2','N2 同側縱膈/隆突下'],['3','N3 對側 / 鎖骨上']],'0')}
       ${U.fld('lung-m','M 分類',[['0','M0'],['1a','M1a 對側肺/胸膜結節/惡性積液'],['1b','M1b 單一胸外轉移'],['1c','M1c 多處胸外轉移']],'0')}
@@ -138,7 +137,6 @@ const Staging = (() => {
   // ─── 5. BREAST ───────────────────────────────────────────
   function renderBreast() {
     return U.cardWrap('breast', IC.breast, '乳癌 AJCC 9th（解剖學）', `
-      <div class="text-xs mb-3" style="color:var(--t3);">Anatomic stage（不含生物標記）</div>
       ${U.fld('br-t','T 分類',[['is','Tis'],['1mi','T1mi ≤0.1cm'],['1a','T1a 0.1-0.5cm'],['1b','T1b 0.5-1cm'],['1c','T1c 1-2cm'],['2','T2 2-5cm'],['3','T3 >5cm'],['4a','T4a 胸壁侵犯'],['4b','T4b 皮膚侵犯'],['4c','T4c 4a+4b'],['4d','T4d 炎性乳癌']],'1c')}
       ${U.fld('br-n','N（病理）',[['0','pN0'],['1mi','pN1mi 微轉移 0.2-2mm'],['1a','pN1a 1-3顆腋窩LN'],['1b','pN1b 內乳LN'],['1c','pN1c 1-3顆腋窩+內乳'],['2a','pN2a 4-9顆腋窩'],['2b','pN2b 內乳LN，無腋窩'],['3a','pN3a ≥10顆腋窩'],['3b','pN3b 內乳+≥4腋窩'],['3c','pN3c 鎖骨上']],'1a')}
       ${U.fld('br-m','M',[['0','M0'],['1','M1 遠端轉移']],'0')}
@@ -326,7 +324,6 @@ const Staging = (() => {
 
   function renderOroph() {
     return `
-      <div class="text-xs mb-2" style="color:var(--t3);">p16+ (HPV-associated)</div>
       ${U.fld('orp-t','T',[['1','T1 ≤2cm'],['2','T2 2-4cm'],['3','T3 >4cm / 會厭谷'],['4','T4 喉/外舌肌/翼肌/硬顎/下顎骨']],'1')}
       ${U.fld('orp-n','N（臨床，p16+）',[['0','N0'],['1','N1 同側單顆/多顆 ≤6cm'],['2','N2 對側/雙側 ≤6cm'],['3','N3 >6cm']],'0')}
       ${U.fld('orp-m','M',[['0','M0'],['1','M1']],'0')}
@@ -341,7 +338,7 @@ const Staging = (() => {
     else if (T==='4'||N==='2') stage='III';
     else if (T==='3'||N==='1') stage='II';
     else stage='I';
-    const e=gel('orp-result'); if(e) e.outerHTML=U.stageResult(stage,`T${T} N${N} M${M}`,`p16+ / HPV-associated oropharynx`);
+    const e=gel('orp-result'); if(e) e.outerHTML=U.stageResult(stage,`T${T} N${N} M${M}`);
   };
 
   function renderLarynx() {
@@ -420,16 +417,12 @@ const Staging = (() => {
     return `
       <div class="mb-3 pt-1">
         <div class="text-base font-semibold" style="color:var(--t1);">腫瘤分期</div>
-        <div class="text-xs mt-0.5" style="color:var(--t3);">AJCC 9th Edition (2024)</div>
       </div>
       ${filterBar}
       <div id="staging-panel" class="mt-3">
         ${initial ? initial.render() : ''}
       </div>
-      <div class="mt-2 text-xs leading-relaxed rounded-xl p-3 mb-2"
-           style="background:var(--bg);color:var(--t2);border:1px solid var(--border);">
-        分期結果僅供參考，請依 AJCC 9th 原始文獻及多專科會議決策為準。
-      </div>
+
     `;
   }
 

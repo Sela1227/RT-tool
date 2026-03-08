@@ -5,7 +5,6 @@ const ToolsRT = (() => {
   // ─── 1. BED / EQD2 ───────────────────────────────────────
   function renderBED() {
     const body = `
-      <div class="text-xs mb-3" style="color:var(--t3);">一組方案自動顯示三種組織的 BED 與 EQD2</div>
       ${U.stepper('bed-dpf','每次劑量 (Dose/fx)',2,0.5,20,0.5,'Gy')}
       ${U.stepper('bed-n','分次數 (Fractions)',25,1,60,1,'fx')}
       ${U.pills('bed-ab','α/β ratio',[['10','α/β=10'],['3','α/β=3'],['1.5','α/β=1.5'],['custom','自訂']],10)}
@@ -75,7 +74,6 @@ const ToolsRT = (() => {
   // ─── 3. Hypofractionation Converter ──────────────────────
   function renderHypo() {
     const body = `
-      <div class="text-xs mb-3" style="color:var(--t3);">輸入原方案，BED 等效換算至任意分次</div>
       ${U.stepper('hyp-d','原總劑量',60,1,120,1,'Gy')}
       ${U.stepper('hyp-n','原分次數',30,1,60,1,'fx')}
       ${U.pills('hyp-ab','α/β',[['10','α/β=10'],['3','α/β=3'],['1.5','α/β=1.5'],['custom','自訂']],10)}
@@ -136,7 +134,6 @@ const ToolsRT = (() => {
         <div style="color:var(--t2);">D₈₀ depth</div><div class="mono text-right">${d80} cm</div>
         <div style="color:var(--t2);">SSD factor (${ssd} cm)</div><div class="mono text-right">${ssdFactor.toFixed(4)}</div>
       </div>
-      <div class="mt-2 pt-2 text-xs" style="border-top:1px solid var(--border);color:var(--t3);">公式依據：E(MeV) 近似法，僅供參考</div>
     </div>`;
     const e = gel('el-result'); if (e) e.outerHTML = html;
   };

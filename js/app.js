@@ -3,7 +3,7 @@
 // ──────────────────────────────────────────────────────────
 
 const App = (() => {
-  const VERSION = 'V2.2';
+  const VERSION = 'V2.3';
 
   const DEFAULT_SETTINGS = {
     enabledTools: {
@@ -167,9 +167,6 @@ const App = (() => {
           <button onclick="App.importData()" class="flex-1 py-2 text-xs rounded-lg font-medium" style="background:var(--acc-bg);color:var(--accent);border:1px solid var(--border);">匯入 JSON</button>
         </div>
         <input type="file" id="import-file" accept=".json" class="hidden" onchange="App.handleImport(event)">
-      </div>
-      <div class="rounded-xl p-4 mb-3 text-xs leading-relaxed" style="background:var(--bg);color:var(--t2);border:1px solid var(--border);">
-        本工具僅供臨床參考，所有醫療決策請依據最新指引及臨床判斷。劑量限制數據以原始文獻為準。
       </div>
       <div class="text-center text-xs mono pb-2" style="color:var(--t3);">SELA RadOnc ${VERSION}</div>
     `);

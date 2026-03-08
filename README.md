@@ -7,6 +7,21 @@
 
 ## 版本歷程
 
+### V2.3 — 移除非必要 UI 說明文字
+
+**清理**
+- 移除 BED/EQD2 卡片副標題「一組方案自動顯示…」
+- 移除 Hypofractionation 卡片副標題「輸入原方案…」
+- 移除電子線結果面板「公式依據：E(MeV) 近似法，僅供參考」
+- 移除肺癌分期副標題「Non-small cell lung cancer — T/N/M staging」
+- 移除乳癌分期副標題「Anatomic stage（不含生物標記）」
+- 移除口咽分期副標題「p16+ (HPV-associated)」
+- 移除分期頁面 header 「AJCC 9th Edition (2024)」
+- 移除分期頁面底部免責聲明段落
+- 移除設定頁免責聲明段落
+
+---
+
 ### V2.2 — 程式碼優化：共用模組抽離
 
 **重構**
