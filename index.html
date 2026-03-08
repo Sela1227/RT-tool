@@ -12,45 +12,37 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     html, body { overscroll-behavior: none; }
-    body { font-family: 'Noto Sans TC', -apple-system, sans-serif; background: #F2F0EC; color: #1A1A1A; }
+    body { font-family: 'Noto Sans TC', -apple-system, sans-serif; background: #E4E8F0; color: #1E2530; }
     .mono { font-family: 'DM Mono', monospace !important; }
     ::-webkit-scrollbar { display: none; }
     * { -ms-overflow-style: none; scrollbar-width: none; }
     .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
     #app-main { transition: opacity 0.1s ease; }
 
-    /* ── Nordic palette overrides ─────────────────────── */
+    /* ── Nordic cold palette ─────────────────────────────── */
     :root {
-      --bg:      #F2F0EC;
-      --card:    #FFFFFF;
-      --border:  #E2DFD8;
-      --text1:   #1A1A1A;
-      --text2:   #5A5750;
-      --accent:  #222220;        /* dark charcoal — active states */
-      --accent-s:#ECEAE5;        /* light tint */
+      --bg:      #E4E8F0;   /* cool blue-gray page bg */
+      --surface: #F0F2F6;   /* card surface */
+      --card2:   #EAECF2;   /* secondary surface */
+      --border:  #C8CDD8;
+      --ink1:    #1E2530;   /* primary text */
+      --ink2:    #4A5568;   /* secondary */
+      --ink3:    #9AA0AA;   /* muted */
+      --active:  #2C3A50;   /* dark slate — CTAs, selected */
     }
 
-    /* Header — neutral white, logo carries the orange */
-    .sela-header { background: #FFFFFF; border-bottom: 1px solid #E2DFD8; }
+    /* Header — white surface on cold bg */
+    .sela-header { background: #F0F2F6; border-bottom: 1px solid #C8CDD8; }
 
-    /* Nav active replaces orange with charcoal */
-    .nav-btn.active svg, .nav-btn.active span { color: var(--accent) !important; }
+    /* Tab active */
+    .tab-active  { background: #FFFFFF; color: var(--active); box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+    .tab-inactive { color: var(--ink3); }
 
-    /* Card base */
-    .card { background: var(--card); border-radius: 14px; border: 1px solid var(--border); }
-
-    /* Section headings */
-    .section-label { font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text2); }
-
-    /* Toggle — charcoal when checked */
-    input.tool-toggle:checked + div { background: var(--accent) !important; }
-
-    /* Tabs */
-    .tab-active  { background: #fff; color: var(--accent); box-shadow: 0 1px 4px rgba(0,0,0,.08); }
-    .tab-inactive{ color: var(--text2); }
+    /* section label */
+    .section-label { font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--ink3); }
   </style>
 </head>
-<body style="background:#F2F0EC; color:#1A1A1A;">
+<body style="background:#E4E8F0; color:#1E2530;">
 
   <div class="max-w-md mx-auto relative min-h-screen">
 
@@ -64,16 +56,16 @@
             <div class="text-xs leading-tight" style="color:#9E9A93;">放射腫瘤科臨床工具</div>
           </div>
         </div>
-        <div class="mono text-xs px-2.5 py-1 rounded-full font-medium" style="background:#F2F0EC;color:#5A5750;">V1.2.2</div>
+        <div class="mono text-xs px-2.5 py-1 rounded-full font-medium" style="background:#F2F0EC;color:#5A5750;">V1.3</div>
       </div>
     </header>
 
     <!-- ── Main ────────────────────────────────────────── -->
-    <main id="app-main" class="pt-16 pb-24 min-h-screen"></main>
+    <main id="app-main" class="pt-16 pb-24 min-h-screen" style="background:#E4E8F0;"></main>
 
     <!-- ── Bottom Nav ──────────────────────────────────── -->
     <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto safe-bottom z-50"
-         style="background:#fff;border-top:1px solid #E2DFD8;">
+         style="background:#F0F2F6;border-top:1px solid #C8CDD8;">
       <div class="flex items-stretch">
 
         <!-- 工具 -->
@@ -138,6 +130,7 @@
   <!-- ── Modules ─────────────────────────────────────────── -->
   <script src="js/tools-calc.js"></script>
   <script src="js/tools-score.js"></script>
+  <script src="js/staging.js"></script>
   <script src="js/ui-icd.js"></script>
   <script src="js/ui-constraints.js"></script>
   <script src="js/app.js"></script>

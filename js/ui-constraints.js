@@ -21,7 +21,7 @@ const UIConstraints = (() => {
   const TECHS = ['All','Conventional','SBRT_1fx','SBRT_3fx','SBRT_5fx'];
   const SOURCES = ['All','RTOG','QUANTEC','TG-101','Custom'];
   const TECH_LABELS = { All:'全部', Conventional:'Conventional', SBRT_1fx:'SBRT 1fx', SBRT_3fx:'SBRT 3fx', SBRT_5fx:'SBRT 5fx' };
-  const SOURCE_COLORS = { RTOG:'bg-blue-100 text-blue-700', QUANTEC:'bg-green-100 text-green-700', 'TG-101':'bg-purple-100 text-purple-700', Custom:'bg-gray-100 text-gray-700' };
+  const SOURCE_COLORS = { RTOG:'bg-blue-100 text-blue-700', QUANTEC:'bg-green-100 text-green-700', 'TG-101':'bg-purple-100 text-purple-700', Custom:' text-gray-700' };
 
   function getAllData() {
     const overrides = getOverrides();
@@ -41,7 +41,7 @@ const UIConstraints = (() => {
       <div class="relative mb-3">
         <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
         <input type="text" id="con-search" placeholder="搜尋器官、參數..." value="${query}"
-          class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-300 bg-white"
+          class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-300 "
           oninput="ConSearch(this.value)">
       </div>
 
@@ -49,7 +49,7 @@ const UIConstraints = (() => {
       <div class="flex gap-1.5 overflow-x-auto pb-1 mb-2" style="-webkit-overflow-scrolling:touch">
         ${TECHS.map(t => `
           <button onclick="ConTech('${t}')" data-tech="${t}"
-            class="con-tech-btn flex-shrink-0 text-xs px-3 py-1.5 rounded-full border transition-colors ${t===techFilter?'border-gray-800 text-white" style="background:#222220;':'bg-white text-gray-600 border-gray-200'}">
+            class="con-tech-btn flex-shrink-0 text-xs px-3 py-1.5 rounded-full border transition-colors ${t===techFilter?'border-gray-800 text-white" style="background:#222220;':' text-gray-600 border-gray-200'}">
             ${TECH_LABELS[t]}
           </button>`).join('')}
       </div>
@@ -58,7 +58,7 @@ const UIConstraints = (() => {
       <div class="flex gap-1.5 overflow-x-auto pb-2 mb-3" style="-webkit-overflow-scrolling:touch">
         ${SOURCES.map(s => `
           <button onclick="ConSource('${s}')" data-source="${s}"
-            class="con-src-btn flex-shrink-0 text-xs px-3 py-1.5 rounded-full border transition-colors ${s===sourceFilter?'bg-gray-700 text-white border-gray-700':'bg-white text-gray-600 border-gray-200'}">
+            class="con-src-btn flex-shrink-0 text-xs px-3 py-1.5 rounded-full border transition-colors ${s===sourceFilter?'bg-gray-700 text-white border-gray-700':' text-gray-600 border-gray-200'}">
             ${s}
           </button>`).join('')}
       </div>
@@ -112,10 +112,10 @@ const UIConstraints = (() => {
     const displayVal = override ? override.val : d.limit;
     const displayUnit = override ? (override.unit || d.unit) : d.unit;
     const techLabel = TECH_LABELS[d.tech] || d.tech;
-    const srcColor = SOURCE_COLORS[d.isCustom ? 'Custom' : d.source] || 'bg-gray-100 text-gray-600';
+    const srcColor = SOURCE_COLORS[d.isCustom ? 'Custom' : d.source] || ' text-gray-600';
 
     return `
-    <div class="bg-white rounded-xl shadow-sm mb-2 px-4 py-3">
+    <div class=" rounded-xl  mb-2 px-4 py-3">
       <div class="flex items-start justify-between gap-2">
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 flex-wrap mb-1">
@@ -156,9 +156,9 @@ const UIConstraints = (() => {
     techFilter = t;
     document.querySelectorAll('.con-tech-btn').forEach(b => {
       const active = b.dataset.tech === t;
-      b.className = b.className.replace(/border-gray-800 text-white" style="background:#222220;|bg-white text-gray-600 border-gray-200/g,'');
+      b.className = b.className.replace(/border-gray-800 text-white" style="background:#222220;| text-gray-600 border-gray-200/g,'');
       if(active) b.classList.add('','text-white','border-gray-500');
-      else b.classList.add('bg-white','text-gray-600','border-gray-200');
+      else b.classList.add('','text-gray-600','border-gray-200');
     });
     refreshResults();
   };
@@ -167,9 +167,9 @@ const UIConstraints = (() => {
     sourceFilter = s;
     document.querySelectorAll('.con-src-btn').forEach(b => {
       const active = b.dataset.source === s;
-      b.className = b.className.replace(/bg-gray-700 text-white border-gray-700|bg-white text-gray-600 border-gray-200/g,'');
+      b.className = b.className.replace(/bg-gray-700 text-white border-gray-700| text-gray-600 border-gray-200/g,'');
       if(active) b.classList.add('bg-gray-700','text-white','border-gray-700');
-      else b.classList.add('bg-white','text-gray-600','border-gray-200');
+      else b.classList.add('','text-gray-600','border-gray-200');
     });
     refreshResults();
   };
@@ -197,7 +197,7 @@ const UIConstraints = (() => {
     if(!modal) return;
     modal.innerHTML = `
     <div class="fixed inset-0 bg-black/50 z-50 flex items-end justify-center" onclick="if(event.target===this)ConCloseModal()">
-      <div class="bg-white rounded-t-2xl w-full max-w-md p-5 max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+      <div class=" rounded-t-2xl w-full max-w-md p-5 max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
         <div class="flex items-center justify-between mb-4">
           <h3 class="font-bold">${isCustom?'編輯自訂':'覆蓋內建'}條目</h3>
           <button onclick="ConCloseModal()" class="text-gray-400 hover:text-gray-600 text-xl">✕</button>
@@ -218,13 +218,13 @@ const UIConstraints = (() => {
             <div class="text-xs text-gray-500">覆蓋值（空白則移除覆蓋）</div>
             ${mInput('新限制值','edit-val', ov.val||d.limit,'number')}
             ${mInput('新單位（可留空）','edit-unit', ov.unit||d.unit)}
-            <div class="bg-gray-50 rounded-lg p-3 text-xs text-gray-500">
+            <div class=" rounded-lg p-3 text-xs text-gray-500">
               原始值：${d.limit} ${d.unit}（${d.source}）
             </div>
           </div>
           <div class="flex gap-2 mt-4">
             <button onclick="ConSaveOverride('${id}')" class="flex-1  text-white rounded-xl py-3 font-medium transition-colors">儲存覆蓋</button>
-            <button onclick="ConRemoveOverride('${id}')" class="flex-1 bg-gray-100 text-gray-600 rounded-xl py-3 font-medium hover:bg-gray-200 transition-colors">移除覆蓋</button>
+            <button onclick="ConRemoveOverride('${id}')" class="flex-1  text-gray-600 rounded-xl py-3 font-medium hover:bg-gray-200 transition-colors">移除覆蓋</button>
           </div>
         `}
       </div>
@@ -236,7 +236,7 @@ const UIConstraints = (() => {
     if(!modal) return;
     modal.innerHTML = `
     <div class="fixed inset-0 bg-black/50 z-50 flex items-end justify-center" onclick="if(event.target===this)ConCloseModal()">
-      <div class="bg-white rounded-t-2xl w-full max-w-md p-5 max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+      <div class=" rounded-t-2xl w-full max-w-md p-5 max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
         <div class="flex items-center justify-between mb-4">
           <h3 class="font-bold">新增自訂條目</h3>
           <button onclick="ConCloseModal()" class="text-gray-400 hover:text-gray-600 text-xl">✕</button>
@@ -260,7 +260,7 @@ const UIConstraints = (() => {
   }
   function mSelect(label, id, current, opts) {
     const options = opts.map(o => `<option value="${o}" ${o===current?'selected':''}>${o}</option>`).join('');
-    return `<div><label class="text-xs text-gray-500 mb-1 block">${label}</label><select id="${id}" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300 bg-white">${options}</select></div>`;
+    return `<div><label class="text-xs text-gray-500 mb-1 block">${label}</label><select id="${id}" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300 ">${options}</select></div>`;
   }
 
   window.ConCloseModal = function() {

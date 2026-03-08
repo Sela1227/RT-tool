@@ -1,3 +1,18 @@
+### V1.3 — Phase 4：AJCC 9th 分期工具
+
+**新增功能**
+
+**腫瘤分期（AJCC 9th Edition 2024）**
+- Lung：T1a–T4 / N0–N3 / M0–M1c → Stage IA1 ～ IVB
+- Rectum：T1–T4b / N0–N2b / M0–M1c → Stage 0 ～ IVC
+- Prostate：T1–T4 / N0–N1 / M0–M1c + PSA + Grade Group → Stage I ～ IVB
+- HCC：T1a–T4 / N0–N1 / M0–M1 → Stage IA ～ IVB
+- Breast（Anatomic）：T1mi–T4d / N0–N3c / M0–M1 → Stage 0 ～ IV
+- 每個癌種展開卡片，下拉選擇 T/N/M 後一鍵判定
+- 結果顯示分期 + T/N/M 明細 + 備註
+
+---
+
 # 🦎 SELA RadOnc Tools
 
 > 放射腫瘤科臨床工具 by SELA  

@@ -3,7 +3,7 @@
 // ──────────────────────────────────────────────────────────
 
 const App = (() => {
-  const VERSION = 'V1.2.2';
+  const VERSION = 'V1.3';
 
   const DEFAULT_SETTINGS = {
     enabledTools: {
@@ -51,9 +51,9 @@ const App = (() => {
     document.querySelectorAll('.nav-btn').forEach(btn => {
       const p = btn.getAttribute('data-page');
       if(p === state.page) {
-        btn.style.color = '#1A1A1A';
+        btn.style.color = '#2C3A50';
       } else {
-        btn.style.color = '#9E9A93';
+        btn.style.color = '#8A90A0';
       }
     });
   }
@@ -63,7 +63,7 @@ const App = (() => {
     const main = document.getElementById('app-main');
     switch(state.page) {
       case 'tools':       main.innerHTML = renderTools(); break;
-      case 'staging':     main.innerHTML = renderStaging(); break;
+      case 'staging':     main.innerHTML = Staging.render(); break;
       case 'constraints': main.innerHTML = UIConstraints.render(); UIConstraints.bindEvents(); break;
       case 'icd':         main.innerHTML = UIICD.render(); UIICD.bindEvents(); break;
       case 'settings':    main.innerHTML = renderSettings(); bindSettingsEvents(); break;
@@ -75,7 +75,7 @@ const App = (() => {
     const tab = state.toolsTab;
     return `
     <div class="p-4">
-      <div class="flex rounded-xl p-1 mb-4" style="background:#E8E5DF;">
+      <div class="flex rounded-xl p-1 mb-4" style="background:#D8DCE8;">
         <button onclick="App.setToolsTab('calc')" class="flex-1 py-2 rounded-lg text-sm font-medium transition-all ${tab==='calc'?'tab-active':'tab-inactive'}">計算工具</button>
         <button onclick="App.setToolsTab('score')" class="flex-1 py-2 rounded-lg text-sm font-medium transition-all ${tab==='score'?'tab-active':'tab-inactive'}">評分工具</button>
       </div>
@@ -83,17 +83,7 @@ const App = (() => {
     </div>`;
   }
 
-  function renderStaging() {
-    return `
-    <div class="p-4 flex flex-col items-center justify-center" style="min-height:60vh">
-      <div class="text-6xl mb-4">🚧</div>
-      <div class="text-lg font-bold text-gray-700">分期工具</div>
-      <div class="text-sm text-gray-500 mt-2 mono">開發中 — V1.3</div>
-      <div class="mt-6 text-xs text-gray-400 text-center leading-relaxed">
-        AJCC 9th: Lung / Rectum<br>Prostate / HCC / Breast
-      </div>
-    </div>`;
-  }
+  // staging handled by js/staging.js (Staging.render())
 
   function renderSettings() {
     const en = state.settings.enabledTools;
@@ -115,7 +105,7 @@ const App = (() => {
         <span class="text-sm" style="color:#1A1A1A;">${t.label}</span>
         <label class="relative inline-flex items-center cursor-pointer">
           <input type="checkbox" class="sr-only peer tool-toggle" data-key="${t.key}" ${en[t.key]!==false?'checked':''}>
-          <div class="w-10 h-5 rounded-full transition-colors" style="background:#D5D2CC;" 
+          <div class="w-10 h-5 rounded-full transition-colors" style="background:#C0C8D8;" 
                onclick="this.style.background=this.previousElementSibling.checked?'#222220':'#D5D2CC'"
                ></div>
           <div class="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all peer-checked:translate-x-5"></div>
@@ -124,34 +114,34 @@ const App = (() => {
     return `
     <div class="p-4 space-y-4">
       <h2 class="text-lg font-bold">設定</h2>
-      <div class="bg-white rounded-xl p-4" style="border:1px solid #E2DFD8;">
+      <div class="bg-white rounded-xl p-4" style="background:#F0F2F6;border:1px solid #C8CDD8;">
         <div class="section-label mb-3">快速預設</div>
         <div class="flex gap-2">
-          <button onclick="App.applyPreset('all')" class="flex-1 py-2 text-xs rounded-lg font-semibold transition-colors" style="background:#F2F0EC;color:#1A1A1A;">全開</button>
-          <button onclick="App.applyPreset('radonc')" class="flex-1 py-2 text-xs rounded-lg font-semibold transition-colors" style="background:#F2F0EC;color:#1A1A1A;">放腫核心</button>
-          <button onclick="App.applyPreset('minimal')" class="flex-1 py-2 text-xs rounded-lg font-semibold transition-colors" style="background:#F2F0EC;color:#1A1A1A;">精簡</button>
+          <button onclick="App.applyPreset('all')" class="flex-1 py-2 text-xs rounded-lg font-semibold transition-colors" style="background:#DDE2EC;color:#2C3A50;">全開</button>
+          <button onclick="App.applyPreset('radonc')" class="flex-1 py-2 text-xs rounded-lg font-semibold transition-colors" style="background:#DDE2EC;color:#2C3A50;">放腫核心</button>
+          <button onclick="App.applyPreset('minimal')" class="flex-1 py-2 text-xs rounded-lg font-semibold transition-colors" style="background:#DDE2EC;color:#2C3A50;">精簡</button>
         </div>
       </div>
-      <div class="bg-white rounded-xl p-4" style="border:1px solid #E2DFD8;">
+      <div class="bg-white rounded-xl p-4" style="background:#F0F2F6;border:1px solid #C8CDD8;">
         <div class="section-label mb-2">計算工具</div>
         ${calcTools.map(toggle).join('')}
       </div>
-      <div class="bg-white rounded-xl p-4" style="border:1px solid #E2DFD8;">
+      <div class="bg-white rounded-xl p-4" style="background:#F0F2F6;border:1px solid #C8CDD8;">
         <div class="section-label mb-2">評分工具</div>
         ${scoreTools.map(toggle).join('')}
       </div>
-      <div class="bg-white rounded-xl p-4" style="border:1px solid #E2DFD8;">
+      <div class="bg-white rounded-xl p-4" style="background:#F0F2F6;border:1px solid #C8CDD8;">
         <div class="section-label mb-3">資料管理</div>
         <div class="flex gap-2">
-          <button onclick="App.exportData()" class="flex-1 py-2 text-xs rounded-lg font-semibold" style="background:#F2F0EC;color:#1A1A1A;">匯出 JSON</button>
-          <button onclick="App.importData()" class="flex-1 py-2 text-xs rounded-lg font-semibold" style="background:#F2F0EC;color:#1A1A1A;">匯入 JSON</button>
+          <button onclick="App.exportData()" class="flex-1 py-2 text-xs rounded-lg font-semibold" style="background:#DDE2EC;color:#2C3A50;">匯出 JSON</button>
+          <button onclick="App.importData()" class="flex-1 py-2 text-xs rounded-lg font-semibold" style="background:#DDE2EC;color:#2C3A50;">匯入 JSON</button>
         </div>
         <input type="file" id="import-file" accept=".json" class="hidden" onchange="App.handleImport(event)">
       </div>
-      <div class="rounded-xl p-4 text-xs leading-relaxed" style="background:#ECEAE5;color:#5A5750;">
+      <div class="rounded-xl p-4 text-xs leading-relaxed" style="background:#DDE2EC;color:#4A5568;">
         本工具僅供臨床參考，所有醫療決策請依據最新指引及臨床判斷。計算結果不能取代專業醫療意見。劑量限制數據以原始文獻為準，使用前請核對最新版本。
       </div>
-      <div class="text-center text-xs mono pb-2" style="color:#B5B2AB;">SELA RadOnc ${VERSION}</div>
+      <div class="text-center text-xs mono pb-2" style="color:#9AA0AA;">SELA RadOnc ${VERSION}</div>
     </div>`;
   }
 
