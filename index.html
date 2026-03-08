@@ -306,6 +306,21 @@
     .rr-val { font-family: 'DM Mono', monospace; font-size: 18px; font-weight: 400; color: var(--primary); }
 
 
+
+    /* ── TOOL TABS ─────────────────────────── */
+    .tab-bar {
+      display: flex; gap: 0;
+      background: var(--subtle); border-radius: 12px; padding: 3px;
+      margin-bottom: 14px;
+    }
+    .tab-btn {
+      flex: 1; padding: 8px 6px; border: none; border-radius: 9px;
+      background: transparent; font-size: 13px; font-weight: 500;
+      color: var(--text2); cursor: pointer; transition: all 0.18s;
+      font-family: 'Noto Sans TC', sans-serif;
+    }
+    .tab-btn.on { background: var(--surface); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+
     /* ── ICD CARD ──────────────────────────── */
     .icd-card {
       background:var(--surface);border-radius:12px;padding:13px 14px;
@@ -384,7 +399,14 @@
 
       <!-- Tool list -->
       <div id="tlist" class="tlist">
-        <div class="sh">計算工具</div>
+        <!-- Tab bar -->
+        <div class="tab-bar" id="tool-tab-bar">
+          <button class="tab-btn on" data-tab="calc" onclick="switchToolTab(this)">計算工具</button>
+          <button class="tab-btn" data-tab="scores" onclick="switchToolTab(this)">評分工具</button>
+        </div>
+
+        <!-- 計算工具 tab -->
+        <div id="tool-tab-calc">
         <div class="tgrid">
           <div class="tc" onclick="showTool('bed')">
             <div class="ti" style="background:#E8F4F7;"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#4A90A4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12"/><path d="M17.66 12c0-3.13-2.53-5.66-5.66-5.66S6.34 8.87 6.34 12"/><circle cx="12" cy="12" r="2"/></svg></div>
@@ -476,7 +498,11 @@
           </div>
         </div>
 
-        <div class="sh">評分工具</div>
+        </div><!-- end calc tgrid -->
+        </div><!-- end tool-tab-calc -->
+
+        <!-- 評分工具 tab -->
+        <div id="tool-tab-scores" style="display:none;">
         <div class="tgrid">
           <div class="tc" onclick="showTool('gpa')">
             <div class="ti" style="background:#F3F0FA;"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#9B8EC4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2a4.5 4.5 0 014 2.5A4 4 0 0118 8.5c0 .5-.1 1-.3 1.5A4.5 4.5 0 0117 19H7a4.5 4.5 0 01-.7-8.95A4 4 0 016 8.5a4 4 0 014.5-4A4.5 4.5 0 019.5 2z"/></svg></div>
@@ -518,8 +544,9 @@
               <span class="tc-tag" style="background:#EAF5F1;color:var(--success);">PS</span>
             </div>
           </div>
-        </div>
-      </div>
+        </div><!-- end scores tgrid -->
+        </div><!-- end tool-tab-scores -->
+      </div><!-- end tlist -->
 
       <!-- ═══ BED / EQD2 TOOL ═══ -->
       <div class="tv" id="tv-bed">
@@ -1441,7 +1468,7 @@
     <!-- ════════ CONSTRAINTS PAGE ════════ -->
     <div class="pg" id="pg-constraints">
       <!-- Filter bar sticky -->
-      <div style="position:sticky;top:58px;z-index:50;background:var(--base);padding:12px 0 8px;">
+      <div style="position:sticky;top:58px;z-index:50;background:var(--base);padding:6px 0 0;">
         <div style="position:relative;margin-bottom:8px;">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--text2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           <input id="con-search" class="ifield" type="text" placeholder="搜尋器官名稱…" style="padding-left:42px;width:100%;" oninput="renderConstraints()">
@@ -1502,14 +1529,14 @@
     <!-- ════════ ICD PAGE ════════ -->
     <div class="pg" id="pg-icd">
       <!-- Search bar -->
-      <div style="position:sticky;top:58px;z-index:50;background:var(--base);padding:12px 0 8px;">
+      <div style="position:sticky;top:58px;z-index:50;background:var(--base);padding:6px 0 0;">
         <div style="position:relative;">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--text2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           <input id="icd-search" class="ifield" type="text" placeholder="搜尋代碼或診斷名稱…" style="padding-left:42px;width:100%;" oninput="renderICD()">
         </div>
       </div>
       <!-- Category pills -->
-      <div id="icd-cats" style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px;">
+      <div id="icd-cats" style="display:flex;gap:7px;flex-wrap:wrap;margin:6px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--subtle);">
         <div class="pill on" data-cat="all" onclick="selICDCat(this)">全部</div>
       </div>
       <!-- Results -->
@@ -1628,7 +1655,7 @@
 // ─────────────────────────────────────────────
 //  APP STATE
 // ─────────────────────────────────────────────
-const VERSION = '1.2';
+const VERSION = '1.2.1';
 const APP_KEY = 'sela_settings_v1';
 
 const PAGE_LABELS = { tools:'計算工具', staging:'AJCC 分期', constraints:'劑量限制', icd:'ICD-10', settings:'設定' };
@@ -2036,6 +2063,14 @@ function applyPreset(type, el) {
 // ─────────────────────────────────────────────
 //  GENERIC RESET HELPER
 // ─────────────────────────────────────────────
+function switchToolTab(el) {
+  document.querySelectorAll('#tool-tab-bar .tab-btn').forEach(b => b.classList.remove('on'));
+  el.classList.add('on');
+  const tab = el.dataset.tab;
+  document.getElementById('tool-tab-calc').style.display   = tab === 'calc'   ? '' : 'none';
+  document.getElementById('tool-tab-scores').style.display = tab === 'scores' ? '' : 'none';
+}
+
 function resetTool(resultId, ...inputIds) {
   document.getElementById(resultId).classList.add('hidden');
   inputIds.forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
