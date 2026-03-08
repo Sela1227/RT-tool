@@ -3,12 +3,13 @@
 // ──────────────────────────────────────────────────────────
 
 const App = (() => {
-  const VERSION = 'V1.3.2';
+  const VERSION = 'V1.4';
 
   const DEFAULT_SETTINGS = {
     enabledTools: {
       // RT
       bed:true, treatmentgap:true, hypofrac:true,
+      electron:true, 'mu-calc':true, 'ssd-corr':true, isl:true, hvl:true,
       // Calc
       childpugh:true, roach:true, albi:true, meld:true,
       calvert:true, cockcroftgault:true, bsa:true, cisplatin:true,
@@ -60,9 +61,8 @@ const App = (() => {
 
   // Quick-jump index for long tool lists
   function quickJump(items) {
-    // items: [{id, label}]
     return `<div class="flex flex-wrap gap-1.5 mb-3">${
-      items.map(i => `<button onclick="document.getElementById('${i.id}-body').classList.remove('hidden');document.getElementById('${i.id}-chev').style.transform='rotate(180deg)';document.getElementById('${i.id}-body').scrollIntoView({behavior:'smooth',block:'start'})"
+      items.map(i => `<button onclick="jumpTo('${i.id}')"
         class="text-xs px-2.5 py-1 rounded-full" style="background:var(--acc-bg);color:var(--accent);border:1px solid var(--border);">${i.label}</button>`
       ).join('')
     }</div>`;
@@ -107,6 +107,9 @@ const App = (() => {
     const rtTools = [
       {key:'bed',label:'BED / EQD2'},{key:'treatmentgap',label:'Treatment Gap'},
       {key:'hypofrac',label:'Hypofractionation Converter'},
+      {key:'electron',label:'電子線劑量計算'},{key:'mu-calc',label:'MU 計算（光子線）'},
+      {key:'ssd-corr',label:'SSD 修正（Mayneord）'},{key:'isl',label:'平方反比定律'},
+      {key:'hvl',label:'屏蔽 / HVL 計算'},
     ];
     const calcTools = [
       {key:'childpugh',label:'Child-Pugh + BCLC'},{key:'roach',label:"Roach Formula + D'Amico"},
@@ -245,5 +248,19 @@ const App = (() => {
 
   return { navigate, setToolsTab, applyPreset, exportData, importData, handleImport, getCisplatinDoses, saveCisplatinDoses, init };
 })();
+
+// Global helper: open a card and scroll to it
+window.jumpTo = function(id) {
+  const body = document.getElementById(id+'-body');
+  const chev = document.getElementById(id+'-chev');
+  const card = body?.closest('.card, [id$="-body"]')?.parentElement || body?.parentElement;
+  if (body) { body.classList.remove('hidden'); }
+  if (chev) { chev.style.transform = 'rotate(180deg)'; }
+  // Scroll after DOM settles
+  setTimeout(() => {
+    const target = document.getElementById(id+'-body');
+    if (target) target.parentElement?.scrollIntoView({behavior:'smooth', block:'start'});
+  }, 30);
+};
 
 document.addEventListener('DOMContentLoaded', App.init);

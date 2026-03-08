@@ -481,7 +481,7 @@ const Staging = (() => {
   function render() {
     const jump = `<div class="flex flex-wrap gap-1.5 mb-3">${
       [['lung','肺癌'],['rectum','直腸'],['prostate','前列腺'],['hcc','HCC'],['breast','乳癌']].map(([id,lb]) =>
-        `<button onclick="document.getElementById('${id}-body').classList.remove('hidden');document.getElementById('${id}-chev').style.transform='rotate(180deg)';document.getElementById('${id}-body').scrollIntoView({behavior:'smooth',block:'start'})"
+        `<button onclick="jumpTo('${id}')"
           class="text-xs px-2.5 py-1 rounded-full" style="background:var(--acc-bg);color:var(--accent);border:1px solid var(--border);">${lb}</button>`
       ).join('')
     }</div>`;
