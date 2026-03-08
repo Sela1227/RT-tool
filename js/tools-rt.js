@@ -1,351 +1,269 @@
-// ── ToolsRT — 放療計算工具 (8 tools, all inside IIFE) ─────
+// ── ToolsRT — 放療計算工具 (8 tools) ─────────────────────
+// Depends on utils.js (gel, numVal, U.*, stepAdj, stepClamp, pillSelect, toggleCard)
 const ToolsRT = (() => {
-
-  const v  = id => parseFloat(document.getElementById(id)?.value) || 0;
-  const el = id => document.getElementById(id);
-  const setH = (id, html) => { const e = el(id); if (e) e.outerHTML = html; };
-
-  window.stepAdj = function(id, delta, min, max) {
-    const inp = el(id); if (!inp) return;
-    const val = Math.min(max, Math.max(min, parseFloat(((parseFloat(inp.value)||0)+delta).toFixed(4))));
-    inp.value = val; inp.dispatchEvent(new Event('input'));
-  };
-  window.stepClamp = function(inp, min, max) {
-    const val = parseFloat(inp.value);
-    if (!isNaN(val)) inp.value = Math.min(max, Math.max(min, val));
-  };
-  window.pillSelect = function(groupId, btn) {
-    document.querySelectorAll(`[data-group="${groupId}"]`).forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    const h = el(groupId); if (h) h.value = btn.dataset.val;
-  };
-  window.RTToggle = function(id) {
-    const b = el(id+'-body'), c = el(id+'-chev');
-    if (!b) return;
-    const open = !b.classList.contains('hidden');
-    b.classList.toggle('hidden', open);
-    if (c) c.style.transform = open ? '' : 'rotate(180deg)';
-  };
-
-  function stepper(id, label, def, min, max, step, unit='') {
-    return `<div class="mb-3">
-      <div class="text-xs mb-1.5" style="color:var(--t2);">${label}</div>
-      <div class="flex items-center gap-2">
-        <button class="step-btn" onclick="stepAdj('${id}',${-step},${min},${max})">−</button>
-        <input type="number" id="${id}" value="${def}" min="${min}" max="${max}" step="${step}"
-          class="inp text-center mono flex-1" style="font-size:15px;" oninput="stepClamp(this,${min},${max})">
-        <button class="step-btn" onclick="stepAdj('${id}',${step},${min},${max})">+</button>
-        ${unit?`<span class="text-xs mono" style="color:var(--t2);min-width:28px;">${unit}</span>`:''}
-      </div>
-    </div>`;
-  }
-
-  function pills(id, label, opts, def) {
-    return `<div class="mb-3">
-      <div class="text-xs mb-1.5" style="color:var(--t2);">${label}</div>
-      <div class="flex flex-wrap gap-1.5">
-        ${opts.map(([val,txt])=>`<button class="pill-opt${val==def?' active':''}" data-val="${val}" data-group="${id}" onclick="pillSelect('${id}',this)">${txt}</button>`).join('')}
-      </div>
-      <input type="hidden" id="${id}" value="${def}">
-    </div>`;
-  }
-
-  function cardWrap(id, icon, title, body) {
-    return `<div class="card mb-3 overflow-hidden">
-      <button onclick="RTToggle('${id}')" class="w-full px-4 py-3 flex items-center justify-between text-left">
-        <div class="flex items-center gap-2.5">
-          <span class="flex-shrink-0 w-5 h-5 flex items-center justify-center" style="color:var(--t2);">${icon}</span>
-          <span class="font-medium text-sm" style="color:var(--t1);">${title}</span>
-        </div>
-        <svg id="${id}-chev" class="w-4 h-4 flex-shrink-0" style="color:var(--t3);transition:transform .2s" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-        </svg>
-      </button>
-      <div id="${id}-body" class="hidden px-4 pb-4">${body}</div>
-    </div>`;
-  }
 
   // ─── 1. BED / EQD2 ───────────────────────────────────────
   function renderBED() {
-    return cardWrap('bed',
+    const body = `
+      <div class="text-xs mb-3" style="color:var(--t3);">一組方案自動顯示三種組織的 BED 與 EQD2</div>
+      ${U.stepper('bed-dpf','每次劑量 (Dose/fx)',2,0.5,20,0.5,'Gy')}
+      ${U.stepper('bed-n','分次數 (Fractions)',25,1,60,1,'fx')}
+      ${U.pills('bed-ab','α/β ratio',[['10','α/β=10'],['3','α/β=3'],['1.5','α/β=1.5'],['custom','自訂']],10)}
+      <div id="bed-custom-row" class="hidden">${U.stepper('bed-custom-ab','自訂 α/β',2,0.1,20,0.1)}</div>
+      <div id="bed-result"></div>
+      ${U.calcBtn('calcBED()')}`;
+    return U.cardWrap('bed',
       `<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 14 C3 8 6 4 9 4 C12 4 15 8 16 14"/><line x1="2" y1="14" x2="16" y2="14"/></svg>`,
-      'BED / EQD2',
-      `<div class="text-xs mb-3" style="color:var(--t3);">一組方案自動顯示三種組織的 BED 與 EQD2</div>
-      ${stepper('bed-dpf','每次劑量 (Dose/fx)',2,0.5,20,0.5,'Gy')}
-      ${stepper('bed-n','分次數 (Fractions)',25,1,60,1,'fx')}
-      <button class="calc-btn" onclick="calcBED()">計算</button>
-      <div id="bed-result"></div>`
-    );
+      'BED / EQD2', body);
   }
   window.calcBED = function() {
-    const d=v('bed-dpf'), n=v('bed-n'); if(!d||!n) return;
-    const total=d*n;
-    const rows=[{name:'腫瘤',ab:10,note:'α/β=10'},{name:'晚期反應',ab:3,note:'α/β=3'},{name:'脊髓/神經',ab:1.5,note:'α/β=1.5'}].map(t=>{
-      const bed=total*(1+d/t.ab), eqd2=bed/(1+2/t.ab);
-      return `<tr><td class="py-2 pr-2"><div style="font-weight:500;font-size:13px;color:var(--t1);">${t.name}</div><div style="color:var(--t3);font-size:11px;">${t.note}</div></td>
-        <td class="py-2 text-center mono" style="font-size:16px;font-weight:500;color:var(--t1);">${bed.toFixed(1)}</td>
-        <td class="py-2 text-center mono" style="font-size:16px;font-weight:500;color:var(--accent);">${eqd2.toFixed(1)}</td></tr>`;
+    const dpf = numVal('bed-dpf'), n = numVal('bed-n');
+    const abMode = gel('bed-ab')?.value || '10';
+    let customAB = numVal('bed-custom-ab');
+    // show/hide custom row
+    const cr = gel('bed-custom-row');
+    if (cr) cr.classList.toggle('hidden', abMode !== 'custom');
+    const abList = abMode === 'custom' ? [customAB] : [10, 3, 1.5];
+    const totalD = dpf * n;
+    const rows = abList.map(ab => {
+      const bed = totalD * (1 + dpf/ab);
+      const eqd2 = bed / (1 + 2/ab);
+      return `<tr>
+        <td class="py-1 text-xs" style="color:var(--t2);">α/β = ${ab}</td>
+        <td class="py-1 text-xs text-right mono font-semibold" style="color:var(--t1);">${bed.toFixed(1)} Gy</td>
+        <td class="py-1 text-xs text-right mono font-semibold" style="color:var(--t1);">${eqd2.toFixed(1)} Gy</td>
+      </tr>`;
     }).join('');
-    setH('bed-result',`<div class="result-panel" id="bed-result">
-      <div class="text-xs mb-2" style="color:var(--t2);">方案：<span class="mono">${total.toFixed(1)} Gy / ${n} fx (${d} Gy/fx)</span></div>
-      <table class="w-full" style="border-collapse:collapse;">
-        <thead><tr style="border-bottom:1px solid var(--border);">
-          <th class="pb-2 text-left text-xs" style="color:var(--t3);font-weight:500;">組織</th>
-          <th class="pb-2 text-center text-xs" style="color:var(--t3);font-weight:500;">BED</th>
-          <th class="pb-2 text-center text-xs" style="color:var(--accent);font-weight:500;">EQD2</th>
-        </tr></thead>
-        <tbody>${rows}</tbody>
-      </table></div>`);
+    const html = `<div class="result-panel">
+      <div class="text-xs mb-2" style="color:var(--t3);">Total: ${totalD} Gy / ${n} fx (${dpf} Gy/fx)</div>
+      <table class="w-full"><thead><tr>
+        <th class="text-left text-xs pb-1" style="color:var(--t3);">α/β</th>
+        <th class="text-right text-xs pb-1" style="color:var(--t3);">BED</th>
+        <th class="text-right text-xs pb-1" style="color:var(--t3);">EQD2</th>
+      </tr></thead><tbody>${rows}</tbody></table>
+    </div>`;
+    const e = gel('bed-result'); if (e) e.outerHTML = html;
   };
 
-  // ─── 2. Treatment Gap ────────────────────────────────────
-  function renderTreatmentGap() {
-    return cardWrap('gap',
-      `<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="2" y="4" width="5" height="11" rx="1"/><rect x="11" y="4" width="5" height="11" rx="1"/><line x1="8" y1="9.5" x2="10" y2="9.5" stroke-dasharray="1 1.5"/></svg>`,
-      'Treatment Gap Correction',
-      `${stepper('gap-days','中斷天數',5,1,30,1,'天')}
-      ${pills('gap-site','腫瘤部位',[['hn','頭頸（0.6 Gy/天）'],['other','其他（0.5 Gy/天）']],'hn')}
-      ${stepper('gap-custom','自訂補充劑量/天（0=使用預設）',0,0,2,0.1,'Gy')}
-      <button class="calc-btn" onclick="calcGap()">計算</button>
-      <div id="gap-result"></div>`
-    );
+  // ─── 2. Treatment Gap Correction ─────────────────────────
+  function renderGap() {
+    const body = `
+      ${U.stepper('gap-total','處方總劑量',70,10,120,1,'Gy')}
+      ${U.stepper('gap-days','中斷天數',5,1,30,1,'days')}
+      ${U.pills('gap-site','部位',[['hn','H&N (0.6)'],['other','其他 (0.5)']],'hn')}
+      <div id="gap-custom-row">${U.stepper('gap-custom-rate','每日補償劑量率',0.6,0.1,1.5,0.1,'Gy/day')}</div>
+      <div id="gap-result"></div>
+      ${U.calcBtn('calcGap()')}`;
+    return U.cardWrap('gap',
+      `<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 9h5M11 9h5" stroke-linecap="round"/><path d="M8.5 5v8M9.5 5v8" stroke-linecap="round"/></svg>`,
+      'Treatment Gap Correction', body);
   }
   window.calcGap = function() {
-    const days=v('gap-days'), site=el('gap-site')?.value||'hn', custom=v('gap-custom');
-    const rate=custom>0?custom:(site==='hn'?0.6:0.5);
-    const extra=days*rate;
-    setH('gap-result',`<div class="result-panel" id="gap-result">
-      <div class="sec-label mb-1">補充劑量</div>
-      <div class="flex items-end gap-2"><span class="result-val">${extra.toFixed(1)}</span><span class="text-sm mb-0.5" style="color:var(--t2);">Gy 追加</span></div>
-      <div class="mt-2 text-xs" style="color:var(--t2);">${days} 天 × ${rate} Gy/天</div>
-    </div>`);
+    const total = numVal('gap-total'), days = numVal('gap-days');
+    const site = gel('gap-site')?.value || 'hn';
+    const rate = site === 'hn' ? 0.6 : 0.5;
+    const extra = (rate * days).toFixed(1);
+    const newTotal = (total + parseFloat(extra)).toFixed(1);
+    const html = `<div class="result-panel">
+      <div class="sec-label mb-1">補償劑量</div>
+      <div class="result-val">+${extra} Gy</div>
+      <div class="text-xs mt-1" style="color:var(--t2);">新處方總劑量：${newTotal} Gy（${days} 天 × ${rate} Gy/天）</div>
+    </div>`;
+    const e = gel('gap-result'); if (e) e.outerHTML = html;
   };
 
-  // ─── 3. Hypofractionation ────────────────────────────────
-  function renderHypofrac() {
-    return cardWrap('hypo',
-      `<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,14 5,8 8,11 11,5 14,9 16,4"/><line x1="2" y1="16" x2="16" y2="16"/></svg>`,
-      'Hypofractionation Converter',
-      `<div class="sec-label mb-2">原始方案</div>
-      ${stepper('hypo-dpf1','每次劑量',2,0.5,20,0.5,'Gy')}
-      ${stepper('hypo-n1','分次數',25,1,60,1,'fx')}
-      <div class="sec-label mb-2 mt-1">目標方案</div>
-      ${stepper('hypo-dpf2','每次劑量',3,0.5,20,0.5,'Gy')}
-      ${pills('hypo-ab','α/β',[['10','10（腫瘤）'],['3','3（晚期）'],['1.5','1.5（神經）']],'10')}
-      <button class="calc-btn" onclick="calcHypo()">計算等效分次數</button>
-      <div id="hypo-result"></div>`
-    );
+  // ─── 3. Hypofractionation Converter ──────────────────────
+  function renderHypo() {
+    const body = `
+      <div class="text-xs mb-3" style="color:var(--t3);">輸入原方案，BED 等效換算至任意分次</div>
+      ${U.stepper('hyp-d','原總劑量',60,1,120,1,'Gy')}
+      ${U.stepper('hyp-n','原分次數',30,1,60,1,'fx')}
+      ${U.pills('hyp-ab','α/β',[['10','α/β=10'],['3','α/β=3'],['1.5','α/β=1.5'],['custom','自訂']],10)}
+      <div id="hyp-custom-row" class="hidden">${U.stepper('hyp-custom-ab','自訂 α/β',2,0.1,20,0.1)}</div>
+      ${U.stepper('hyp-new-n','目標分次數',5,1,60,1,'fx')}
+      <div id="hyp-result"></div>
+      ${U.calcBtn('calcHypo()')}`;
+    return U.cardWrap('hypo',
+      `<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 15 L7 5 L11 12 L13 8 L16 15"/></svg>`,
+      'Hypofractionation Converter', body);
   }
   window.calcHypo = function() {
-    const d1=v('hypo-dpf1'), n1=v('hypo-n1'), d2=v('hypo-dpf2');
-    const ab=parseFloat(el('hypo-ab')?.value)||10;
-    if(!d1||!n1||!d2) return;
-    const bed=d1*n1*(1+d1/ab), n2=bed/(d2*(1+d2/ab));
-    setH('hypo-result',`<div class="result-panel" id="hypo-result">
-      <div class="sec-label mb-3">等效結果（α/β=${ab}）</div>
-      <div class="grid grid-cols-2 gap-3">
-        <div style="background:var(--bg);border-radius:10px;padding:12px;">
-          <div class="text-xs mb-1" style="color:var(--t3);">原始</div>
-          <div class="mono" style="font-size:18px;font-weight:500;color:var(--t1);">${(d1*n1).toFixed(0)} Gy</div>
-          <div class="text-xs mt-0.5" style="color:var(--t2);">${n1}fx × ${d1}Gy</div>
-        </div>
-        <div style="background:var(--acc-bg);border-radius:10px;padding:12px;border:1px solid var(--border);">
-          <div class="text-xs mb-1" style="color:var(--t2);">目標</div>
-          <div class="mono" style="font-size:18px;font-weight:500;color:var(--accent);">${(d2*n2).toFixed(1)} Gy</div>
-          <div class="text-xs mt-0.5" style="color:var(--t2);">${n2.toFixed(1)}fx × ${d2}Gy</div>
-        </div>
-      </div>
-      <div class="mt-2 text-xs" style="color:var(--t3);">BED = ${bed.toFixed(1)} Gy</div>
-    </div>`);
+    const d = numVal('hyp-d'), n = numVal('hyp-n'), newN = numVal('hyp-new-n');
+    const abMode = gel('hyp-ab')?.value || '10';
+    const ab = abMode === 'custom' ? numVal('hyp-custom-ab') : parseFloat(abMode);
+    const cr = gel('hyp-custom-row');
+    if (cr) cr.classList.toggle('hidden', abMode !== 'custom');
+    const dpf = d / n;
+    const bed = d * (1 + dpf/ab);
+    const newDpf = (-ab + Math.sqrt(ab*ab + 4*ab*(bed/newN))) / 2;
+    const newTotal = (newDpf * newN).toFixed(2);
+    const html = `<div class="result-panel">
+      <div class="text-xs mb-2" style="color:var(--t3);">BED = ${bed.toFixed(1)} Gy (α/β=${ab})</div>
+      <div class="sec-label mb-1">等效新方案</div>
+      <div class="result-val">${newTotal} Gy</div>
+      <div class="text-xs mt-1" style="color:var(--t2);">${newN} fx × ${newDpf.toFixed(3)} Gy/fx</div>
+    </div>`;
+    const e = gel('hyp-result'); if (e) e.outerHTML = html;
   };
 
-  // ─── 4. Electron Depth Dose ──────────────────────────────
-  const E_DATA = {
-    '4':{r50:1.5,rp:2.0,dmax:0.8},'6':{r50:2.3,rp:3.0,dmax:1.3},
-    '9':{r50:3.5,rp:4.5,dmax:2.0},'12':{r50:4.7,rp:6.0,dmax:2.5},
-    '15':{r50:5.9,rp:7.5,dmax:2.5},'18':{r50:7.1,rp:9.0,dmax:2.0},'20':{r50:7.9,rp:10.0,dmax:2.0}
-  };
+  // ─── 4. Electron Dose ────────────────────────────────────
   function renderElectron() {
-    return cardWrap('electron',
-      `<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="9" cy="9" r="2"/><path d="M9 2v2M9 14v2M2 9h2M14 9h2M4.22 4.22l1.42 1.42M12.36 12.36l1.42 1.42M4.22 13.78l1.42-1.42M12.36 5.64l1.42-1.42"/></svg>`,
-      '電子線劑量計算',
-      `<div class="text-xs mb-3" style="color:var(--t3);">IAEA TRS-398 近似值 — 臨床請依實機測量</div>
-      ${pills('el-energy','能量',[['4','4MeV'],['6','6MeV'],['9','9MeV'],['12','12MeV'],['15','15MeV'],['18','18MeV'],['20','20MeV']],'9')}
-      ${stepper('el-depth','查詢深度',2.0,0,15,0.5,'cm')}
-      ${stepper('el-mu','Monitor Units',100,1,999,1,'MU')}
-      ${stepper('el-of','Output Factor (cGy/MU)',1.00,0.5,1.5,0.01,'')}
-      <button class="calc-btn" onclick="calcElectron()">計算</button>
-      <div id="el-result"></div>`
-    );
+    const body = `
+      ${U.stepper('el-energy','電子線能量',9,4,20,1,'MeV')}
+      ${U.stepper('el-dose','處方劑量',50,1,80,1,'Gy')}
+      ${U.stepper('el-ssd','治療 SSD',100,80,120,1,'cm')}
+      <div id="el-result"></div>
+      ${U.calcBtn('calcElectron()')}`;
+    return U.cardWrap('electron',
+      `<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="9" r="2.5"/><path d="M9 2v3M9 13v3M2 9h3M13 9h3" stroke-linecap="round"/><path d="M4.2 4.2l2.1 2.1M11.7 11.7l2.1 2.1M4.2 13.8l2.1-2.1M11.7 6.3l2.1-2.1" stroke-linecap="round"/></svg>`,
+      '電子線劑量計算', body);
   }
   window.calcElectron = function() {
-    const en=el('el-energy')?.value||'9', d=v('el-depth'), mu=v('el-mu'), of=v('el-of');
-    const ep=E_DATA[en]; if(!ep) return;
-    let pdd;
-    if(d<=ep.dmax)     pdd=100*(1-0.03*(ep.dmax-d));
-    else if(d<=ep.r50) pdd=100*Math.exp(-0.693*(d-ep.dmax)/(ep.r50-ep.dmax));
-    else if(d<=ep.rp)  pdd=100*Math.max(0,(ep.rp-d)/(ep.rp-ep.r50)*50);
-    else               pdd=0;
-    pdd=Math.min(100,Math.max(0,pdd));
-    const dose=(mu*of*pdd/100).toFixed(1), rx=(mu*of).toFixed(1);
-    const bar=p=>`<div style="height:6px;border-radius:3px;background:var(--border);overflow:hidden;margin-top:4px;"><div style="width:${Math.round(p)}%;height:100%;background:var(--accent);border-radius:3px;"></div></div>`;
-    setH('el-result',`<div class="result-panel" id="el-result">
-      <div class="grid grid-cols-2 gap-3 mb-3">
-        <div style="background:var(--bg);border-radius:10px;padding:12px;">
-          <div class="text-xs mb-0.5" style="color:var(--t3);">PDD at ${d} cm</div>
-          <div class="mono font-bold" style="font-size:20px;color:var(--t1);">${pdd.toFixed(1)}%</div>${bar(pdd)}
-        </div>
-        <div style="background:var(--acc-bg);border-radius:10px;padding:12px;border:1px solid var(--border);">
-          <div class="text-xs mb-0.5" style="color:var(--t2);">劑量 (cGy)</div>
-          <div class="mono font-bold" style="font-size:20px;color:var(--accent);">${dose}</div>
-          <div class="text-xs mt-1" style="color:var(--t3);">Dmax: ${rx} cGy</div>
-        </div>
+    const E = numVal('el-energy'), dose = numVal('el-dose'), ssd = numVal('el-ssd');
+    const r50  = (E / 3.3).toFixed(1);
+    const rp   = (E / 2.0).toFixed(1);
+    const d100 = (E / 4.0).toFixed(1);
+    const d90  = (E / 4.5).toFixed(1);
+    const d80  = (E / 5.0).toFixed(1);
+    const ssdFactor = (100/ssd) * (100/ssd);
+    const muPer100 = (ssdFactor * 100).toFixed(0);
+    const html = `<div class="result-panel">
+      <div class="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+        <div style="color:var(--t2);">R₅₀ (50% isodose depth)</div><div class="mono text-right">${r50} cm</div>
+        <div style="color:var(--t2);">Rₚ (practical range)</div><div class="mono text-right">${rp} cm</div>
+        <div style="color:var(--t2);">D₁₀₀ (Dmax depth)</div><div class="mono text-right">${d100} cm</div>
+        <div style="color:var(--t2);">D₉₀ depth</div><div class="mono text-right">${d90} cm</div>
+        <div style="color:var(--t2);">D₈₀ depth</div><div class="mono text-right">${d80} cm</div>
+        <div style="color:var(--t2);">SSD factor (${ssd} cm)</div><div class="mono text-right">${ssdFactor.toFixed(4)}</div>
       </div>
-      <div class="text-xs" style="color:var(--t2);">${en} MeV — Dmax <span class="mono">${ep.dmax}</span> · R₅₀ <span class="mono">${ep.r50}</span> · Rp <span class="mono">${ep.rp}</span> cm · 治療深度目標 ≈ <span class="mono">${(parseInt(en)/4).toFixed(1)}</span> cm</div>
-    </div>`);
+      <div class="mt-2 pt-2 text-xs" style="border-top:1px solid var(--border);color:var(--t3);">公式依據：E(MeV) 近似法，僅供參考</div>
+    </div>`;
+    const e = gel('el-result'); if (e) e.outerHTML = html;
   };
 
-  // ─── 5. MU Calculator ────────────────────────────────────
+  // ─── 5. MU Calculation ───────────────────────────────────
   function renderMU() {
-    return cardWrap('mu-calc',
-      `<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="14" height="9" rx="1.5"/><line x1="6" y1="5" x2="6" y2="2"/><line x1="12" y1="5" x2="12" y2="2"/><line x1="6" y1="10" x2="12" y2="10"/><line x1="9" y1="7.5" x2="9" y2="12.5"/></svg>`,
-      'MU 計算（光子線）',
-      `<div class="text-xs mb-3" style="color:var(--t3);">Dose ÷ (PDD × OF × Sc × Wedge × Tray × DR)</div>
-      ${stepper('mu-dose','處方劑量',200,1,5000,10,'cGy')}
-      ${stepper('mu-pdd','PDD / TMR (%)',90,10,110,0.5,'%')}
-      ${stepper('mu-of','Field Output Factor',1.00,0.7,1.2,0.01,'')}
-      ${stepper('mu-sc','Sc（Collimator Scatter）',1.00,0.8,1.2,0.01,'')}
-      ${stepper('mu-wedge','Wedge Factor',1.00,0.1,1.0,0.01,'')}
-      ${stepper('mu-tray','Tray Factor',1.00,0.8,1.0,0.01,'')}
-      ${stepper('mu-dr','Dose Rate',1.00,0.5,1.5,0.01,'cGy/MU')}
-      <button class="calc-btn" onclick="calcMU()">計算 MU</button>
-      <div id="mu-result"></div>`
-    );
+    const body = `
+      ${U.stepper('mu-dose','處方劑量',200,10,1000,1,'cGy')}
+      ${U.stepper('mu-of','Output Factor',1.000,0.500,1.500,0.001)}
+      ${U.stepper('mu-sc','Sc (頭散射)',1.000,0.900,1.100,0.001)}
+      ${U.stepper('mu-sp','Sp (體模散射)',1.000,0.900,1.100,0.001)}
+      ${U.stepper('mu-pdd','PDD (%)',95.0,50,105,0.1,'%')}
+      ${U.stepper('mu-isf','ISL 因子',1.000,0.500,2.000,0.001)}
+      ${U.stepper('mu-cf','其他修正係數',1.000,0.500,2.000,0.001)}
+      <div id="mu-result"></div>
+      ${U.calcBtn('calcMU()')}`;
+    return U.cardWrap('mu-calc',
+      `<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="2" y="3" width="14" height="12" rx="2"/><path d="M6 9h6M9 6v6"/></svg>`,
+      'MU 計算（光子線）', body);
   }
   window.calcMU = function() {
-    const dose=v('mu-dose'), pdd=v('mu-pdd')/100, of=v('mu-of');
-    const sc=v('mu-sc'), wedge=v('mu-wedge'), tray=v('mu-tray'), dr=v('mu-dr');
-    if(!dose||!pdd||!dr) return;
-    const comp=pdd*of*sc*wedge*tray*dr, mu=comp>0?dose/comp:0;
-    setH('mu-result',`<div class="result-panel" id="mu-result">
-      <div class="flex items-end gap-2 mb-3">
-        <span class="mono font-bold" style="font-size:32px;color:var(--t1);">${Math.round(mu)}</span>
-        <span class="text-sm mb-1" style="color:var(--t2);">MU</span>
-      </div>
-      <div class="grid grid-cols-2 gap-x-4 gap-y-1 text-xs" style="color:var(--t2);">
-        <div>處方: <span class="mono">${dose} cGy</span></div>
-        <div>Composite: <span class="mono">${comp.toFixed(4)}</span></div>
-        <div>PDD/TMR: <span class="mono">${(pdd*100).toFixed(1)}%</span></div>
-        <div>Wedge×Tray: <span class="mono">${(wedge*tray).toFixed(3)}</span></div>
-      </div>
-    </div>`);
+    const dose = numVal('mu-dose'), of = numVal('mu-of'), sc = numVal('mu-sc');
+    const sp = numVal('mu-sp'), pdd = numVal('mu-pdd'), isf = numVal('mu-isf'), cf = numVal('mu-cf');
+    const mu = dose / (of * sc * sp * (pdd/100) * isf * cf);
+    const html = `<div class="result-panel">
+      <div class="sec-label mb-1">Monitor Units</div>
+      <div class="result-val">${mu.toFixed(1)} MU</div>
+      <div class="text-xs mt-1" style="color:var(--t2);">= ${dose} / (${of}×${sc}×${sp}×${(pdd/100).toFixed(3)}×${isf}×${cf})</div>
+    </div>`;
+    const e = gel('mu-result'); if (e) e.outerHTML = html;
   };
 
   // ─── 6. SSD Correction ───────────────────────────────────
   function renderSSD() {
-    return cardWrap('ssd-corr',
-      `<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="9" y1="2" x2="9" y2="16" stroke-dasharray="2 1.5"/><path d="M5 5 L9 2 L13 5"/><path d="M5 13 L9 16 L13 13"/><circle cx="9" cy="9" r="1.5"/></svg>`,
-      'SSD 修正（Mayneord F-factor）',
-      `<div class="text-xs mb-3" style="color:var(--t3);">修正不同 SSD 下的 PDD</div>
-      ${stepper('ssd-ref','參考 SSD',100,50,200,5,'cm')}
-      ${stepper('ssd-new','實際 SSD',110,50,200,5,'cm')}
-      ${stepper('ssd-depth','深度 d',10,1,30,0.5,'cm')}
-      ${stepper('ssd-dmax','Dmax 深度',1.5,0.3,5,0.1,'cm')}
-      <button class="calc-btn" onclick="calcSSD()">計算 F-factor</button>
-      <div id="ssd-result"></div>`
-    );
+    const body = `
+      ${U.stepper('ssd-cal','校正 SSD (SAD)',100,80,150,1,'cm')}
+      ${U.stepper('ssd-treat','治療 SSD',110,80,150,1,'cm')}
+      ${U.stepper('ssd-dose','原處方劑量',200,1,1000,1,'cGy')}
+      <div id="ssd-result"></div>
+      ${U.calcBtn('calcSSD()')}`;
+    return U.cardWrap('ssd-corr',
+      `<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M9 2 L9 16"/><path d="M4 6 L14 6"/><path d="M2 12 L16 12"/></svg>`,
+      'SSD 修正（Mayneord）', body);
   }
   window.calcSSD = function() {
-    const f1=v('ssd-ref'), f2=v('ssd-new'), d=v('ssd-depth'), dm=v('ssd-dmax');
-    if(!f1||!f2||!d) return;
-    const F=Math.pow((f2+dm)/(f1+dm),2)*Math.pow((f1+d)/(f2+d),2);
-    setH('ssd-result',`<div class="result-panel" id="ssd-result">
-      <div class="sec-label mb-1">Mayneord F-factor</div>
-      <div class="flex items-end gap-2 mb-2"><span class="mono font-bold" style="font-size:28px;color:var(--t1);">${F.toFixed(4)}</span></div>
-      <div class="text-xs" style="color:var(--t2);">${F>1?'實際 SSD 較長 → PDD 提高':'實際 SSD 較短 → PDD 降低'}</div>
-      <div class="text-xs mt-1" style="color:var(--t3);">PDD(${f2}cm) ≈ PDD(${f1}cm) × ${F.toFixed(3)}</div>
-    </div>`);
+    const ssdCal = numVal('ssd-cal'), ssdTreat = numVal('ssd-treat'), dose = numVal('ssd-dose');
+    const f = ((ssdTreat / ssdCal) ** 2);
+    const corrDose = (dose * f).toFixed(1);
+    const html = `<div class="result-panel">
+      <div class="sec-label mb-1">修正後劑量</div>
+      <div class="result-val">${corrDose} cGy</div>
+      <div class="text-xs mt-1" style="color:var(--t2);">Mayneord factor: ${f.toFixed(4)}（${ssdTreat}/${ssdCal}）²</div>
+    </div>`;
+    const e = gel('ssd-result'); if (e) e.outerHTML = html;
   };
 
-  // ─── 7. Inverse Square Law ───────────────────────────────
+  // ─── 7. ISL ──────────────────────────────────────────────
   function renderISL() {
-    return cardWrap('isl',
-      `<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M9 3 L15 15"/><path d="M9 3 L3 15"/><line x1="3" y1="15" x2="15" y2="15"/><circle cx="9" cy="3" r="1" fill="currentColor"/></svg>`,
-      '平方反比定律（ISL）',
-      `${stepper('isl-d1','已知距離 d₁',100,1,500,5,'cm')}
-      ${stepper('isl-dose1','d₁ 的劑量率',100,1,9999,10,'cGy/min')}
-      ${stepper('isl-d2','求 d₂',150,1,500,5,'cm')}
-      <button class="calc-btn" onclick="calcISL()">計算</button>
-      <div id="isl-result"></div>`
-    );
+    const body = `
+      ${U.stepper('isl-d1','已知距離 d₁',100,1,500,1,'cm')}
+      ${U.stepper('isl-i1','已知劑量率 I₁',200,1,10000,1,'cGy/min')}
+      ${U.stepper('isl-d2','目標距離 d₂',120,1,500,1,'cm')}
+      <div id="isl-result"></div>
+      ${U.calcBtn('calcISL()')}`;
+    return U.cardWrap('isl',
+      `<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="4" cy="9" r="2"/><path d="M6 9 L12 9" stroke-linecap="round"/><path d="M13 6 L16 9 L13 12" stroke-linecap="round"/></svg>`,
+      '平方反比定律', body);
   }
   window.calcISL = function() {
-    const d1=v('isl-d1'), dose1=v('isl-dose1'), d2=v('isl-d2');
-    if(!d1||!dose1||!d2) return;
-    const dose2=dose1*Math.pow(d1/d2,2);
-    setH('isl-result',`<div class="result-panel" id="isl-result">
-      <div class="flex items-end gap-2 mb-2">
-        <span class="mono font-bold" style="font-size:28px;color:var(--accent);">${dose2.toFixed(2)}</span>
-        <span class="text-sm mb-1" style="color:var(--t2);">cGy/min at ${d2} cm</span>
-      </div>
-      <div class="text-xs" style="color:var(--t2);">比值: (${d1}/${d2})² = <span class="mono">${Math.pow(d1/d2,2).toFixed(4)}</span></div>
-    </div>`);
+    const d1 = numVal('isl-d1'), i1 = numVal('isl-i1'), d2 = numVal('isl-d2');
+    const i2 = i1 * (d1/d2)**2;
+    const html = `<div class="result-panel">
+      <div class="sec-label mb-1">I₂ 劑量率</div>
+      <div class="result-val">${i2.toFixed(2)} cGy/min</div>
+      <div class="text-xs mt-1" style="color:var(--t2);">I₂ = ${i1} × (${d1}/${d2})² = ${i2.toFixed(2)}</div>
+    </div>`;
+    const e = gel('isl-result'); if (e) e.outerHTML = html;
   };
 
   // ─── 8. HVL Shielding ────────────────────────────────────
   function renderHVL() {
-    return cardWrap('hvl',
-      `<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="7" y="2" width="4" height="14" rx="1" fill="currentColor" fill-opacity=".12"/><line x1="2" y1="9" x2="7" y2="9" stroke-width="2"/><line x1="11" y1="9" x2="16" y2="9" stroke-width="1" stroke-dasharray="2 1.5"/></svg>`,
-      '屏蔽 / HVL 計算',
-      `${stepper('hvl-val','HVL 厚度',3.0,0.1,20,0.1,'cm')}
-      ${stepper('hvl-d0','入射劑量（相對）',100,1,9999,10,'')}
-      ${stepper('hvl-thick','屏蔽厚度',10,0,100,1,'cm')}
-      <button class="calc-btn" onclick="calcHVL()">計算穿透劑量</button>
-      <div id="hvl-result"></div>`
-    );
+    const body = `
+      ${U.stepper('hvl-val','HVL 值',1.0,0.01,50,0.01,'cm')}
+      ${U.stepper('hvl-thick','屏蔽厚度',5.0,0,100,0.1,'cm')}
+      ${U.stepper('hvl-dose','入射劑量率',100,1,100000,1,'cGy/min')}
+      <div id="hvl-result"></div>
+      ${U.calcBtn('calcHVL()')}`;
+    return U.cardWrap('hvl',
+      `<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="7" y="2" width="4" height="14" rx="1"/><path d="M2 9 L7 9M11 9 L16 9" stroke-linecap="round"/></svg>`,
+      '屏蔽 / HVL 計算', body);
   }
   window.calcHVL = function() {
-    const hvl=v('hvl-val'), d0=v('hvl-d0'), thick=v('hvl-thick');
-    if(!hvl||!d0) return;
-    const n=thick/hvl, trans=d0*Math.pow(0.5,n), atten=(1-trans/d0)*100, tvl=hvl*(Math.log(10)/Math.log(2));
-    setH('hvl-result',`<div class="result-panel" id="hvl-result">
-      <div class="grid grid-cols-2 gap-3 mb-3">
-        <div style="background:var(--bg);border-radius:10px;padding:12px;">
-          <div class="text-xs mb-0.5" style="color:var(--t3);">穿透劑量</div>
-          <div class="mono font-bold" style="font-size:20px;color:var(--t1);">${trans.toFixed(2)}</div>
-        </div>
-        <div style="background:var(--acc-bg);border-radius:10px;padding:12px;border:1px solid var(--border);">
-          <div class="text-xs mb-0.5" style="color:var(--t2);">衰減</div>
-          <div class="mono font-bold" style="font-size:20px;color:var(--accent);">${atten.toFixed(1)}%</div>
-        </div>
-      </div>
-      <div class="text-xs" style="color:var(--t2);">HVL 層數: <span class="mono">${n.toFixed(2)}</span> · TVL ≈ <span class="mono">${tvl.toFixed(1)}</span> cm</div>
-    </div>`);
+    const hvl = numVal('hvl-val'), thick = numVal('hvl-thick'), dose = numVal('hvl-dose');
+    const nHVL = thick / hvl;
+    const transmitted = dose / (2**nHVL);
+    const tf = (transmitted/dose*100).toFixed(2);
+    const html = `<div class="result-panel">
+      <div class="sec-label mb-1">穿透劑量率</div>
+      <div class="result-val">${transmitted.toFixed(3)} cGy/min</div>
+      <div class="text-xs mt-1" style="color:var(--t2);">${nHVL.toFixed(2)} HVL → 穿透率 ${tf}%</div>
+    </div>`;
+    const e = gel('hvl-result'); if (e) e.outerHTML = html;
   };
 
-  // ─── Render ───────────────────────────────────────────────
-  const RT_ALL = [
-    {key:'bed',         fn:renderBED,          label:'BED/EQD2'},
-    {key:'treatmentgap',fn:renderTreatmentGap, label:'Gap 修正'},
-    {key:'hypofrac',    fn:renderHypofrac,     label:'分次換算'},
-    {key:'electron',    fn:renderElectron,     label:'電子線'},
-    {key:'mu-calc',     fn:renderMU,           label:'MU 計算'},
-    {key:'ssd-corr',    fn:renderSSD,          label:'SSD 修正'},
-    {key:'isl',         fn:renderISL,          label:'ISL'},
-    {key:'hvl',         fn:renderHVL,          label:'HVL 屏蔽'},
+  // ── getTools / render API ─────────────────────────────────
+  const ALL_TOOLS = [
+    {key:'bed',          label:'BED/EQD2',      fn:renderBED},
+    {key:'treatmentgap', label:'Gap 修正',       fn:renderGap},
+    {key:'hypofrac',     label:'分次換算',        fn:renderHypo},
+    {key:'electron',     label:'電子線',         fn:renderElectron},
+    {key:'mu-calc',      label:'MU 計算',        fn:renderMU},
+    {key:'ssd-corr',     label:'SSD 修正',       fn:renderSSD},
+    {key:'isl',          label:'ISL',            fn:renderISL},
+    {key:'hvl',          label:'HVL 屏蔽',       fn:renderHVL},
   ];
 
-  function getVisible(settings) {
+  function getTools(settings) {
     const en = settings?.enabledTools || {};
-    return RT_ALL.filter(t => en[t.key] !== false);
+    return ALL_TOOLS.filter(t => en[t.key] !== false);
   }
 
   function render(settings, activeTool) {
-    const visible = getVisible(settings);
+    const visible = getTools(settings);
     if (!visible.length) return `<div class="text-center text-sm py-8" style="color:var(--t3);">放療工具已全部關閉</div>`;
     const tool = visible.find(t => t.key === activeTool) || visible[0];
     return tool.fn();
   }
 
-  return { render, getTools: getVisible };
+  return { render, getTools };
 })();

@@ -1,24 +1,12 @@
 // ── ToolsScore — 評分工具 (5 tools, all inside IIFE) ─────
 const ToolsScore = (() => {
 
-  const gel = id => document.getElementById(id);
-  const setH = (id, html) => { const e = gel(id); if (e) e.innerHTML = html; };
 
-  // ── Shared helpers ─────────────────────────────────────
-  window.toggleCard = function(id) {
-    const b = gel(id+'-body'), c = gel(id+'-chev');
-    if (!b) return;
-    const open = !b.classList.contains('hidden');
-    b.classList.toggle('hidden', open);
-    if (c) c.style.transform = open ? '' : 'rotate(180deg)';
-  };
 
   // selBtn: highlight selected button in a group, update hidden input
   window.selBtn = function(id, btn) {
     document.querySelectorAll(`[data-grp="${id}"]`).forEach(b => {
-      b.style.background = 'var(--bg)';
-      b.style.borderColor = 'var(--border)';
-      b.style.color = 'var(--t2)';
+      b.style.background = ''; b.style.borderColor = ''; b.style.color = '';
     });
     if (btn) {
       btn.style.background = 'var(--accent)';
@@ -28,20 +16,6 @@ const ToolsScore = (() => {
     }
   };
 
-  function cardWrap(id, icon, title, body) {
-    return `<div class="card mb-3 overflow-hidden">
-      <button onclick="toggleCard('${id}')" class="w-full px-4 py-3 flex items-center justify-between text-left">
-        <div class="flex items-center gap-2.5">
-          <span class="w-5 h-5 flex items-center justify-center flex-shrink-0" style="color:var(--t2);">${icon}</span>
-          <span class="font-medium text-sm" style="color:var(--t1);">${title}</span>
-        </div>
-        <svg id="${id}-chev" class="w-4 h-4 flex-shrink-0" style="color:var(--t3);transition:transform .2s" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-        </svg>
-      </button>
-      <div id="${id}-body" class="hidden px-4 pb-4">${body}</div>
-    </div>`;
-  }
 
   function btnGroup(label, id, opts, cols=0, onChange='') {
     const btns = opts.map((o, i) => `<button type="button" data-grp="${id}" data-val="${o.v}"
@@ -60,9 +34,6 @@ const ToolsScore = (() => {
     </div>`;
   }
 
-  function calcBtn(fn) {
-    return `<button onclick="${fn}" class="calc-btn">計算</button>`;
-  }
 
   function resultCard(content, type='info') {
     const bg = {info:'var(--card2)',ok:'#E4EDE4',warn:'#EEE8D8',danger:'#EDE4E4'};
@@ -108,9 +79,9 @@ const ToolsScore = (() => {
     const body = `
       ${btnGroup('原發癌種','gpa-type',typeOpts,0,'updateGPAInputs()')}
       <div id="gpa-inputs"></div>
-      ${calcBtn('calcGPA()')}
+      ${U.calcBtn('calcGPA()')}
       <div id="gpa-result"></div>`;
-    return cardWrap('gpa', icon, 'GPA Score (DS-GPA)', body);
+    return U.cardWrap('gpa', icon, 'GPA Score (DS-GPA)', body);
   }
 
   window.updateGPAInputs = function() {
@@ -149,9 +120,9 @@ const ToolsScore = (() => {
       ${btnGroup('4. 脊椎排列','sins-align',[{v:'4',label:'脫位/移位',sub:'4'},{v:'2',label:'後彎/側彎',sub:'2'},{v:'0',label:'正常',sub:'0'}])}
       ${btnGroup('5. 椎體塌陷','sins-vb',[{v:'2',label:'> 50%',sub:'2'},{v:'1',label:'< 50%',sub:'1'},{v:'0',label:'無',sub:'0'}])}
       ${btnGroup('6. 後外側侵犯','sins-poster',[{v:'3',label:'雙側',sub:'3'},{v:'1',label:'單側',sub:'1'},{v:'0',label:'無',sub:'0'}])}
-      ${calcBtn('calcSINS()')}
+      ${U.calcBtn('calcSINS()')}
       <div id="sins-result"></div>`;
-    return cardWrap('sins', icon, 'SINS Score（脊椎不穩定）', body);
+    return U.cardWrap('sins', icon, 'SINS Score（脊椎不穩定）', body);
   }
   window.calcSINS = function() {
     const total = ['sins-loc','sins-pain','sins-bone','sins-align','sins-vb','sins-poster']
@@ -175,9 +146,9 @@ const ToolsScore = (() => {
       ${btnGroup('3. 主要器官轉移','toku-organ',[{v:'0',label:'不可切除',sub:'0'},{v:'1',label:'可切除',sub:'1'},{v:'2',label:'無',sub:'2'}])}
       ${btnGroup('4. 原發部位','toku-primary',[{v:'0',label:'肺/胃/骨',sub:'0'},{v:'1',label:'肝/膽/不明',sub:'1'},{v:'2',label:'其他',sub:'2'},{v:'3',label:'腎/子宮',sub:'3'},{v:'4',label:'直腸',sub:'4'},{v:'5',label:'甲/乳/前列/類',sub:'5'}],3)}
       ${btnGroup('5. 脊髓狀態','toku-palsy',[{v:'0',label:'完全癱 A/B',sub:'0'},{v:'1',label:'不完全 C/D',sub:'1'},{v:'2',label:'無 (E)',sub:'2'}])}
-      ${calcBtn('calcTokuhashi()')}
+      ${U.calcBtn('calcTokuhashi()')}
       <div id="toku-result"></div>`;
-    return cardWrap('tokuhashi', icon, 'Tokuhashi Score（脊椎轉移）', body);
+    return U.cardWrap('tokuhashi', icon, 'Tokuhashi Score（脊椎轉移）', body);
   }
   window.calcTokuhashi = function() {
     const total = ['toku-gc','toku-bone','toku-organ','toku-primary','toku-palsy']
@@ -199,9 +170,9 @@ const ToolsScore = (() => {
       ${btnGroup('年齡','rpa-age',[{v:'lt65',label:'< 65 歲'},{v:'gte65',label:'≥ 65 歲'}])}
       ${btnGroup('原發灶控制','rpa-primary',[{v:'ctrl',label:'已控制'},{v:'noctrl',label:'未控制'}])}
       ${btnGroup('顱外轉移','rpa-ecm',[{v:'no',label:'無'},{v:'yes',label:'有'}])}
-      ${calcBtn('calcRPA()')}
+      ${U.calcBtn('calcRPA()')}
       <div id="rpa-result"></div>`;
-    return cardWrap('rpa', icon, 'RPA Class（腦轉移）', body);
+    return U.cardWrap('rpa', icon, 'RPA Class（腦轉移）', body);
   }
   window.calcRPA = function() {
     const kps=gel('rpa-kps')?.value, age=gel('rpa-age')?.value;
@@ -239,7 +210,7 @@ const ToolsScore = (() => {
         </tr></thead>
         <tbody>${rows}</tbody>
       </table>`;
-    return cardWrap('ecogkps', icon, 'ECOG ↔ KPS 換算', body);
+    return U.cardWrap('ecogkps', icon, 'ECOG ↔ KPS 換算', body);
   }
 
   const ECOG_MAP = [[0,100],[0,90],[1,80],[1,70],[2,60],[2,50],[3,40],[3,30],[4,20],[4,10]];

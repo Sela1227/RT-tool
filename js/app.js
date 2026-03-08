@@ -3,7 +3,7 @@
 // ──────────────────────────────────────────────────────────
 
 const App = (() => {
-  const VERSION = 'V2.1';
+  const VERSION = 'V2.2';
 
   const DEFAULT_SETTINGS = {
     enabledTools: {

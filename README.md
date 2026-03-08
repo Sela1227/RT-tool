@@ -7,6 +7,22 @@
 
 ## 版本歷程
 
+### V2.2 — 程式碼優化：共用模組抽離
+
+**重構**
+- 新增 `js/utils.js`：統一所有模組依賴的 DOM util、互動控件、HTML builder
+  - DOM: `gel()` / `numVal()` / `selVal()`
+  - 控件: `toggleCard()` / `stepAdj()` / `stepClamp()` / `pillSelect()`
+  - HTML builder: `U.stepper` / `U.pills` / `U.fld` / `U.calcBtn` / `U.cardWrap` / `U.stageResult`
+- `tools-rt.js`：移除重複的 `v/el/setH/stepAdj/stepClamp/pillSelect/RTToggle/stepper/pills/cardWrap`，全改用 `U.*`
+- `tools-calc.js`：移除同上重複宣告；移除 `pillSelect` monkey-patch，改以獨立 `calvModeChange()` 處理 Calvert 模式切換
+- `tools-score.js`：移除重複 `gel/setH/toggleCard/cardWrap/calcBtn`
+- `staging.js`：移除重複 `v/el/sel/fld/calcBtn/stageResult/card2/StagingToggle`，`StagingToggle` 統一為 `toggleCard`
+- `index.html`：移除廢棄的 `.tab-bar/.tab-btn` CSS（已由 `.fpill` 取代）
+- 總行數：2706 → 2526（減少 180 行）
+
+---
+
 ### V2.1 — 分期點選修復 + 篩選樣式統一
 
 **Bug fix**

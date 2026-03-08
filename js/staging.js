@@ -15,83 +15,23 @@ const Staging = (() => {
   };
 
   // ── Helpers ─────────────────────────────────────────────
-  const v   = id => parseFloat(document.getElementById(id)?.value) || 0;
-  const el  = id => document.getElementById(id);
-  const sel = id => document.getElementById(id)?.value || '';
 
-  function inp(id, label, def, min, max) {
-    return `<div class="mb-3">
-      <div class="text-xs mb-1.5" style="color:var(--t2);">${label}</div>
-      <select id="${id}" class="inp">${opts(def)}</select>
-    </div>`;
-  }
-  function opts(selected, ...pairs) {
-    // pairs: [[val, label], ...]
-    return pairs.map(([v,l]) => `<option value="${v}"${v==selected?' selected':''}>${l}</option>`).join('');
-  }
-  function fld(id, label, optArr, def='') {
-    const os = optArr.map(([v,l]) => `<option value="${v}"${v===def?' selected':''}>${l}</option>`).join('');
-    return `<div class="mb-3">
-      <div class="text-xs mb-1.5" style="color:var(--t2);">${label}</div>
-      <select id="${id}" class="inp">${os}</select>
-    </div>`;
-  }
-  function calcBtn(fn, label='判定分期') {
-    return `<button onclick="${fn}" class="calc-btn">${label}</button>`;
-  }
-  function stageResult(stage, details, notes='') {
-    return `<div class="result-panel mt-4">
-      <div class="flex items-start justify-between gap-3">
-        <div>
-          <div class="sec-label mb-1">AJCC 9th</div>
-          <div class="result-val">${stage}</div>
-        </div>
-        <div class="text-right text-xs leading-relaxed" style="color:var(--t2);">${details}</div>
-      </div>
-      ${notes ? `<div class="mt-3 pt-3 text-xs leading-relaxed" style="border-top:1px solid var(--border);color:var(--t2);">${notes}</div>` : ''}
-    </div>`;
-  }
-  function card2(id, icon, title, body) {
-    return `<div class="card mb-3 overflow-hidden">
-      <button onclick="StagingToggle('${id}')" class="w-full px-4 py-3 flex items-center justify-between text-left">
-        <div class="flex items-center gap-2.5">
-          <span class="flex-shrink-0 w-5 h-5 flex items-center justify-center" style="color:var(--t2);">${icon}</span>
-          <span class="font-medium text-sm" style="color:var(--t1);">${title}</span>
-        </div>
-        <svg id="${id}-chev" class="w-4 h-4 flex-shrink-0" style="color:var(--t3);transition:transform 0.2s" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-        </svg>
-      </button>
-      <div id="${id}-body" class="hidden px-4 pb-4">${body}</div>
-    </div>`;
-  }
 
-  window.StagingToggle = function(id) {
-    const b = el(id+'-body'), c = el(id+'-chev');
-    if (!b) return;
-    const open = b.classList.contains('hidden');
-    b.classList.toggle('hidden', !open);
-    if (c) c.style.transform = open ? 'rotate(180deg)' : '';
-  };
 
-  function setResult(id, html) {
-    const e = el(id);
-    if (e) e.outerHTML = html;
-  }
 
   // ─── 1. LUNG ─────────────────────────────────────────────
   function renderLung() {
-    return card2('lung', IC.lung, '肺癌 AJCC 9th', `
+    return U.cardWrap('lung', IC.lung, '肺癌 AJCC 9th', `
       <div class="text-xs mb-3" style="color:var(--t3);">Non-small cell lung cancer — T/N/M staging</div>
-      ${fld('lung-t','T 分類',[['1a','T1a ≤1cm'],['1b','T1b 1-2cm'],['1c','T1c 2-3cm'],['2a','T2a 3-4cm'],['2b','T2b 4-5cm'],['3','T3 5-7cm / 胸壁/心包/膈神經'],['4','T4 >7cm / 縱膈/心臟/大血管/隆突']],'1a')}
-      ${fld('lung-n','N 分類',[['0','N0 無淋巴結'],['1','N1 同側支氣管旁/肺門'],['2','N2 同側縱膈/隆突下'],['3','N3 對側 / 鎖骨上']],'0')}
-      ${fld('lung-m','M 分類',[['0','M0'],['1a','M1a 對側肺/胸膜結節/惡性積液'],['1b','M1b 單一胸外轉移'],['1c','M1c 多處胸外轉移']],'0')}
+      ${U.fld('lung-t','T 分類',[['1a','T1a ≤1cm'],['1b','T1b 1-2cm'],['1c','T1c 2-3cm'],['2a','T2a 3-4cm'],['2b','T2b 4-5cm'],['3','T3 5-7cm / 胸壁/心包/膈神經'],['4','T4 >7cm / 縱膈/心臟/大血管/隆突']],'1a')}
+      ${U.fld('lung-n','N 分類',[['0','N0 無淋巴結'],['1','N1 同側支氣管旁/肺門'],['2','N2 同側縱膈/隆突下'],['3','N3 對側 / 鎖骨上']],'0')}
+      ${U.fld('lung-m','M 分類',[['0','M0'],['1a','M1a 對側肺/胸膜結節/惡性積液'],['1b','M1b 單一胸外轉移'],['1c','M1c 多處胸外轉移']],'0')}
       <div id="lung-result"></div>
-      ${calcBtn("StageLung()")}
+      ${U.calcBtn("StageLung()")}
     `);
   }
   window.StageLung = function() {
-    const T = sel('lung-t'), N = sel('lung-n'), M = sel('lung-m');
+    const T = selVal('lung-t'), N = selVal('lung-n'), M = selVal('lung-m');
     let stage = '';
     if (M==='1c') stage='IV C';
     else if (M==='1b') stage='IV B';
@@ -111,22 +51,22 @@ const Staging = (() => {
       else if (T==='3') stage='II B';
       else stage='III A';
     }
-    const html = stageResult(stage, `T${T} N${N} M${M}`);
+    const html = U.stageResult(stage, `T${T} N${N} M${M}`);
     const e = el('lung-result'); if(e) e.outerHTML = html;
   };
 
   // ─── 2. RECTUM ───────────────────────────────────────────
   function renderRectum() {
-    return card2('rectum', IC.rectum, '直腸癌 AJCC 9th', `
-      ${fld('rec-t','T 分類',[['is','Tis'],['1','T1 黏膜下'],['2','T2 固有肌層'],['3','T3 穿過肌層'],['4a','T4a 腹膜臟層'],['4b','T4b 鄰近器官/結構']],'2')}
-      ${fld('rec-n','N 分類',[['0','N0'],['1a','N1a 1顆區域淋巴結'],['1b','N1b 2-3顆'],['1c','N1c 腫瘤沉積，無淋巴結'],['2a','N2a 4-6顆'],['2b','N2b ≥7顆']],'0')}
-      ${fld('rec-m','M 分類',[['0','M0'],['1a','M1a 單一遠端器官'],['1b','M1b 多處遠端器官'],['1c','M1c 腹膜轉移']],'0')}
+    return U.cardWrap('rectum', IC.rectum, '直腸癌 AJCC 9th', `
+      ${U.fld('rec-t','T 分類',[['is','Tis'],['1','T1 黏膜下'],['2','T2 固有肌層'],['3','T3 穿過肌層'],['4a','T4a 腹膜臟層'],['4b','T4b 鄰近器官/結構']],'2')}
+      ${U.fld('rec-n','N 分類',[['0','N0'],['1a','N1a 1顆區域淋巴結'],['1b','N1b 2-3顆'],['1c','N1c 腫瘤沉積，無淋巴結'],['2a','N2a 4-6顆'],['2b','N2b ≥7顆']],'0')}
+      ${U.fld('rec-m','M 分類',[['0','M0'],['1a','M1a 單一遠端器官'],['1b','M1b 多處遠端器官'],['1c','M1c 腹膜轉移']],'0')}
       <div id="rectum-result"></div>
-      ${calcBtn("StageRectum()")}
+      ${U.calcBtn("StageRectum()")}
     `);
   }
   window.StageRectum = function() {
-    const T=sel('rec-t'), N=sel('rec-n'), M=sel('rec-m');
+    const T=selVal('rec-t'), N=sel('rec-n'), M=sel('rec-m');
     let stage='';
     if (M!=='0') { stage = M==='1a'||M==='1b' ? 'IV A' : 'IV B'; }
     else if (N.startsWith('2')) {
@@ -140,23 +80,23 @@ const Staging = (() => {
       else if (T==='4a') stage='II B';
       else stage='II C';
     }
-    const e=el('rectum-result'); if(e) e.outerHTML=stageResult(stage,`T${T} N${N} M${M}`);
+    const e=gel('rectum-result'); if(e) e.outerHTML=U.stageResult(stage,`T${T} N${N} M${M}`);
   };
 
   // ─── 3. PROSTATE ─────────────────────────────────────────
   function renderProstate() {
-    return card2('prostate', IC.prostate, '前列腺癌 AJCC 9th', `
-      ${fld('pros-t','T 分類',[['1','T1 臨床不可捫及'],['2a','T2a ≤半葉'],['2b','T2b >半葉，單側'],['2c','T2c 雙側'],['3a','T3a 囊外延伸'],['3b','T3b 精囊侵犯'],['4','T4 鄰近結構侵犯']],'2a')}
-      ${fld('pros-n','N',[['0','N0'],['1','N1 區域淋巴結']],'0')}
-      ${fld('pros-m','M',[['0','M0'],['1','M1 遠端轉移']],'0')}
-      ${fld('pros-g','Grade Group',[['1','GG1 (Gleason 6)'],['2','GG2 (Gleason 3+4)'],['3','GG3 (Gleason 4+3)'],['4','GG4 (Gleason 8)'],['5','GG5 (Gleason 9-10)']],'1')}
-      ${fld('pros-psa','PSA 分層',[['low','<10 ng/mL'],['mid','10-20 ng/mL'],['high','>20 ng/mL']],'low')}
+    return U.cardWrap('prostate', IC.prostate, '前列腺癌 AJCC 9th', `
+      ${U.fld('pros-t','T 分類',[['1','T1 臨床不可捫及'],['2a','T2a ≤半葉'],['2b','T2b >半葉，單側'],['2c','T2c 雙側'],['3a','T3a 囊外延伸'],['3b','T3b 精囊侵犯'],['4','T4 鄰近結構侵犯']],'2a')}
+      ${U.fld('pros-n','N',[['0','N0'],['1','N1 區域淋巴結']],'0')}
+      ${U.fld('pros-m','M',[['0','M0'],['1','M1 遠端轉移']],'0')}
+      ${U.fld('pros-g','Grade Group',[['1','GG1 (Gleason 6)'],['2','GG2 (Gleason 3+4)'],['3','GG3 (Gleason 4+3)'],['4','GG4 (Gleason 8)'],['5','GG5 (Gleason 9-10)']],'1')}
+      ${U.fld('pros-psa','PSA 分層',[['low','<10 ng/mL'],['mid','10-20 ng/mL'],['high','>20 ng/mL']],'low')}
       <div id="prostate-result"></div>
-      ${calcBtn("StageProstate()")}
+      ${U.calcBtn("StageProstate()")}
     `);
   }
   window.StageProstate = function() {
-    const T=sel('pros-t'), N=sel('pros-n'), M=sel('pros-m'), G=parseInt(sel('pros-g')), PSA=sel('pros-psa');
+    const T=selVal('pros-t'), N=sel('pros-n'), M=sel('pros-m'), G=parseInt(sel('pros-g')), PSA=sel('pros-psa');
     let stage='';
     if (M==='1') stage='IV B';
     else if (N==='1') stage='IV A';
@@ -169,21 +109,21 @@ const Staging = (() => {
       else if (G===2) stage = PSA==='high' ? 'III A' : PSA==='mid' ? 'II B' : 'II A';
       else stage = PSA==='high' ? 'II A' : PSA==='mid' ? 'II A' : 'I';
     }
-    const e=el('prostate-result'); if(e) e.outerHTML=stageResult(stage,`T${T} N${N} M${M}<br>GG${G}, PSA ${PSA}`);
+    const e=gel('prostate-result'); if(e) e.outerHTML=U.stageResult(stage,`T${T} N${N} M${M}<br>GG${G}, PSA ${PSA}`);
   };
 
   // ─── 4. HCC ──────────────────────────────────────────────
   function renderHCC() {
-    return card2('hcc', IC.hcc, 'HCC (肝細胞癌) AJCC 9th', `
-      ${fld('hcc-t','T 分類',[['1a','T1a 單顆 ≤2cm，無血管侵犯'],['1b','T1b 單顆 >2cm，無血管侵犯'],['2','T2 單顆伴血管侵犯 / 多顆 ≤5cm'],['3','T3 多顆 >5cm / 主要血管分支侵犯'],['4','T4 直接侵犯鄰近器官（膽囊除外）']],'1b')}
-      ${fld('hcc-n','N',[['0','N0'],['1','N1 區域淋巴結']],'0')}
-      ${fld('hcc-m','M',[['0','M0'],['1','M1 遠端轉移']],'0')}
+    return U.cardWrap('hcc', IC.hcc, 'HCC (肝細胞癌) AJCC 9th', `
+      ${U.fld('hcc-t','T 分類',[['1a','T1a 單顆 ≤2cm，無血管侵犯'],['1b','T1b 單顆 >2cm，無血管侵犯'],['2','T2 單顆伴血管侵犯 / 多顆 ≤5cm'],['3','T3 多顆 >5cm / 主要血管分支侵犯'],['4','T4 直接侵犯鄰近器官（膽囊除外）']],'1b')}
+      ${U.fld('hcc-n','N',[['0','N0'],['1','N1 區域淋巴結']],'0')}
+      ${U.fld('hcc-m','M',[['0','M0'],['1','M1 遠端轉移']],'0')}
       <div id="hcc-result"></div>
-      ${calcBtn("StageHCC()")}
+      ${U.calcBtn("StageHCC()")}
     `);
   }
   window.StageHCC = function() {
-    const T=sel('hcc-t'), N=sel('hcc-n'), M=sel('hcc-m');
+    const T=selVal('hcc-t'), N=sel('hcc-n'), M=sel('hcc-m');
     let stage='';
     if (M==='1') stage='IV B';
     else if (N==='1') stage='IV A';
@@ -192,22 +132,22 @@ const Staging = (() => {
     else if (T==='2') stage='II';
     else if (T==='1b') stage='I B';
     else stage='I A';
-    const e=el('hcc-result'); if(e) e.outerHTML=stageResult(stage,`T${T} N${N} M${M}`);
+    const e=gel('hcc-result'); if(e) e.outerHTML=U.stageResult(stage,`T${T} N${N} M${M}`);
   };
 
   // ─── 5. BREAST ───────────────────────────────────────────
   function renderBreast() {
-    return card2('breast', IC.breast, '乳癌 AJCC 9th（解剖學）', `
+    return U.cardWrap('breast', IC.breast, '乳癌 AJCC 9th（解剖學）', `
       <div class="text-xs mb-3" style="color:var(--t3);">Anatomic stage（不含生物標記）</div>
-      ${fld('br-t','T 分類',[['is','Tis'],['1mi','T1mi ≤0.1cm'],['1a','T1a 0.1-0.5cm'],['1b','T1b 0.5-1cm'],['1c','T1c 1-2cm'],['2','T2 2-5cm'],['3','T3 >5cm'],['4a','T4a 胸壁侵犯'],['4b','T4b 皮膚侵犯'],['4c','T4c 4a+4b'],['4d','T4d 炎性乳癌']],'1c')}
-      ${fld('br-n','N（病理）',[['0','pN0'],['1mi','pN1mi 微轉移 0.2-2mm'],['1a','pN1a 1-3顆腋窩LN'],['1b','pN1b 內乳LN'],['1c','pN1c 1-3顆腋窩+內乳'],['2a','pN2a 4-9顆腋窩'],['2b','pN2b 內乳LN，無腋窩'],['3a','pN3a ≥10顆腋窩'],['3b','pN3b 內乳+≥4腋窩'],['3c','pN3c 鎖骨上']],'1a')}
-      ${fld('br-m','M',[['0','M0'],['1','M1 遠端轉移']],'0')}
+      ${U.fld('br-t','T 分類',[['is','Tis'],['1mi','T1mi ≤0.1cm'],['1a','T1a 0.1-0.5cm'],['1b','T1b 0.5-1cm'],['1c','T1c 1-2cm'],['2','T2 2-5cm'],['3','T3 >5cm'],['4a','T4a 胸壁侵犯'],['4b','T4b 皮膚侵犯'],['4c','T4c 4a+4b'],['4d','T4d 炎性乳癌']],'1c')}
+      ${U.fld('br-n','N（病理）',[['0','pN0'],['1mi','pN1mi 微轉移 0.2-2mm'],['1a','pN1a 1-3顆腋窩LN'],['1b','pN1b 內乳LN'],['1c','pN1c 1-3顆腋窩+內乳'],['2a','pN2a 4-9顆腋窩'],['2b','pN2b 內乳LN，無腋窩'],['3a','pN3a ≥10顆腋窩'],['3b','pN3b 內乳+≥4腋窩'],['3c','pN3c 鎖骨上']],'1a')}
+      ${U.fld('br-m','M',[['0','M0'],['1','M1 遠端轉移']],'0')}
       <div id="breast-result"></div>
-      ${calcBtn("StageBreast()")}
+      ${U.calcBtn("StageBreast()")}
     `);
   }
   window.StageBreast = function() {
-    const T=sel('br-t'), N=sel('br-n'), M=sel('br-m');
+    const T=selVal('br-t'), N=sel('br-n'), M=sel('br-m');
     let stage='';
     if (M==='1') stage='IV';
     else if (N.startsWith('3')) stage='III C';
@@ -222,22 +162,22 @@ const Staging = (() => {
       else if (T==='2') stage='II A';
       else stage='II B';
     }
-    const e=el('breast-result'); if(e) e.outerHTML=stageResult(stage,`T${T} N${N} M${M}`);
+    const e=gel('breast-result'); if(e) e.outerHTML=U.stageResult(stage,`T${T} N${N} M${M}`);
   };
 
   // ─── 6. ESOPHAGUS ────────────────────────────────────────
   function renderEso() {
-    return card2('eso', IC.esophagus, '食道癌 AJCC 9th', `
-      ${fld('eso-hist','組織型別',[['scc','SCC'],['adeno','Adenocarcinoma']],'scc')}
-      ${fld('eso-t','T 分類',[['is','Tis'],['1a','T1a 黏膜固有層/肌層'],['1b','T1b 黏膜下層'],['2','T2 固有肌層'],['3','T3 外膜'],['4a','T4a 胸膜/心包/奇靜脈/膈肌'],['4b','T4b 主動脈/氣管/脊椎']],'2')}
-      ${fld('eso-n','N',[['0','N0'],['1','N1 1-2顆'],['2','N2 3-6顆'],['3','N3 ≥7顆']],'0')}
-      ${fld('eso-m','M',[['0','M0'],['1','M1']],'0')}
+    return U.cardWrap('eso', IC.esophagus, '食道癌 AJCC 9th', `
+      ${U.fld('eso-hist','組織型別',[['scc','SCC'],['adeno','Adenocarcinoma']],'scc')}
+      ${U.fld('eso-t','T 分類',[['is','Tis'],['1a','T1a 黏膜固有層/肌層'],['1b','T1b 黏膜下層'],['2','T2 固有肌層'],['3','T3 外膜'],['4a','T4a 胸膜/心包/奇靜脈/膈肌'],['4b','T4b 主動脈/氣管/脊椎']],'2')}
+      ${U.fld('eso-n','N',[['0','N0'],['1','N1 1-2顆'],['2','N2 3-6顆'],['3','N3 ≥7顆']],'0')}
+      ${U.fld('eso-m','M',[['0','M0'],['1','M1']],'0')}
       <div id="eso-result"></div>
-      ${calcBtn("StageEso()")}
+      ${U.calcBtn("StageEso()")}
     `);
   }
   window.StageEso = function() {
-    const T=sel('eso-t'), N=sel('eso-n'), M=sel('eso-m');
+    const T=selVal('eso-t'), N=sel('eso-n'), M=sel('eso-m');
     let stage='';
     if (M==='1') stage='IV B';
     else if (T==='4b') stage='IV A';
@@ -253,21 +193,21 @@ const Staging = (() => {
       else if (T==='4a') stage='III A';
       else stage='IV A';
     }
-    const e=el('eso-result'); if(e) e.outerHTML=stageResult(stage,`T${T} N${N} M${M}`);
+    const e=gel('eso-result'); if(e) e.outerHTML=U.stageResult(stage,`T${T} N${N} M${M}`);
   };
 
   // ─── 7. STOMACH ──────────────────────────────────────────
   function renderStomach() {
-    return card2('stomach', IC.stomach, '胃癌 AJCC 9th', `
-      ${fld('sto-t','T 分類',[['is','Tis'],['1a','T1a 黏膜固有層'],['1b','T1b 黏膜下層'],['2','T2 固有肌層'],['3','T3 漿膜下'],['4a','T4a 穿透漿膜'],['4b','T4b 侵犯鄰近器官']],'2')}
-      ${fld('sto-n','N',[['0','N0'],['1','N1 1-2顆'],['2','N2 3-6顆'],['3a','N3a 7-15顆'],['3b','N3b ≥16顆']],'0')}
-      ${fld('sto-m','M',[['0','M0'],['1','M1']],'0')}
+    return U.cardWrap('stomach', IC.stomach, '胃癌 AJCC 9th', `
+      ${U.fld('sto-t','T 分類',[['is','Tis'],['1a','T1a 黏膜固有層'],['1b','T1b 黏膜下層'],['2','T2 固有肌層'],['3','T3 漿膜下'],['4a','T4a 穿透漿膜'],['4b','T4b 侵犯鄰近器官']],'2')}
+      ${U.fld('sto-n','N',[['0','N0'],['1','N1 1-2顆'],['2','N2 3-6顆'],['3a','N3a 7-15顆'],['3b','N3b ≥16顆']],'0')}
+      ${U.fld('sto-m','M',[['0','M0'],['1','M1']],'0')}
       <div id="stomach-result"></div>
-      ${calcBtn("StageStomach()")}
+      ${U.calcBtn("StageStomach()")}
     `);
   }
   window.StageStomach = function() {
-    const T=sel('sto-t'), N=sel('sto-n'), M=sel('sto-m');
+    const T=selVal('sto-t'), N=sel('sto-n'), M=sel('sto-m');
     let stage='';
     if (M==='1') stage='IV';
     else if (T==='4b') stage= N==='0'?'III B':'III C';
@@ -284,21 +224,21 @@ const Staging = (() => {
       else if (T==='4a') stage='II B';
       else stage='III B';
     }
-    const e=el('stomach-result'); if(e) e.outerHTML=stageResult(stage,`T${T} N${N} M${M}`);
+    const e=gel('stomach-result'); if(e) e.outerHTML=U.stageResult(stage,`T${T} N${N} M${M}`);
   };
 
   // ─── 8. PANCREAS ─────────────────────────────────────────
   function renderPancreas() {
-    return card2('pancreas', IC.pancreas, '胰臟癌 AJCC 9th', `
-      ${fld('pan-t','T 分類',[['1a','T1a ≤0.5cm'],['1b','T1b 0.5-1cm'],['1c','T1c 1-2cm'],['2','T2 2-4cm'],['3','T3 >4cm / 十二指腸/膽管'],['4','T4 腹腔幹/腸繫膜上動脈']],'2')}
-      ${fld('pan-n','N',[['0','N0'],['1','N1 1-3顆區域LN'],['2','N2 ≥4顆區域LN']],'0')}
-      ${fld('pan-m','M',[['0','M0'],['1','M1']],'0')}
+    return U.cardWrap('pancreas', IC.pancreas, '胰臟癌 AJCC 9th', `
+      ${U.fld('pan-t','T 分類',[['1a','T1a ≤0.5cm'],['1b','T1b 0.5-1cm'],['1c','T1c 1-2cm'],['2','T2 2-4cm'],['3','T3 >4cm / 十二指腸/膽管'],['4','T4 腹腔幹/腸繫膜上動脈']],'2')}
+      ${U.fld('pan-n','N',[['0','N0'],['1','N1 1-3顆區域LN'],['2','N2 ≥4顆區域LN']],'0')}
+      ${U.fld('pan-m','M',[['0','M0'],['1','M1']],'0')}
       <div id="pancreas-result"></div>
-      ${calcBtn("StagePancreas()")}
+      ${U.calcBtn("StagePancreas()")}
     `);
   }
   window.StagePancreas = function() {
-    const T=sel('pan-t'), N=sel('pan-n'), M=sel('pan-m');
+    const T=selVal('pan-t'), N=sel('pan-n'), M=sel('pan-m');
     let stage='';
     if (M==='1') stage='IV';
     else if (T==='4') stage='III';
@@ -309,7 +249,7 @@ const Staging = (() => {
       else if (T==='2') stage='I B';
       else stage='II A';
     }
-    const e=el('pancreas-result'); if(e) e.outerHTML=stageResult(stage,`T${T} N${N} M${M}`);
+    const e=gel('pancreas-result'); if(e) e.outerHTML=U.stageResult(stage,`T${T} N${N} M${M}`);
   };
 
   // ─── 9. HEAD & NECK ──────────────────────────────────────
@@ -331,7 +271,7 @@ const Staging = (() => {
     const siteBtns = HN_SITES.map(([s,l]) =>
       `<button id="hn-site-${s}" onclick="HNSite('${s}')" class="fpill${s===hnSite?' on':''}">${l}</button>`
     ).join('');
-    return card2('hn', IC.hn, '頭頸癌 AJCC 9th', `
+    return U.cardWrap('hn', IC.hn, '頭頸癌 AJCC 9th', `
       <div class="flex flex-wrap gap-1.5 mb-3">${siteBtns}</div>
       <div id="hn-fields">${renderHNFields()}</div>
     `);
@@ -348,98 +288,98 @@ const Staging = (() => {
 
   function renderNPC() {
     return `
-      ${fld('npc-t','T',[['1','T1 鼻咽/口咽/鼻腔'],['2','T2 咽旁/軟組織'],['3','T3 顱底/頸椎/翼板/鼻竇'],['4','T4 顱內/腦神經/眼眶/下咽']],'1')}
-      ${fld('npc-n','N',[['0','N0'],['1','N1 同側頸部/咽後 ≤6cm'],['2','N2 雙側頸部 ≤6cm'],['3','N3 >6cm 或鎖骨上']],'0')}
-      ${fld('npc-m','M',[['0','M0'],['1','M1']],'0')}
+      ${U.fld('npc-t','T',[['1','T1 鼻咽/口咽/鼻腔'],['2','T2 咽旁/軟組織'],['3','T3 顱底/頸椎/翼板/鼻竇'],['4','T4 顱內/腦神經/眼眶/下咽']],'1')}
+      ${U.fld('npc-n','N',[['0','N0'],['1','N1 同側頸部/咽後 ≤6cm'],['2','N2 雙側頸部 ≤6cm'],['3','N3 >6cm 或鎖骨上']],'0')}
+      ${U.fld('npc-m','M',[['0','M0'],['1','M1']],'0')}
       <div id="npc-result"></div>
-      ${calcBtn("StageNPC()")}`;
+      ${U.calcBtn("StageNPC()")}`;
   }
   window.StageNPC = function() {
-    const T=sel('npc-t'), N=sel('npc-n'), M=sel('npc-m');
+    const T=selVal('npc-t'), N=sel('npc-n'), M=sel('npc-m');
     let stage='';
     if (M==='1') stage='IV B';
     else if (T==='4'||N==='3') stage='IV A';
     else if (T==='3'||N==='2') stage='III';
     else if (T==='2'||N==='1') stage='II';
     else stage='I';
-    const e=el('npc-result'); if(e) e.outerHTML=stageResult(stage,`T${T} N${N} M${M}`);
+    const e=gel('npc-result'); if(e) e.outerHTML=U.stageResult(stage,`T${T} N${N} M${M}`);
   };
 
   function renderOral() {
     return `
-      ${fld('oral-t','T',[['1','T1 ≤2cm, DOI≤5mm'],['2','T2 ≤2cm DOI>5mm / 2-4cm DOI≤10mm'],['3','T3 >4cm / DOI>10mm'],['4a','T4a 鄰近結構（皮質骨/下牙槽神經/口底/皮膚）'],['4b','T4b 咀嚼間隙/翼板/顱底/頸內動脈']],'1')}
-      ${fld('oral-n','N（臨床）',[['0','N0'],['1','N1 同側單顆 ≤3cm, ENE-'],['2a','N2a 同側單顆 3-6cm'],['2b','N2b 同側多顆 ≤6cm'],['2c','N2c 雙/對側 ≤6cm'],['3a','N3a >6cm, ENE-'],['3b','任何 ENE+']],'0')}
-      ${fld('oral-m','M',[['0','M0'],['1','M1']],'0')}
+      ${U.fld('oral-t','T',[['1','T1 ≤2cm, DOI≤5mm'],['2','T2 ≤2cm DOI>5mm / 2-4cm DOI≤10mm'],['3','T3 >4cm / DOI>10mm'],['4a','T4a 鄰近結構（皮質骨/下牙槽神經/口底/皮膚）'],['4b','T4b 咀嚼間隙/翼板/顱底/頸內動脈']],'1')}
+      ${U.fld('oral-n','N（臨床）',[['0','N0'],['1','N1 同側單顆 ≤3cm, ENE-'],['2a','N2a 同側單顆 3-6cm'],['2b','N2b 同側多顆 ≤6cm'],['2c','N2c 雙/對側 ≤6cm'],['3a','N3a >6cm, ENE-'],['3b','任何 ENE+']],'0')}
+      ${U.fld('oral-m','M',[['0','M0'],['1','M1']],'0')}
       <div id="oral-result"></div>
-      ${calcBtn("StageOral()")}`;
+      ${U.calcBtn("StageOral()")}`;
   }
   window.StageOral = function() {
-    const T=sel('oral-t'), N=sel('oral-n'), M=sel('oral-m');
+    const T=selVal('oral-t'), N=sel('oral-n'), M=sel('oral-m');
     let stage='';
     if (M==='1') stage='IV C';
     else if (T==='4b'||N==='3a'||N==='3b') stage='IV B';
     else if (T==='4a'||N.startsWith('2')) stage='IV A';
     else if (N==='1') stage='III';
     else { stage = T==='1'?'I':T==='2'?'II':'III'; }
-    const e=el('oral-result'); if(e) e.outerHTML=stageResult(stage,`T${T} N${N} M${M}`);
+    const e=gel('oral-result'); if(e) e.outerHTML=U.stageResult(stage,`T${T} N${N} M${M}`);
   };
 
   function renderOroph() {
     return `
       <div class="text-xs mb-2" style="color:var(--t3);">p16+ (HPV-associated)</div>
-      ${fld('orp-t','T',[['1','T1 ≤2cm'],['2','T2 2-4cm'],['3','T3 >4cm / 會厭谷'],['4','T4 喉/外舌肌/翼肌/硬顎/下顎骨']],'1')}
-      ${fld('orp-n','N（臨床，p16+）',[['0','N0'],['1','N1 同側單顆/多顆 ≤6cm'],['2','N2 對側/雙側 ≤6cm'],['3','N3 >6cm']],'0')}
-      ${fld('orp-m','M',[['0','M0'],['1','M1']],'0')}
+      ${U.fld('orp-t','T',[['1','T1 ≤2cm'],['2','T2 2-4cm'],['3','T3 >4cm / 會厭谷'],['4','T4 喉/外舌肌/翼肌/硬顎/下顎骨']],'1')}
+      ${U.fld('orp-n','N（臨床，p16+）',[['0','N0'],['1','N1 同側單顆/多顆 ≤6cm'],['2','N2 對側/雙側 ≤6cm'],['3','N3 >6cm']],'0')}
+      ${U.fld('orp-m','M',[['0','M0'],['1','M1']],'0')}
       <div id="orp-result"></div>
-      ${calcBtn("StageOroph()")}`;
+      ${U.calcBtn("StageOroph()")}`;
   }
   window.StageOroph = function() {
-    const T=sel('orp-t'), N=sel('orp-n'), M=sel('orp-m');
+    const T=selVal('orp-t'), N=sel('orp-n'), M=sel('orp-m');
     let stage='';
     if (M==='1') stage='IV';
     else if (N==='3') stage='III';
     else if (T==='4'||N==='2') stage='III';
     else if (T==='3'||N==='1') stage='II';
     else stage='I';
-    const e=el('orp-result'); if(e) e.outerHTML=stageResult(stage,`T${T} N${N} M${M}`,`p16+ / HPV-associated oropharynx`);
+    const e=gel('orp-result'); if(e) e.outerHTML=U.stageResult(stage,`T${T} N${N} M${M}`,`p16+ / HPV-associated oropharynx`);
   };
 
   function renderLarynx() {
     return `
-      ${fld('lar-t','T（聲門上）',[['1','T1 單側聲門上，正常聲帶活動'],['2','T2 多部位或聲門'],['3','T3 固定/外附著/基後區'],['4a','T4a 穿透甲狀軟骨/喉外組織'],['4b','T4b 椎前/頸動脈/縱膈']],'1')}
-      ${fld('lar-n','N',[['0','N0'],['1','N1 同側單顆 ≤3cm'],['2a','N2a 同側單顆 3-6cm'],['2b','N2b 同側多顆 ≤6cm'],['2c','N2c 雙/對側 ≤6cm'],['3a','N3a >6cm'],['3b','ENE+']],'0')}
-      ${fld('lar-m','M',[['0','M0'],['1','M1']],'0')}
+      ${U.fld('lar-t','T（聲門上）',[['1','T1 單側聲門上，正常聲帶活動'],['2','T2 多部位或聲門'],['3','T3 固定/外附著/基後區'],['4a','T4a 穿透甲狀軟骨/喉外組織'],['4b','T4b 椎前/頸動脈/縱膈']],'1')}
+      ${U.fld('lar-n','N',[['0','N0'],['1','N1 同側單顆 ≤3cm'],['2a','N2a 同側單顆 3-6cm'],['2b','N2b 同側多顆 ≤6cm'],['2c','N2c 雙/對側 ≤6cm'],['3a','N3a >6cm'],['3b','ENE+']],'0')}
+      ${U.fld('lar-m','M',[['0','M0'],['1','M1']],'0')}
       <div id="larynx-result"></div>
-      ${calcBtn("StageLarynx()")}`;
+      ${U.calcBtn("StageLarynx()")}`;
   }
   window.StageLarynx = function() {
-    const T=sel('lar-t'), N=sel('lar-n'), M=sel('lar-m');
+    const T=selVal('lar-t'), N=sel('lar-n'), M=sel('lar-m');
     let stage='';
     if (M==='1') stage='IV C';
     else if (T==='4b'||N==='3a'||N==='3b') stage='IV B';
     else if (T==='4a'||N.startsWith('2')) stage='IV A';
     else if (T==='3'||N==='1') stage='III';
     else stage=T==='1'?'I':'II';
-    const e=el('larynx-result'); if(e) e.outerHTML=stageResult(stage,`T${T} N${N} M${M}`);
+    const e=gel('larynx-result'); if(e) e.outerHTML=U.stageResult(stage,`T${T} N${N} M${M}`);
   };
 
   function renderHypoph() {
     return `
-      ${fld('hyp-t','T',[['1','T1 單部位，無固定'],['2','T2 多部位/鄰近 / 固定聲帶'],['3','T3 固定/食道/中央頸部'],['4a','T4a 甲狀/環狀軟骨/舌骨/頸部軟組織'],['4b','T4b 椎前/縱膈/頸動脈']],'1')}
-      ${fld('hyp-n','N',[['0','N0'],['1','N1 同側單顆 ≤3cm'],['2a','N2a 同側單顆 3-6cm'],['2b','N2b 同側多顆 ≤6cm'],['2c','N2c 雙/對側 ≤6cm'],['3a','N3a >6cm'],['3b','ENE+']],'0')}
-      ${fld('hyp-m','M',[['0','M0'],['1','M1']],'0')}
+      ${U.fld('hyp-t','T',[['1','T1 單部位，無固定'],['2','T2 多部位/鄰近 / 固定聲帶'],['3','T3 固定/食道/中央頸部'],['4a','T4a 甲狀/環狀軟骨/舌骨/頸部軟組織'],['4b','T4b 椎前/縱膈/頸動脈']],'1')}
+      ${U.fld('hyp-n','N',[['0','N0'],['1','N1 同側單顆 ≤3cm'],['2a','N2a 同側單顆 3-6cm'],['2b','N2b 同側多顆 ≤6cm'],['2c','N2c 雙/對側 ≤6cm'],['3a','N3a >6cm'],['3b','ENE+']],'0')}
+      ${U.fld('hyp-m','M',[['0','M0'],['1','M1']],'0')}
       <div id="hypoph-result"></div>
-      ${calcBtn("StageHypoph()")}`;
+      ${U.calcBtn("StageHypoph()")}`;
   }
   window.StageHypoph = function() {
-    const T=sel('hyp-t'), N=sel('hyp-n'), M=sel('hyp-m');
+    const T=selVal('hyp-t'), N=sel('hyp-n'), M=sel('hyp-m');
     let stage='';
     if (M==='1') stage='IV C';
     else if (T==='4b'||N==='3a'||N==='3b') stage='IV B';
     else if (T==='4a'||N.startsWith('2')) stage='IV A';
     else if (T==='3'||N==='1') stage='III';
     else stage=T==='1'?'I':'II';
-    const e=el('hypoph-result'); if(e) e.outerHTML=stageResult(stage,`T${T} N${N} M${M}`);
+    const e=gel('hypoph-result'); if(e) e.outerHTML=U.stageResult(stage,`T${T} N${N} M${M}`);
   };
 
   // ── Active cancer filter ─────────────────────────────────
