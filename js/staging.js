@@ -37,7 +37,8 @@ const Staging = (() => {
         ['0','M0'],
         ['1a','M1a 對側肺結節 / 胸膜或心包結節 / 惡性積液'],
         ['1b','M1b 單一胸外轉移'],
-        ['1c','M1c 多處胸外轉移（≥2 器官）']],'0')}
+        ['1c1','M1c1 多處胸外轉移，單一器官'],
+        ['1c2','M1c2 多處胸外轉移，多個器官']],'0')}
       <div id="lung-result"></div>
       ${U.calcBtn("StageLung()")}
     `);
@@ -49,23 +50,34 @@ const Staging = (() => {
     const T12 = !T34;
 
     // AJCC 9th Edition (2024) — Lung
-    if (M==='1c') stage='IV B';                       // M1c → IVB
+    // M: metastasis first
+    if      (M==='1c2') stage='IV C';                  // M1c2 多器官 → IVC (9th 新增)
+    else if (M==='1c1') stage='IV B';                  // M1c1 單器官多處 → IVB
     else if (M==='1a'||M==='1b') stage='IV A';         // M1a/b → IVA
+    // N3
     else if (N==='3') {
-      stage = T34 ? 'III C' : 'III B';                // T3-4 N3→IIIC; T1-2 N3→IIIB
-    } else if (N==='2a'||N==='2b') {
-      stage = T34 ? 'III B' : 'III A';                // T3-4 N2→IIIB; T1-2 N2→IIIA
-    } else if (N==='1') {
-      stage = T34 ? 'III A' : 'II B';                 // T3-4 N1→IIIA; T1-2 N1→IIB
-    } else {
-      // N0
-      if (T==='1a') stage='I A1';
+      stage = T34 ? 'III C' : 'III B';
+    }
+    // N2a / N2b — 9th 新增區分
+    else if (N==='2b') {
+      stage = 'III B';                                 // T any + N2b → IIIB
+    }
+    else if (N==='2a') {
+      stage = T34 ? 'III B' : 'III A';                // T3-4 N2a→IIIB; T1-2 N2a→IIIA
+    }
+    // N1
+    else if (N==='1') {
+      stage = T34 ? 'III A' : 'II B';
+    }
+    // N0
+    else {
+      if      (T==='1a') stage='I A1';
       else if (T==='1b') stage='I A2';
       else if (T==='1c') stage='I A3';
       else if (T==='2a') stage='I B';
       else if (T==='2b') stage='II A';
-      else if (T==='3') stage='II B';
-      else stage='III A';                              // T4 N0→IIIA
+      else if (T==='3')  stage='II B';
+      else               stage='III A';               // T4 N0 → IIIA
     }
     const e = gel('lung-result');
     if(e) e.outerHTML = U.stageResult(stage, `T${T} N${N} M${M}`);

@@ -7,6 +7,17 @@
 
 ## 版本歷程
 
+### V2.6 — 肺癌 AJCC 9th 完整修正
+
+**Bug fix**
+- M1c 拆分為 M1c1 / M1c2（AJCC 9th 新增）
+  - M1c1（多處轉移，同一胸外器官）→ Stage IV B
+  - M1c2（多處轉移，多個胸外器官）→ Stage IV C（9th 全新分期）
+- T1-2 N2b → Stage III B（9th 新增 N2a/N2b 區分；原錯誤給 III A）
+- 版本號 bump 機制修正：改用 regex 替換所有 Vx.x.x 格式
+
+---
+
 ### V2.5 — Bug fix：GPA 工具失效 + 肺癌分期更正
 
 **Bug fix**
