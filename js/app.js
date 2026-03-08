@@ -3,7 +3,7 @@
 // ──────────────────────────────────────────────────────────
 
 const App = (() => {
-  const VERSION = 'V1.5';
+  const VERSION = 'V1.6';
 
   const DEFAULT_SETTINGS = {
     enabledTools: {
@@ -72,6 +72,10 @@ const App = (() => {
     return `<div class="flex gap-1.5 overflow-x-auto" style="-webkit-overflow-scrolling:touch;scrollbar-width:none;">
       ${items.map(i => pillBtn(i.label, i.key === activeKey, `${onclickFn}('${i.key}')`)).join('')}
     </div>`;
+  }
+
+  function pageWrap(content) {
+    return `<div class="px-4 pt-4 pb-2">${content}</div>`;
   }
 
   function renderTools() {
