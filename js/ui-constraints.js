@@ -147,8 +147,7 @@ const UIConstraints = (() => {
     const CANCERS = ['全部','Lung','Breast','Prostate','Rectum','Liver','Esophagus','Stomach','Pancreas','H&N','CNS','Lymphoma','Bone/Mets'];
     const catBtns = CANCERS.map(k => {
       const active = k === recCancer;
-      const s = active ? 'background:#222220;color:#fff;border-color:#222220;' : 'background:#fff;color:#5A5750;border-color:#E2DFD8;';
-      return `<button onclick="ConRecCancer('${k}')" style="font-size:0.72rem;padding:4px 10px;border-radius:9999px;border-width:1px;border-style:solid;white-space:nowrap;cursor:pointer;${s}">${k}</button>`;
+      return `<button onclick="ConRecCancer('${k}')" class="fpill${active?' on':''}">${k}</button>`;
     }).join('');
 
     let data = DOSE_RECS;
@@ -162,20 +161,20 @@ const UIConstraints = (() => {
 
     const cards = Object.entries(grouped).map(([cancer, items]) => `
       <div class="mb-3">
-        <div class="text-xs font-semibold mb-1.5 uppercase tracking-wide" style="color:#9E9A93;">${cancer}</div>
+        <div class="text-xs font-semibold mb-1.5 uppercase tracking-wide" style="color:var(--t3);">${cancer}</div>
         ${items.map(d => {
           const bs = TECH_BADGE[d.tech] || 'background:#EDECEA;color:#4A4640';
-          return `<div class="rounded-xl mb-2 p-3" style="background:#fff;border:1px solid #E2DFD8;">
+          return `<div class="rounded-xl mb-2 p-3" style="background:var(--card);border:1px solid var(--border);">
             <div class="flex items-start justify-between gap-2 mb-1">
-              <div class="text-sm font-medium leading-snug" style="color:#1A1A1A;">${d.site}</div>
+              <div class="text-sm font-medium leading-snug" style="color:var(--t1);">${d.site}</div>
               <span class="flex-shrink-0 text-xs px-2 py-0.5 rounded-full" style="${bs}">${d.tech}</span>
             </div>
             <div class="flex items-center gap-3 mb-1">
-              <span class="mono font-bold text-base" style="color:#1A1A1A;">${d.dose} Gy</span>
-              <span class="text-xs" style="color:#5A5750;">${typeof d.fx === 'number' ? d.fx+'fx' : d.fx+' fx'}</span>
+              <span class="mono font-bold text-base" style="color:var(--t1);">${d.dose} Gy</span>
+              <span class="text-xs" style="color:var(--t2);">${typeof d.fx === 'number' ? d.fx+'fx' : d.fx+' fx'}</span>
             </div>
-            ${d.note ? `<div class="text-xs leading-relaxed" style="color:#9E9A93;">${d.note}</div>` : ''}
-            <div class="text-xs mt-1" style="color:#BBBBBB;">${d.source}</div>
+            ${d.note ? `<div class="text-xs leading-relaxed" style="color:var(--t3);">${d.note}</div>` : ''}
+            <div class="text-xs mt-1" style="color:var(--t3);">${d.source}</div>
           </div>`;
         }).join('')}
       </div>`).join('');
@@ -187,9 +186,9 @@ const UIConstraints = (() => {
         </div>
       </div>
       <div class="mt-3">
-        ${cards || '<div class="text-center py-8 text-sm" style="color:#9E9A93;">無資料</div>'}
+        ${cards || '<div class="text-center py-8 text-sm" style="color:var(--t3);">無資料</div>'}
       </div>
-      <div class="mt-2 text-xs p-3 rounded-xl mb-2" style="background:#F2F0EC;color:#5A5750;border:1px solid #E2DFD8;">
+      <div class="mt-2 text-xs p-3 rounded-xl mb-2" style="background:var(--bg);color:var(--t2);border:1px solid var(--border);">
         劑量建議僅供參考，請依最新 NCCN Guidelines 及多專科會議決策。
       </div>`;
   }
@@ -217,7 +216,7 @@ const UIConstraints = (() => {
           <div class="text-xs mb-1" style="color:var(--t3);">部位</div>
           <div class="flex" style="flex-wrap:wrap;gap:5px;">
             ${Object.entries(GROUP_LABELS).map(([k,lbl]) => {
-              return `<button onclick="ConGroup('${k}')" data-group="${k}" class="con-grp-btn flex-shrink-0 text-xs px-3 py-1.5 rounded-full" style="${pillSty(k===groupFilter)}">${lbl}</button>`;
+              return `<button onclick="ConGroup('${k}')" data-group="${k}" class="fpill con-grp-btn ${pillSty(k===groupFilter)}">${lbl}</button>`;
             }).join('')}
           </div>
         </div>
@@ -226,7 +225,7 @@ const UIConstraints = (() => {
           <div class="text-xs mb-1" style="color:var(--t3);">技術</div>
           <div class="flex" style="flex-wrap:wrap;gap:5px;">
             ${TECHS.map(t => {
-              return `<button onclick="ConTech('${t}')" data-tech="${t}" class="con-tech-btn flex-shrink-0 text-xs px-3 py-1.5 rounded-full" style="${pillSty(t===techFilter)}">${TECH_LABELS[t]}</button>`;
+              return `<button onclick="ConTech('${t}')" data-tech="${t}" class="fpill con-tech-btn ${pillSty(t===techFilter)}">${TECH_LABELS[t]}</button>`;
             }).join('')}
           </div>
         </div>
@@ -235,7 +234,7 @@ const UIConstraints = (() => {
           <div class="text-xs mb-1" style="color:var(--t3);">來源</div>
           <div class="flex" style="flex-wrap:wrap;gap:5px;">
             ${['All','RTOG','QUANTEC','TG-101','NCCN','Custom'].map(s => {
-              return `<button onclick="ConSource('${s}')" data-source="${s}" class="con-src-btn flex-shrink-0 text-xs px-3 py-1.5 rounded-full" style="${pillSty(s===sourceFilter)}">${s}</button>`;
+              return `<button onclick="ConSource('${s}')" data-source="${s}" class="fpill con-src-btn ${pillSty(s===sourceFilter)}">${s}</button>`;
             }).join('')}
           </div>
         </div>
@@ -263,32 +262,17 @@ const UIConstraints = (() => {
   window.ConSearch = function(q) { query = q; refreshResults(); };
   window.ConGroup  = function(g) {
     groupFilter = g;
-    document.querySelectorAll('.con-grp-btn').forEach(b => {
-      const active = b.dataset.group === g;
-      b.style.background = active ? 'var(--accent)' : 'var(--card)';
-      b.style.color = active ? '#fff' : 'var(--t2)';
-      b.style.borderColor = active ? 'var(--accent)' : 'var(--border)';
-    });
+    document.querySelectorAll('.con-grp-btn').forEach(b => { b.classList.toggle('on', b.dataset.group === g); });
     refreshResults();
   };
   window.ConTech = function(t) {
     techFilter = t;
-    document.querySelectorAll('.con-tech-btn').forEach(b => {
-      const active = b.dataset.tech === t;
-      b.style.background = active ? 'var(--accent)' : 'var(--card)';
-      b.style.color = active ? '#fff' : 'var(--t2)';
-      b.style.borderColor = active ? 'var(--accent)' : 'var(--border)';
-    });
+    document.querySelectorAll('.con-tech-btn').forEach(b => { b.classList.toggle('on', b.dataset.tech === t); });
     refreshResults();
   };
   window.ConSource = function(s) {
     sourceFilter = s;
-    document.querySelectorAll('.con-src-btn').forEach(b => {
-      const active = b.dataset.source === s;
-      b.style.background = active ? 'var(--accent)' : 'var(--card)';
-      b.style.color = active ? '#fff' : 'var(--t2)';
-      b.style.borderColor = active ? 'var(--accent)' : 'var(--border)';
-    });
+    document.querySelectorAll('.con-src-btn').forEach(b => { b.classList.toggle('on', b.dataset.source === s); });
     refreshResults();
   };
   window.ConToggleStar = function(id) {

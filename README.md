@@ -7,6 +7,20 @@
 
 ## 版本歷程
 
+### V2.0 — 設定預設修復 + 北歐 UI 全面整理
+
+**Bug fix**
+- 設定頁「快速預設」按鈕固定顯示「放腫核心」為選中 → 加入 `activePreset` 狀態追蹤，按下後才反白對應按鈕
+
+**UI 全面整理**
+- 新增 `.fpill` / `.fpill.on` CSS class，取代所有篩選 pill 的 inline style
+- staging / ICD / 劑量頁所有篩選 pill 改用 `classList.toggle('on')` 更新
+- CSS 變數統整：所有頁面的硬編碼 hex 值全改為 `var(--t1/t2/t3/accent/bg/card/border)`
+- Tab bar 背景改用 `var(--border)` 取代固定灰值；input focus 加白底回饋
+- 北歐配色微調：`--bg #ECEEF3`、`--card #F7F7F9`、`--accent #3D6494`、`--hdr #252831`
+
+---
+
 ### V1.9 — 劑量 Tab 點選修復
 
 **Bug fix**

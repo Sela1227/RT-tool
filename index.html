@@ -14,78 +14,69 @@
     ::-webkit-scrollbar { display: none; }
     * { -ms-overflow-style: none; scrollbar-width: none; }
 
-    /* ── Nordic Mist Palette ────────────────────────────── */
+    /* ── Nordic Palette ──────────────────────────────────── */
     :root {
-      /* Surfaces */
-      --bg:       #E8EAF0;   /* fog blue — page bg          */
-      --card:     #F7F5F6;   /* gray-pink card              */
-      --card2:    #EEF0F5;   /* alt card (result panels)    */
-      --border:   #D6D4D8;   /* warm-cool neutral border    */
+      --bg:      #ECEEF3;   /* fog page                    */
+      --card:    #F7F7F9;   /* card surface                */
+      --card2:   #EDEEF4;   /* result / alt surface        */
+      --border:  #D8DAE2;   /* cool-neutral border         */
 
-      /* Text */
-      --t1:       #2C2D35;   /* near-black, slightly warm   */
-      --t2:       #5E5F6E;   /* medium gray-violet          */
-      --t3:       #9B9CAB;   /* muted placeholder           */
+      --t1:      #1F2029;   /* near-black                  */
+      --t2:      #585A6B;   /* medium gray                 */
+      --t3:      #9A9BAA;   /* muted placeholder           */
 
-      /* Accent — dusty teal-blue */
-      --accent:   #4A6D8C;   /* muted slate                 */
-      --acc-bg:   #DDE5EE;   /* accent surface              */
+      --accent:  #3D6494;   /* dusty blue                  */
+      --acc-bg:  #DDE6F0;   /* accent tint surface         */
 
-      /* Header — dark fog */
-      --hdr:      #2E3440;   /* dark Nordic night           */
+      --hdr:     #252831;   /* header dark                 */
 
-      /* Feedback */
-      --result:   #EEF0F5;
-      --danger:   #8E3A30;
-      --warn-bg:  #F5EFE8;
-      --warn:     #7A4A20;
+      --result:  #EDEEF4;
+      --danger:  #8B3A33;
+      --warn-bg: #F4EFE8;
+      --warn:    #7A4B20;
     }
 
     body {
       font-family: 'Noto Sans TC', -apple-system, sans-serif;
       background: var(--bg);
       color: var(--t1);
+      line-height: 1.5;
     }
     .mono { font-family: 'DM Mono', monospace !important; }
     .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
-    #app-main { transition: opacity 0.1s ease; }
+    #app-main { transition: opacity 0.12s ease; }
 
-    /* ── Cards ──────────────────────────────────────────── */
+    /* ── Card ────────────────────────────────────────────── */
     .card {
       background: var(--card);
       border-radius: 14px;
       border: 1px solid var(--border);
-      box-shadow: 0 1px 3px rgba(44,45,53,.06);
+      box-shadow: 0 1px 4px rgba(31,32,41,.05);
     }
 
-    /* ── Stepper button ─────────────────────────────────── */
+    /* ── Stepper ─────────────────────────────────────────── */
     .step-btn {
       width: 36px; height: 36px;
-      border-radius: 8px;
+      border-radius: 9px;
       border: 1px solid var(--border);
-      background: var(--bg);
+      background: var(--card);
       color: var(--t1);
-      font-size: 18px;
-      line-height: 1;
+      font-size: 18px; line-height: 1;
       display: flex; align-items: center; justify-content: center;
-      cursor: pointer;
-      flex-shrink: 0;
-      transition: background 0.12s;
+      cursor: pointer; flex-shrink: 0;
+      transition: background 0.1s;
     }
     .step-btn:active { background: var(--acc-bg); }
 
-    /* ── Pill selector ──────────────────────────────────── */
+    /* ── Pill selector (α/β, etc.) ───────────────────────── */
     .pill-opt {
       flex: 1; padding: 6px 4px;
       border-radius: 8px;
       border: 1px solid var(--border);
       background: var(--card);
       color: var(--t2);
-      font-size: 12px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.12s;
-      line-height: 1.3;
+      font-size: 12px; text-align: center;
+      cursor: pointer; transition: all 0.12s; line-height: 1.3;
     }
     .pill-opt.active {
       background: var(--accent);
@@ -93,101 +84,115 @@
       border-color: var(--accent);
     }
 
-    /* ── Section label ──────────────────────────────────── */
+    /* ── Filter pill (top bar selectors) ─────────────────── */
+    .fpill {
+      font-size: 0.72rem;
+      padding: 4px 11px;
+      border-radius: 9999px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--t2);
+      white-space: nowrap; cursor: pointer;
+      transition: background 0.1s, color 0.1s, border-color 0.1s;
+    }
+    .fpill.on {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    /* ── Section label ───────────────────────────────────── */
     .sec-label {
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: .08em;
-      text-transform: uppercase;
+      font-size: 10px; font-weight: 600;
+      letter-spacing: .10em; text-transform: uppercase;
       color: var(--t3);
     }
 
-    /* ── Chevron card ───────────────────────────────────── */
+    /* ── Tool card chevron ───────────────────────────────── */
     .tool-body { display: none; }
     .tool-body.open { display: block; }
 
-    /* ── Nav active ─────────────────────────────────────── */
+    /* ── Nav active ──────────────────────────────────────── */
     .nav-active { color: var(--accent) !important; }
 
-    /* ── Input base ─────────────────────────────────────── */
+    /* ── Input ───────────────────────────────────────────── */
     .inp {
       width: 100%;
       border: 1px solid var(--border);
-      border-radius: 8px;
+      border-radius: 9px;
       padding: 8px 12px;
       font-size: 14px;
       color: var(--t1);
-      background: #fff;
+      background: var(--card);
       outline: none;
       font-family: inherit;
+      transition: border-color 0.15s;
     }
-    .inp:focus { border-color: var(--accent); }
-    select.inp { appearance: none; background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%238A9DB5' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+    .inp:focus { border-color: var(--accent); background: #fff; }
+    select.inp {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23888' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 32px;
+    }
 
-    /* ── Calc button ────────────────────────────────────── */
+    /* ── Calc button ─────────────────────────────────────── */
     .calc-btn {
-      width: 100%;
-      margin-top: 12px;
-      padding: 10px;
-      border-radius: 10px;
-      background: var(--accent);
-      color: #fff;
-      font-size: 14px;
-      font-weight: 500;
-      border: none;
-      cursor: pointer;
+      width: 100%; margin-top: 12px;
+      padding: 10px; border-radius: 10px;
+      background: var(--accent); color: #fff;
+      font-size: 14px; font-weight: 500;
+      border: none; cursor: pointer;
       transition: opacity 0.12s;
+      letter-spacing: .02em;
     }
-    .calc-btn:active { opacity: 0.8; }
+    .calc-btn:active { opacity: 0.82; }
 
-    /* ── Result panel ───────────────────────────────────── */
+    /* ── Result panel ────────────────────────────────────── */
     .result-panel {
-      margin-top: 14px;
-      padding: 14px;
+      margin-top: 14px; padding: 14px;
       border-radius: 12px;
       background: var(--card2);
       border: 1px solid var(--border);
     }
     .result-val {
       font-family: 'DM Mono', monospace;
-      font-size: 22px;
-      font-weight: 500;
+      font-size: 22px; font-weight: 500;
       color: var(--t1);
     }
 
-    /* ── Tabs ───────────────────────────────────────────── */
+    /* ── Tab bar ─────────────────────────────────────────── */
     .tab-bar {
-      display: flex;
-      padding: 4px;
-      border-radius: 12px;
-      background: #D8D8E4;
-      margin-bottom: 14px;
+      display: flex; padding: 3px;
+      border-radius: 11px;
+      background: var(--border);
+      margin-bottom: 12px;
     }
     .tab-btn {
-      flex: 1;
-      padding: 7px 4px;
+      flex: 1; padding: 6px 4px;
       border-radius: 9px;
-      font-size: 12px;
-      font-weight: 500;
-      text-align: center;
-      cursor: pointer;
+      font-size: 12px; font-weight: 500;
+      text-align: center; cursor: pointer;
       color: var(--t2);
       transition: all 0.15s;
-      border: none;
-      background: transparent;
+      border: none; background: transparent;
     }
     .tab-btn.active {
-      background: #fff;
+      background: var(--card);
       color: var(--accent);
-      box-shadow: 0 1px 4px rgba(0,0,0,.10);
+      box-shadow: 0 1px 4px rgba(31,32,41,.08);
     }
 
-    /* ── Source badges ──────────────────────────────────── */
-    .badge-rtog    { background:#DDE5EF; color:#3A5A80; border-radius:6px; padding:1px 6px; font-size:11px; }
-    .badge-quantec { background:#E0EDE5; color:#2E6645; border-radius:6px; padding:1px 6px; font-size:11px; }
-    .badge-tg101   { background:#EAE0EF; color:#5A3A7A; border-radius:6px; padding:1px 6px; font-size:11px; }
-    .badge-nccn    { background:#FEF3E2; color:#9A6000; border-radius:6px; padding:1px 6px; font-size:11px; }
-    .badge-custom  { background:#EDEAF0; color:#4A4560; border-radius:6px; padding:1px 6px; font-size:11px; }
+    /* ── Source badges ───────────────────────────────────── */
+    .badge-rtog    { background:#D8E6F2; color:#2B5278; border-radius:5px; padding:2px 7px; font-size:11px; }
+    .badge-quantec { background:#D8EDE2; color:#245B3A; border-radius:5px; padding:2px 7px; font-size:11px; }
+    .badge-tg101   { background:#E4DCF2; color:#4A2E7A; border-radius:5px; padding:2px 7px; font-size:11px; }
+    .badge-nccn    { background:#F2EBD6; color:#7A5010; border-radius:5px; padding:2px 7px; font-size:11px; }
+    .badge-custom  { background:#E4E2EC; color:#3E3A55; border-radius:5px; padding:2px 7px; font-size:11px; }
+
+    /* ── Card header divider when open ──────────────────── */
+    .card-hdr-open { border-bottom: 1px solid var(--border); }
   </style>
 </head>
 <body>
@@ -207,7 +212,7 @@
           </div>
         </div>
         <div class="mono text-xs px-2.5 py-1 rounded-full font-medium"
-             style="background:rgba(255,255,255,.10);color:rgba(255,255,255,.6);">V1.9</div>
+             style="background:rgba(255,255,255,.10);color:rgba(255,255,255,.6);">V2.0</div>
       </div>
     </header>
 

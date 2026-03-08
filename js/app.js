@@ -3,7 +3,7 @@
 // ──────────────────────────────────────────────────────────
 
 const App = (() => {
-  const VERSION = 'V1.9';
+  const VERSION = 'V2.0';
 
   const DEFAULT_SETTINGS = {
     enabledTools: {
@@ -18,7 +18,7 @@ const App = (() => {
     }
   };
 
-  let state = { page:'tools', toolsTab:'rt', settings:null, cisplatinDoses:[], activeTools:{rt:'bed', calc:'childpugh', score:'gpa'} };
+  let state = { page:'tools', toolsTab:'rt', settings:null, cisplatinDoses:[], activeTools:{rt:'bed', calc:'childpugh', score:'gpa'}, activePreset: null };
 
   // ── Storage ──────────────────────────────────────────────
   function loadSettings() {
@@ -62,10 +62,7 @@ const App = (() => {
   }
 
   function pillBtn(label, active, onclick) {
-    const s = active
-      ? 'background:#222220;color:#fff;border-color:#222220;'
-      : 'background:#fff;color:#5A5750;border-color:#E2DFD8;';
-    return `<button onclick="${onclick}" style="font-size:0.75rem;padding:5px 12px;border-radius:9999px;border-width:1px;border-style:solid;white-space:nowrap;cursor:pointer;${s}">${label}</button>`;
+    return `<button onclick="${onclick}" class="fpill${active?' on':''}">${label}</button>`;
   }
 
   function pillRow(items, activeKey, onclickFn) {
@@ -153,9 +150,11 @@ const App = (() => {
       <div class="card p-4 mb-3">
         <div class="sec-label mb-3">快速預設</div>
         <div class="flex gap-2">
-          <button onclick="App.applyPreset('all')"     class="flex-1 py-2 text-xs rounded-lg font-medium" style="background:var(--bg);color:var(--t1);border:1px solid var(--border);">全開</button>
-          <button onclick="App.applyPreset('radonc')"  class="flex-1 py-2 text-xs rounded-lg font-medium" style="background:var(--acc-bg);color:var(--accent);border:1px solid var(--border);">放腫核心</button>
-          <button onclick="App.applyPreset('minimal')" class="flex-1 py-2 text-xs rounded-lg font-medium" style="background:var(--bg);color:var(--t2);border:1px solid var(--border);">精簡</button>
+          ${[['all','全開'],['radonc','放腫核心'],['minimal','精簡']].map(([k,lbl]) => {
+            const on = state.activePreset === k;
+            const s = on ? 'background:var(--accent);color:#fff;border:1px solid var(--accent);' : 'background:var(--bg);color:var(--t2);border:1px solid var(--border);';
+            return `<button onclick="App.applyPreset('${k}')" class="flex-1 py-2 text-xs rounded-lg font-medium" style="${s}">${lbl}</button>`;
+          }).join('')}
         </div>
       </div>
       ${section('放療工具', rtTools)}
@@ -210,6 +209,7 @@ const App = (() => {
   }
 
   function applyPreset(preset) {
+    state.activePreset = preset;
     const en = state.settings.enabledTools;
     const all = Object.keys(en);
     const radonc  = ['bed','treatmentgap','hypofrac','childpugh','roach','albi','meld','gpa','sins','tokuhashi','rpa','ecogkps'];
