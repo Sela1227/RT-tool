@@ -77,12 +77,13 @@ const Staging = (() => {
     return `<button onclick="${fn}" class="w-full mt-3 rounded-lg py-2.5 text-sm font-medium transition-colors" style="background:var(--t1);color:#fff;">${label}</button>`;
   }
 
-  function sel(id, label, opts) {
+  function sel(id, label, opts, onchange='') {
     const options = opts.map(([v,t]) => `<option value="${v}">${t}</option>`).join('');
+    const oc = onchange ? ` onchange="${onchange}"` : '';
     return `
     <div class="mb-3">
       <div class="text-xs mb-1.5" style="color:var(--t2);">${label}</div>
-      <select id="${id}" class="inp" style="border-color:var(--border);background:var(--card);color:var(--t1);">
+      <select id="${id}" class="inp" style="border-color:var(--border);background:var(--card);color:var(--t1);"${oc}>
         ${options}
       </select>
     </div>`;
@@ -618,7 +619,7 @@ const Staging = (() => {
       ['lar','喉癌（聲門上）'],['lar_g','喉癌（聲門）'],['hyp','下咽癌'],['oral','口腔癌'],
     ];
     const body = `
-      ${sel('hn-site','部位', SITES)}
+      ${sel('hn-site','部位', SITES, 'updateHNSite()')}
       <div class="tab-bar mb-3" style="margin-top:12px;">
         <button class="tab-btn active" id="hn-tab-t" onclick="HNTab('t')">T 分期</button>
         <button class="tab-btn" id="hn-tab-n" onclick="HNTab('n')">N 分期</button>
@@ -745,34 +746,65 @@ const Staging = (() => {
   };
 
   // ── Main render ──────────────────────────────────────────
+  // ── Active cancer filter ──────────────────────────────────
+  let activeCancer = 'lung';
+
+  const CANCER_LIST = [
+    { id:'lung',     label:'肺癌',   render: renderLung },
+    { id:'rectum',   label:'直腸',   render: renderRectum },
+    { id:'prostate', label:'前列腺', render: renderProstate },
+    { id:'hcc',      label:'HCC',    render: renderHCC },
+    { id:'breast',   label:'乳癌',   render: renderBreast },
+    { id:'eso',      label:'食道',   render: renderEso },
+    { id:'stomach',  label:'胃癌',   render: renderStomach },
+    { id:'pancreas', label:'胰臟',   render: renderPancreas },
+    { id:'hn',       label:'頭頸',   render: renderHN },
+  ];
+
+  function filterBtnStyle(active) {
+    return active
+      ? 'background:#222220;color:#fff;border-color:#222220;'
+      : 'background:#fff;color:#5A5750;border-color:#E2DFD8;';
+  }
+
+  window.StagingFilter = function(id) {
+    activeCancer = id;
+    // Update pill styles
+    CANCER_LIST.forEach(c => {
+      const b = document.getElementById('sf-' + c.id);
+      if (b) b.style.cssText =
+        'font-size:0.75rem;padding:0.375rem 0.75rem;border-radius:9999px;border-width:1px;border-style:solid;white-space:nowrap;cursor:pointer;' +
+        filterBtnStyle(c.id === id);
+    });
+    // Swap content panel
+    const panel = document.getElementById('staging-panel');
+    if (panel) {
+      const found = CANCER_LIST.find(c => c.id === id);
+      if (found) panel.innerHTML = found.render();
+    }
+  };
+
   function render() {
-    const JUMPS = [
-      ['lung','肺癌'],['rectum','直腸'],['prostate','前列腺'],['hcc','HCC'],
-      ['breast','乳癌'],['eso','食道'],['stomach','胃癌'],
-      ['pancreas','胰臟'],['hn','頭頸'],
-    ];
-    const jump = `<div class="flex flex-wrap gap-1.5 mb-3">${
-      JUMPS.map(([id,lb]) =>
-        `<button onclick="jumpTo('${id}')"
-          class="text-xs px-2.5 py-1 rounded-full"
-          style="background:#F2F0EC;color:#1A1A1A;border:1px solid #E2DFD8;">${lb}</button>`
-      ).join('')
-    }</div>`;
+    const filterBar = `
+      <div class="flex gap-1.5 overflow-x-auto pb-2 mb-3" style="-webkit-overflow-scrolling:touch;">
+        ${CANCER_LIST.map(c => `
+          <button id="sf-${c.id}" onclick="StagingFilter('${c.id}')"
+            style="font-size:0.75rem;padding:0.375rem 0.75rem;border-radius:9999px;border-width:1px;border-style:solid;white-space:nowrap;cursor:pointer;${filterBtnStyle(c.id === activeCancer)}">
+            ${c.label}
+          </button>`).join('')}
+      </div>`;
+
+    const initial = CANCER_LIST.find(c => c.id === activeCancer);
+
     return `
       <div class="mb-3">
         <div class="text-base font-semibold" style="color:#1A1A1A;">腫瘤分期</div>
         <div class="text-xs mt-0.5" style="color:#9E9A93;">AJCC 9th Edition (2024)</div>
       </div>
-      ${jump}
-      ${renderLung()}
-      ${renderRectum()}
-      ${renderProstate()}
-      ${renderHCC()}
-      ${renderBreast()}
-      ${renderEso()}
-      ${renderStomach()}
-      ${renderPancreas()}
-      ${renderHN()}
+      ${filterBar}
+      <div id="staging-panel">
+        ${initial ? initial.render() : ''}
+      </div>
       <div class="mt-2 text-xs leading-relaxed rounded-xl p-3 mb-2"
            style="background:#F2F0EC;color:#5A5750;border:1px solid #E2DFD8;">
         分期結果僅供參考，請依 AJCC 9th 原始文獻及多專科會議決策為準。

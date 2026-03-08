@@ -31,7 +31,7 @@ const UIConstraints = (() => {
   };
   const GROUP_LABELS = { All:'全部', CNS:'CNS', HN:'頭頸', Thorax:'胸腔', Abdomen:'腹部', Pelvis:'骨盆', Other:'其他' };
 
-  const SOURCE_BADGE = { RTOG:'badge-rtog', QUANTEC:'badge-quantec', 'TG-101':'badge-tg101' };
+  const SOURCE_BADGE = { RTOG:'badge-rtog', QUANTEC:'badge-quantec', 'TG-101':'badge-tg101', NCCN:'badge-nccn' };
 
   function getAllData() {
     const overrides = getOverrides(), custom = getCustom();
@@ -165,7 +165,7 @@ const UIConstraints = (() => {
       <div class="mb-3">
         <div class="text-xs mb-1.5" style="color:var(--t3);">來源</div>
         <div class="flex gap-1.5 overflow-x-auto pb-1" style="-webkit-overflow-scrolling:touch;">
-          ${['All','RTOG','QUANTEC','TG-101','Custom'].map(s =>
+          ${['All','RTOG','QUANTEC','TG-101','NCCN','Custom'].map(s =>
             `<button onclick="ConSource('${s}')" data-source="${s}"
               class="con-src-btn flex-shrink-0 text-xs px-3 py-1.5 rounded-full transition-colors"
               style="${s===sourceFilter ? 'background:var(--accent);color:#fff;border:1px solid var(--accent);' : 'background:var(--card);color:var(--t2);border:1px solid var(--border);'}">${s}</button>`
