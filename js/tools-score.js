@@ -1,7 +1,7 @@
 // ── ToolsScore — 評分工具 (5 tools, all inside IIFE) ─────
 const ToolsScore = (() => {
 
-
+  const setH = (id, html) => { const e = gel(id); if (e) e.innerHTML = html; };
 
   // selBtn: highlight selected button in a group, update hidden input
   window.selBtn = function(id, btn) {

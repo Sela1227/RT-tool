@@ -3,7 +3,7 @@
 // ──────────────────────────────────────────────────────────
 
 const App = (() => {
-  const VERSION = 'V2.3';
+  const VERSION = 'V2.3.1';
 
   const DEFAULT_SETTINGS = {
     enabledTools: {
@@ -177,7 +177,7 @@ const App = (() => {
     const main = document.getElementById('app-main');
     switch(state.page) {
       case 'tools':       main.innerHTML = renderTools(); break;
-      case 'staging':     main.innerHTML = pageWrap(Staging.render()); break;
+      case 'staging':     main.innerHTML = pageWrap(Staging.render()); Staging.afterRender(); break;
       case 'constraints': {
         main.innerHTML = pageWrap(UIConstraints.render());
         UIConstraints.bindEvents();

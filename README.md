@@ -7,6 +7,36 @@
 
 ## 版本歷程
 
+### V2.5 — Bug fix：GPA 工具失效 + 肺癌分期更正
+
+**Bug fix**
+- GPA / SINS / Tokuhashi / RPA / ECOG 全部失效：V2.2 重構移除 `setH` 時遺漏 tools-score.js 仍依賴此 helper，已補回
+- 肺癌分期邏輯錯誤（混用 AJCC 8th）：依 AJCC 9th（2024）完整重寫
+  - N 分類新增 N2a（單站）/ N2b（多站）區別
+  - M1c → Stage IV B（8th 無此 M1c→IVC 的錯誤分類已移除）
+  - M1a/M1b → Stage IV A（正確）
+  - N3 分 T1-2/T3-4 → III B / III C
+  - N2 分 T1-2/T3-4 → III A / III B
+  - T4 N0 → III A（原錯誤給 IIIA 已修正邏輯）
+
+---
+
+### V2.4 — 分期篩選器自動展開修復
+
+**Bug fix**
+- 點擊癌別篩選 pill 後，卡片 body 預設 `hidden`，視覺上像「沒反應」
+- `StagingFilter()` 切換後直接移除 `hidden` 並旋轉 chevron，確保卡片立即展開
+- 初始頁面載入透過 `Staging.afterRender()` 完成同樣的自動展開
+
+---
+
+### V2.3.1 — Bug fix：分期篩選器
+
+**Bug fix**
+- V2.2 重構移除 `el()` 時，`StagingFilter` 內的 `el('staging-panel')` 未同步替換為 `gel()` → 點選癌別後 panel 不更新。全面掃描 staging.js 中殘留的 `el()` 呼叫並替換。
+
+---
+
 ### V2.3 — 移除非必要 UI 說明文字
 
 **清理**

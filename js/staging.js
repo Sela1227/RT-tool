@@ -22,9 +22,22 @@ const Staging = (() => {
   // ─── 1. LUNG ─────────────────────────────────────────────
   function renderLung() {
     return U.cardWrap('lung', IC.lung, '肺癌 AJCC 9th', `
-      ${U.fld('lung-t','T 分類',[['1a','T1a ≤1cm'],['1b','T1b 1-2cm'],['1c','T1c 2-3cm'],['2a','T2a 3-4cm'],['2b','T2b 4-5cm'],['3','T3 5-7cm / 胸壁/心包/膈神經'],['4','T4 >7cm / 縱膈/心臟/大血管/隆突']],'1a')}
-      ${U.fld('lung-n','N 分類',[['0','N0 無淋巴結'],['1','N1 同側支氣管旁/肺門'],['2','N2 同側縱膈/隆突下'],['3','N3 對側 / 鎖骨上']],'0')}
-      ${U.fld('lung-m','M 分類',[['0','M0'],['1a','M1a 對側肺/胸膜結節/惡性積液'],['1b','M1b 單一胸外轉移'],['1c','M1c 多處胸外轉移']],'0')}
+      ${U.fld('lung-t','T 分類',[
+        ['1a','T1a ≤1 cm'],['1b','T1b >1–2 cm'],['1c','T1c >2–3 cm'],
+        ['2a','T2a >3–4 cm'],['2b','T2b >4–5 cm'],
+        ['3','T3 >5–7 cm / 胸壁/膈神經/心包'],
+        ['4','T4 >7 cm / 縱膈/心臟/大血管/氣管/喉返神經/食道/椎體/隆突']],'1a')}
+      ${U.fld('lung-n','N 分類',[
+        ['0','N0'],
+        ['1','N1 同側支氣管旁 / 肺門'],
+        ['2a','N2a 單站同側縱膈 / 隆突下'],
+        ['2b','N2b 多站同側縱膈'],
+        ['3','N3 對側縱膈 / 對側肺門 / 鎖骨上']],'0')}
+      ${U.fld('lung-m','M 分類',[
+        ['0','M0'],
+        ['1a','M1a 對側肺結節 / 胸膜或心包結節 / 惡性積液'],
+        ['1b','M1b 單一胸外轉移'],
+        ['1c','M1c 多處胸外轉移（≥2 器官）']],'0')}
       <div id="lung-result"></div>
       ${U.calcBtn("StageLung()")}
     `);
@@ -32,26 +45,30 @@ const Staging = (() => {
   window.StageLung = function() {
     const T = selVal('lung-t'), N = selVal('lung-n'), M = selVal('lung-m');
     let stage = '';
-    if (M==='1c') stage='IV C';
-    else if (M==='1b') stage='IV B';
-    else if (M==='1a') stage='IV A';
-    else if (N==='3') stage='III B';
-    else if (N==='2') stage = (T==='3'||T==='4') ? 'III A' : 'III A';
-    else if (N==='1') {
-      if (T==='1a'||T==='1b'||T==='1c') stage='II B';
-      else if (T==='2a'||T==='2b') stage='II B';
-      else stage='III A';
+    const T34 = T==='3'||T==='4';
+    const T12 = !T34;
+
+    // AJCC 9th Edition (2024) — Lung
+    if (M==='1c') stage='IV B';                       // M1c → IVB
+    else if (M==='1a'||M==='1b') stage='IV A';         // M1a/b → IVA
+    else if (N==='3') {
+      stage = T34 ? 'III C' : 'III B';                // T3-4 N3→IIIC; T1-2 N3→IIIB
+    } else if (N==='2a'||N==='2b') {
+      stage = T34 ? 'III B' : 'III A';                // T3-4 N2→IIIB; T1-2 N2→IIIA
+    } else if (N==='1') {
+      stage = T34 ? 'III A' : 'II B';                 // T3-4 N1→IIIA; T1-2 N1→IIB
     } else {
+      // N0
       if (T==='1a') stage='I A1';
       else if (T==='1b') stage='I A2';
       else if (T==='1c') stage='I A3';
       else if (T==='2a') stage='I B';
       else if (T==='2b') stage='II A';
       else if (T==='3') stage='II B';
-      else stage='III A';
+      else stage='III A';                              // T4 N0→IIIA
     }
-    const html = U.stageResult(stage, `T${T} N${N} M${M}`);
-    const e = el('lung-result'); if(e) e.outerHTML = html;
+    const e = gel('lung-result');
+    if(e) e.outerHTML = U.stageResult(stage, `T${T} N${N} M${M}`);
   };
 
   // ─── 2. RECTUM ───────────────────────────────────────────
@@ -280,7 +297,7 @@ const Staging = (() => {
     document.querySelectorAll('[id^="hn-site-"]').forEach(b => {
       b.classList.toggle('on', b.id === 'hn-site-' + site);
     });
-    const f = el('hn-fields');
+    const f = gel('hn-fields');
     if (f) f.innerHTML = renderHNFields();
   };
 
@@ -399,9 +416,16 @@ const Staging = (() => {
     document.querySelectorAll('[id^="sf-"]').forEach(b => {
       b.classList.toggle('on', b.id === 'sf-' + id);
     });
-    const panel = el('staging-panel');
+    const panel = gel('staging-panel');
     const found = CANCER_LIST.find(c => c.id === id);
-    if (panel && found) panel.innerHTML = found.render();
+    if (panel && found) {
+      panel.innerHTML = found.render();
+      // Auto-expand the card
+      const body = gel(id + '-body');
+      const chev = gel(id + '-chev');
+      if (body) body.classList.remove('hidden');
+      if (chev) chev.style.transform = 'rotate(180deg)';
+    }
   };
 
   function render() {
@@ -426,5 +450,12 @@ const Staging = (() => {
     `;
   }
 
-  return { render };
+  function afterRender() {
+    const body = gel(activeCancer + '-body');
+    const chev = gel(activeCancer + '-chev');
+    if (body) body.classList.remove('hidden');
+    if (chev) chev.style.transform = 'rotate(180deg)';
+  }
+
+  return { render, afterRender };
 })();
