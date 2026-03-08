@@ -129,9 +129,9 @@ const UIConstraints = (() => {
   function render() {
     const tabBar = `
       <div style="position:sticky;top:64px;z-index:40;background:var(--bg);margin:0 -16px;padding:10px 16px 0;border-bottom:1px solid var(--border);">
-        <div class="tab-bar" style="margin-bottom:0;">
-          <button class="tab-btn${conTab==='recs'?' active':''}" onclick="ConTab('recs')">劑量建議</button>
-          <button class="tab-btn${conTab==='limits'?' active':''}" onclick="ConTab('limits')">劑量限制</button>
+        <div class="flex gap-1.5">
+          <button onclick="ConTab('recs')" class="fpill${conTab==='recs'?' on':''}">劑量建議</button>
+          <button onclick="ConTab('limits')" class="fpill${conTab==='limits'?' on':''}">劑量限制</button>
         </div>
       </div>`;
 

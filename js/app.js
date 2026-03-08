@@ -3,7 +3,7 @@
 // ──────────────────────────────────────────────────────────
 
 const App = (() => {
-  const VERSION = 'V2.0';
+  const VERSION = 'V2.1';
 
   const DEFAULT_SETTINGS = {
     enabledTools: {
@@ -82,8 +82,8 @@ const App = (() => {
     const tabs = [
       {id:'rt', label:'放療 RT'}, {id:'calc', label:'計算'}, {id:'score', label:'評分'},
     ];
-    const tabBar = `<div class="tab-bar" style="margin-bottom:0;">${
-      tabs.map(t => `<button class="tab-btn${tab===t.id?' active':''}" onclick="App.setToolsTab('${t.id}')">${t.label}</button>`).join('')
+    const tabBar = `<div class="flex gap-1.5">${
+      tabs.map(t => `<button onclick="App.setToolsTab('${t.id}')" class="fpill${tab===t.id?' on':''}">${t.label}</button>`).join('')
     }</div>`;
 
     let tools, content;
