@@ -195,6 +195,12 @@ const UIConstraints = (() => {
   }
 
   // ── Limits page (original constraints) ──────────────────
+  function pillSty(active) {
+    return active
+      ? 'background:var(--accent);color:#fff;border:1px solid var(--accent);'
+      : 'background:var(--card);color:var(--t2);border:1px solid var(--border);';
+  }
+
   function renderLimitsPage() {
     return `
       <div style="position:sticky;top:108px;z-index:39;background:var(--bg);margin:0 -16px;padding:8px 16px 6px;border-bottom:1px solid var(--border);">
@@ -210,33 +216,27 @@ const UIConstraints = (() => {
         <div class="mb-1.5">
           <div class="text-xs mb-1" style="color:var(--t3);">部位</div>
           <div class="flex" style="flex-wrap:wrap;gap:5px;">
-            ${Object.entries(GROUP_LABELS).map(([k,lbl]) =>
-              `<button onclick="ConGroup('${k}')" data-group="${k}"
-                class="con-grp-btn flex-shrink-0 text-xs px-3 py-1.5 rounded-full"
-                style="${k===groupFilter ? 'background:var(--accent);color:#fff;border:1px solid var(--accent);' : 'background:var(--card);color:var(--t2);border:1px solid var(--border);}">` + lbl + `</button>`
-            ).join('')}
+            ${Object.entries(GROUP_LABELS).map(([k,lbl]) => {
+              return `<button onclick="ConGroup('${k}')" data-group="${k}" class="con-grp-btn flex-shrink-0 text-xs px-3 py-1.5 rounded-full" style="${pillSty(k===groupFilter)}">${lbl}</button>`;
+            }).join('')}
           </div>
         </div>
         <!-- Tech filter -->
         <div class="mb-1.5">
           <div class="text-xs mb-1" style="color:var(--t3);">技術</div>
           <div class="flex" style="flex-wrap:wrap;gap:5px;">
-            ${TECHS.map(t =>
-              `<button onclick="ConTech('${t}')" data-tech="${t}"
-                class="con-tech-btn flex-shrink-0 text-xs px-3 py-1.5 rounded-full"
-                style="${t===techFilter ? 'background:var(--accent);color:#fff;border:1px solid var(--accent);' : 'background:var(--card);color:var(--t2);border:1px solid var(--border);}">` + TECH_LABELS[t] + `</button>`
-            ).join('')}
+            ${TECHS.map(t => {
+              return `<button onclick="ConTech('${t}')" data-tech="${t}" class="con-tech-btn flex-shrink-0 text-xs px-3 py-1.5 rounded-full" style="${pillSty(t===techFilter)}">${TECH_LABELS[t]}</button>`;
+            }).join('')}
           </div>
         </div>
         <!-- Source filter -->
         <div>
           <div class="text-xs mb-1" style="color:var(--t3);">來源</div>
           <div class="flex" style="flex-wrap:wrap;gap:5px;">
-            ${['All','RTOG','QUANTEC','TG-101','NCCN','Custom'].map(s =>
-              `<button onclick="ConSource('${s}')" data-source="${s}"
-                class="con-src-btn flex-shrink-0 text-xs px-3 py-1.5 rounded-full"
-                style="${s===sourceFilter ? 'background:var(--accent);color:#fff;border:1px solid var(--accent);' : 'background:var(--card);color:var(--t2);border:1px solid var(--border);}">` + s + `</button>`
-            ).join('')}
+            ${['All','RTOG','QUANTEC','TG-101','NCCN','Custom'].map(s => {
+              return `<button onclick="ConSource('${s}')" data-source="${s}" class="con-src-btn flex-shrink-0 text-xs px-3 py-1.5 rounded-full" style="${pillSty(s===sourceFilter)}">${s}</button>`;
+            }).join('')}
           </div>
         </div>
       </div>
@@ -252,29 +252,12 @@ const UIConstraints = (() => {
   // ── Event handlers ───────────────────────────────────────
   window.ConTab = function(tab) {
     conTab = tab;
-    // Re-render whole page via App
-    const main = document.getElementById('app-main');
-    if (main) {
-      const content = UIConstraints.render();
-      // Find the pageWrap content area
-      const inner = main.querySelector('.px-4');
-      if (inner) inner.innerHTML = content;
-      else main.innerHTML = `<div class="px-4 pt-4 pb-2">${content}</div>`;
-    }
-    UIConstraints.bindEvents();
+    App.navigate('constraints');
   };
 
   window.ConRecCancer = function(cancer) {
     recCancer = cancer;
-    // Re-render just the recs content
-    const main = document.getElementById('app-main');
-    if (main) {
-      const inner = main.querySelector('.px-4');
-      if (inner) {
-        inner.innerHTML = UIConstraints.render();
-        UIConstraints.bindEvents();
-      }
-    }
+    App.navigate('constraints');
   };
 
   window.ConSearch = function(q) { query = q; refreshResults(); };
