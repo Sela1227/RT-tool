@@ -7,7 +7,7 @@ const ToolsRT = (() => {
     const body = `
       ${U.stepper('bed-dpf','每次劑量 (Dose/fx)',2,0.5,20,0.5,'Gy')}
       ${U.stepper('bed-n','分次數 (Fractions)',25,1,60,1,'fx')}
-      ${U.pills('bed-ab','α/β ratio',[['10','α/β=10'],['3','α/β=3'],['1.5','α/β=1.5'],['custom','自訂']],10)}
+      ${U.pills('bed-ab','α/β ratio',[['10','α/β=10'],['3','α/β=3'],['1.5','α/β=1.5'],['custom','自訂']],10,'onBEDAbChange')}
       <div id="bed-custom-row" class="hidden">${U.stepper('bed-custom-ab','自訂 α/β',2,0.1,20,0.1)}</div>
       <div id="bed-result"></div>
       ${U.calcBtn('calcBED()')}`;
@@ -19,9 +19,6 @@ const ToolsRT = (() => {
     const dpf = numVal('bed-dpf'), n = numVal('bed-n');
     const abMode = gel('bed-ab')?.value || '10';
     let customAB = numVal('bed-custom-ab');
-    // show/hide custom row
-    const cr = gel('bed-custom-row');
-    if (cr) cr.classList.toggle('hidden', abMode !== 'custom');
     const abList = abMode === 'custom' ? [customAB] : [10, 3, 1.5];
     const totalD = dpf * n;
     const rows = abList.map(ab => {
@@ -76,7 +73,7 @@ const ToolsRT = (() => {
     const body = `
       ${U.stepper('hyp-d','原總劑量',60,1,120,1,'Gy')}
       ${U.stepper('hyp-n','原分次數',30,1,60,1,'fx')}
-      ${U.pills('hyp-ab','α/β',[['10','α/β=10'],['3','α/β=3'],['1.5','α/β=1.5'],['custom','自訂']],10)}
+      ${U.pills('hyp-ab','α/β',[['10','α/β=10'],['3','α/β=3'],['1.5','α/β=1.5'],['custom','自訂']],10,'onHypAbChange')}
       <div id="hyp-custom-row" class="hidden">${U.stepper('hyp-custom-ab','自訂 α/β',2,0.1,20,0.1)}</div>
       ${U.stepper('hyp-new-n','目標分次數',5,1,60,1,'fx')}
       <div id="hyp-result"></div>
@@ -89,8 +86,7 @@ const ToolsRT = (() => {
     const d = numVal('hyp-d'), n = numVal('hyp-n'), newN = numVal('hyp-new-n');
     const abMode = gel('hyp-ab')?.value || '10';
     const ab = abMode === 'custom' ? numVal('hyp-custom-ab') : parseFloat(abMode);
-    const cr = gel('hyp-custom-row');
-    if (cr) cr.classList.toggle('hidden', abMode !== 'custom');
+
     const dpf = d / n;
     const bed = d * (1 + dpf/ab);
     const newDpf = (-ab + Math.sqrt(ab*ab + 4*ab*(bed/newN))) / 2;
@@ -236,6 +232,15 @@ const ToolsRT = (() => {
       <div class="text-xs mt-1" style="color:var(--t2);">${nHVL.toFixed(2)} HVL → 穿透率 ${tf}%</div>
     </div>`;
     const e = gel('hvl-result'); if (e) e.outerHTML = html;
+  };
+
+  window.onBEDAbChange = function(val) {
+    const cr = gel('bed-custom-row');
+    if (cr) cr.classList.toggle('hidden', val !== 'custom');
+  };
+  window.onHypAbChange = function(val) {
+    const cr = gel('hyp-custom-row');
+    if (cr) cr.classList.toggle('hidden', val !== 'custom');
   };
 
   // ── getTools / render API ─────────────────────────────────

@@ -3,25 +3,17 @@ const ToolsScore = (() => {
 
   const setH = (id, html) => { const e = gel(id); if (e) e.innerHTML = html; };
 
-  // selBtn: highlight selected button in a group, update hidden input
+  // selBtn: toggle active class on score button groups
   window.selBtn = function(id, btn) {
-    document.querySelectorAll(`[data-grp="${id}"]`).forEach(b => {
-      b.style.background = ''; b.style.borderColor = ''; b.style.color = '';
-    });
-    if (btn) {
-      btn.style.background = 'var(--accent)';
-      btn.style.borderColor = 'var(--accent)';
-      btn.style.color = '#fff';
-      const h = gel(id); if (h) h.value = btn.dataset.val;
-    }
+    document.querySelectorAll(`[data-grp="${id}"]`).forEach(b => b.classList.remove('sg-on'));
+    if (btn) { btn.classList.add('sg-on'); const h = gel(id); if (h) h.value = btn.dataset.val; }
   };
 
 
   function btnGroup(label, id, opts, cols=0, onChange='') {
     const btns = opts.map((o, i) => `<button type="button" data-grp="${id}" data-val="${o.v}"
       onclick="selBtn('${id}',this)${onChange?';'+onChange:''}"
-      class="${cols?'':'flex-1'} text-center py-2 px-1 rounded-xl text-xs font-medium"
-      style="background:${i===0?'var(--accent)':'var(--bg)'};border:1.5px solid ${i===0?'var(--accent)':'var(--border)'};color:${i===0?'#fff':'var(--t2)'};line-height:1.35;transition:all .12s;">
+      class="sg-btn${cols?'':' flex-1'}${i===0?' sg-on':''} text-center py-2 px-1 rounded-xl text-xs font-medium">
       <div>${o.label}</div>${o.sub?`<div style="font-size:10px;opacity:.75;">${o.sub}</div>`:''}
     </button>`).join('');
     const wrap = cols

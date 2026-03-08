@@ -128,7 +128,7 @@
       font-family: inherit;
       transition: border-color 0.15s;
     }
-    .inp:focus { border-color: var(--accent); background: #fff; }
+    .inp:focus { border-color: var(--accent); background: var(--card); }
     select.inp {
       appearance: none;
       background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23888' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
@@ -163,6 +163,21 @@
     }
 
 
+    /* ── Score button group ──────────────────────────────── */
+    .sg-btn {
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      color: var(--t2);
+      line-height: 1.35;
+      cursor: pointer;
+      transition: all .12s;
+    }
+    .sg-btn.sg-on {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
     /* ── Source badges ───────────────────────────────────── */
     .badge-rtog    { background:#D8E6F2; color:#2B5278; border-radius:5px; padding:2px 7px; font-size:11px; }
     .badge-quantec { background:#D8EDE2; color:#245B3A; border-radius:5px; padding:2px 7px; font-size:11px; }
@@ -191,7 +206,7 @@
           </div>
         </div>
         <div class="mono text-xs px-2.5 py-1 rounded-full font-medium"
-             style="background:rgba(255,255,255,.10);color:rgba(255,255,255,.6);">V2.6</div>
+             style="background:rgba(255,255,255,.10);color:rgba(255,255,255,.6);">V2.7</div>
       </div>
     </header>
 
@@ -199,7 +214,7 @@
     <main id="app-main" class="pt-16 pb-24 min-h-screen"></main>
 
     <!-- ── Bottom Nav ──────────────────────────────────── -->
-    <nav class="fixed bottom-0 z-50 safe-bottom" style="left:50%;transform:translateX(-50%);width:100%;max-width:28rem;background:#fff;border-top:1px solid var(--border);">
+    <nav class="fixed bottom-0 z-50 safe-bottom" style="left:50%;transform:translateX(-50%);width:100%;max-width:28rem;background:var(--card);border-top:1px solid var(--border);">
       <div class="flex items-stretch">
 
         <button data-page="tools" onclick="App.navigate('tools')"

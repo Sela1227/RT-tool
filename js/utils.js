@@ -50,12 +50,13 @@ window.U = {
     </div>`;
   },
 
-  // Pill-opt row (α/β style)
-  pills(id, label, opts, def) {
+  // Pill-opt row (α/β style). onChange(val): optional fn name called after selection.
+  pills(id, label, opts, def, onChange='') {
+    const extra = onChange ? `;${onChange}(this.dataset.val)` : '';
     return `<div class="mb-3">
       <div class="text-xs mb-1.5" style="color:var(--t2);">${label}</div>
       <div class="flex flex-wrap gap-1.5">
-        ${opts.map(([val,txt]) => `<button class="pill-opt${val==def?' active':''}" data-val="${val}" data-group="${id}" onclick="pillSelect('${id}',this)">${txt}</button>`).join('')}
+        ${opts.map(([val,txt]) => `<button class="pill-opt${val==def?' active':''}" data-val="${val}" data-group="${id}" onclick="pillSelect('${id}',this)${extra}">${txt}</button>`).join('')}
       </div>
       <input type="hidden" id="${id}" value="${def}">
     </div>`;

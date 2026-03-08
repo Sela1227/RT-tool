@@ -94,7 +94,7 @@ const Staging = (() => {
     `);
   }
   window.StageRectum = function() {
-    const T=selVal('rec-t'), N=sel('rec-n'), M=sel('rec-m');
+    const T=selVal('rec-t'), N=selVal('rec-n'), M=selVal('rec-m');
     let stage='';
     if (M!=='0') { stage = M==='1a'||M==='1b' ? 'IV A' : 'IV B'; }
     else if (N.startsWith('2')) {
@@ -124,7 +124,7 @@ const Staging = (() => {
     `);
   }
   window.StageProstate = function() {
-    const T=selVal('pros-t'), N=sel('pros-n'), M=sel('pros-m'), G=parseInt(sel('pros-g')), PSA=sel('pros-psa');
+    const T=selVal('pros-t'), N=selVal('pros-n'), M=selVal('pros-m'), G=parseInt(selVal('pros-g')), PSA=selVal('pros-psa');
     let stage='';
     if (M==='1') stage='IV B';
     else if (N==='1') stage='IV A';
@@ -151,7 +151,7 @@ const Staging = (() => {
     `);
   }
   window.StageHCC = function() {
-    const T=selVal('hcc-t'), N=sel('hcc-n'), M=sel('hcc-m');
+    const T=selVal('hcc-t'), N=selVal('hcc-n'), M=selVal('hcc-m');
     let stage='';
     if (M==='1') stage='IV B';
     else if (N==='1') stage='IV A';
@@ -174,7 +174,7 @@ const Staging = (() => {
     `);
   }
   window.StageBreast = function() {
-    const T=selVal('br-t'), N=sel('br-n'), M=sel('br-m');
+    const T=selVal('br-t'), N=selVal('br-n'), M=selVal('br-m');
     let stage='';
     if (M==='1') stage='IV';
     else if (N.startsWith('3')) stage='III C';
@@ -204,7 +204,7 @@ const Staging = (() => {
     `);
   }
   window.StageEso = function() {
-    const T=selVal('eso-t'), N=sel('eso-n'), M=sel('eso-m');
+    const T=selVal('eso-t'), N=selVal('eso-n'), M=selVal('eso-m');
     let stage='';
     if (M==='1') stage='IV B';
     else if (T==='4b') stage='IV A';
@@ -234,7 +234,7 @@ const Staging = (() => {
     `);
   }
   window.StageStomach = function() {
-    const T=selVal('sto-t'), N=sel('sto-n'), M=sel('sto-m');
+    const T=selVal('sto-t'), N=selVal('sto-n'), M=selVal('sto-m');
     let stage='';
     if (M==='1') stage='IV';
     else if (T==='4b') stage= N==='0'?'III B':'III C';
@@ -265,7 +265,7 @@ const Staging = (() => {
     `);
   }
   window.StagePancreas = function() {
-    const T=selVal('pan-t'), N=sel('pan-n'), M=sel('pan-m');
+    const T=selVal('pan-t'), N=selVal('pan-n'), M=selVal('pan-m');
     let stage='';
     if (M==='1') stage='IV';
     else if (T==='4') stage='III';
@@ -322,7 +322,7 @@ const Staging = (() => {
       ${U.calcBtn("StageNPC()")}`;
   }
   window.StageNPC = function() {
-    const T=selVal('npc-t'), N=sel('npc-n'), M=sel('npc-m');
+    const T=selVal('npc-t'), N=selVal('npc-n'), M=selVal('npc-m');
     let stage='';
     if (M==='1') stage='IV B';
     else if (T==='4'||N==='3') stage='IV A';
@@ -341,7 +341,7 @@ const Staging = (() => {
       ${U.calcBtn("StageOral()")}`;
   }
   window.StageOral = function() {
-    const T=selVal('oral-t'), N=sel('oral-n'), M=sel('oral-m');
+    const T=selVal('oral-t'), N=selVal('oral-n'), M=selVal('oral-m');
     let stage='';
     if (M==='1') stage='IV C';
     else if (T==='4b'||N==='3a'||N==='3b') stage='IV B';
@@ -360,7 +360,7 @@ const Staging = (() => {
       ${U.calcBtn("StageOroph()")}`;
   }
   window.StageOroph = function() {
-    const T=selVal('orp-t'), N=sel('orp-n'), M=sel('orp-m');
+    const T=selVal('orp-t'), N=selVal('orp-n'), M=selVal('orp-m');
     let stage='';
     if (M==='1') stage='IV';
     else if (N==='3') stage='III';
@@ -379,7 +379,7 @@ const Staging = (() => {
       ${U.calcBtn("StageLarynx()")}`;
   }
   window.StageLarynx = function() {
-    const T=selVal('lar-t'), N=sel('lar-n'), M=sel('lar-m');
+    const T=selVal('lar-t'), N=selVal('lar-n'), M=selVal('lar-m');
     let stage='';
     if (M==='1') stage='IV C';
     else if (T==='4b'||N==='3a'||N==='3b') stage='IV B';
@@ -398,7 +398,7 @@ const Staging = (() => {
       ${U.calcBtn("StageHypoph()")}`;
   }
   window.StageHypoph = function() {
-    const T=selVal('hyp-t'), N=sel('hyp-n'), M=sel('hyp-m');
+    const T=selVal('hyp-t'), N=selVal('hyp-n'), M=selVal('hyp-m');
     let stage='';
     if (M==='1') stage='IV C';
     else if (T==='4b'||N==='3a'||N==='3b') stage='IV B';

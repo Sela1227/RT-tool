@@ -7,6 +7,20 @@
 
 ## 版本歷程
 
+### V2.7 — 工具全面修復 + 配色修正
+
+**Bug fix**
+- BED / Hypofractionation「自訂 α/β」pill 點擊後輸入框不顯示 → 改由 `onBEDAbChange` / `onHypAbChange` 在 pill click 時立即展開，不再等 calcBED 才處理
+- 所有分期癌別（直腸/前列腺/HCC/乳癌/食道/胃/胰臟/H&N）的 N/M/G/PSA 仍使用已移除的 `sel()` → 全部換為 `selVal()`
+- 評分工具按鈕組（GPA/SINS/Tokuhashi/RPA）選中狀態用 inline style，`selBtn` reset 時清空導致樣式全丟 → 改用 CSS class `.sg-btn` / `.sg-on`
+- `U.pills()` 新增 `onChange` 可選參數，供 BED/Hypo 的 pill 點擊觸發 callback
+
+**配色修正**
+- Bottom nav `background:#fff` → `var(--card)`（北歐霧灰）
+- `.inp:focus` `background:#fff` → `var(--card)`
+
+---
+
 ### V2.6 — 肺癌 AJCC 9th 完整修正
 
 **Bug fix**
