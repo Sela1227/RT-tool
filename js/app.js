@@ -3,7 +3,7 @@
 // ──────────────────────────────────────────────────────────
 
 const App = (() => {
-  const VERSION = 'V1.6';
+  const VERSION = 'V1.7';
 
   const DEFAULT_SETTINGS = {
     enabledTools: {
@@ -69,7 +69,7 @@ const App = (() => {
   }
 
   function pillRow(items, activeKey, onclickFn) {
-    return `<div class="flex gap-1.5 overflow-x-auto" style="-webkit-overflow-scrolling:touch;scrollbar-width:none;">
+    return `<div class="flex" style="flex-wrap:wrap;gap:6px;">
       ${items.map(i => pillBtn(i.label, i.key === activeKey, `${onclickFn}('${i.key}')`)).join('')}
     </div>`;
   }

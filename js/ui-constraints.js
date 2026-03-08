@@ -140,7 +140,7 @@ const UIConstraints = (() => {
         <!-- Region group filter -->
         <div class="mb-1.5">
           <div class="text-xs mb-1" style="color:var(--t3);">部位</div>
-          <div class="flex gap-1.5 overflow-x-auto" style="-webkit-overflow-scrolling:touch;scrollbar-width:none;">
+          <div class="flex" style="flex-wrap:wrap;gap:6px;">
             ${Object.entries(GROUP_LABELS).map(([k,lbl]) =>
               `<button onclick="ConGroup('${k}')" data-group="${k}"
                 class="con-grp-btn flex-shrink-0 text-xs px-3 py-1.5 rounded-full"
@@ -152,7 +152,7 @@ const UIConstraints = (() => {
         <!-- Tech filter -->
         <div class="mb-1.5">
           <div class="text-xs mb-1" style="color:var(--t3);">技術</div>
-          <div class="flex gap-1.5 overflow-x-auto" style="-webkit-overflow-scrolling:touch;scrollbar-width:none;">
+          <div class="flex" style="flex-wrap:wrap;gap:6px;">
             ${TECHS.map(t =>
               `<button onclick="ConTech('${t}')" data-tech="${t}"
                 class="con-tech-btn flex-shrink-0 text-xs px-3 py-1.5 rounded-full"
@@ -164,7 +164,7 @@ const UIConstraints = (() => {
         <!-- Source filter -->
         <div>
           <div class="text-xs mb-1" style="color:var(--t3);">來源</div>
-          <div class="flex gap-1.5 overflow-x-auto" style="-webkit-overflow-scrolling:touch;scrollbar-width:none;">
+          <div class="flex" style="flex-wrap:wrap;gap:6px;">
             ${['All','RTOG','QUANTEC','TG-101','NCCN','Custom'].map(s =>
               `<button onclick="ConSource('${s}')" data-source="${s}"
                 class="con-src-btn flex-shrink-0 text-xs px-3 py-1.5 rounded-full"

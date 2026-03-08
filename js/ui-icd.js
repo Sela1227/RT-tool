@@ -27,7 +27,7 @@ const UIICD = (() => {
           <input id="icd-search" type="text" placeholder="搜尋代碼、中文、英文…" value="${q}"
             class="inp" style="padding-left:36px;" oninput="ICDSearch(this.value)">
         </div>
-        <div class="flex gap-1.5 overflow-x-auto" style="-webkit-overflow-scrolling:touch;scrollbar-width:none;">
+        <div class="flex" style="flex-wrap:wrap;gap:6px;">
           ${CATS.map(c2 => `<button onclick="ICDCat('${c2}')" data-cat="${c2}"
             class="icd-cat-btn flex-shrink-0 text-xs px-3 py-1.5 rounded-full font-medium"
             style="border:1px solid ${c2===cat ? 'var(--accent)':'var(--border)'};background:${c2===cat ? 'var(--accent)':'var(--card)'};color:${c2===cat ? '#fff':'var(--t2)'};">

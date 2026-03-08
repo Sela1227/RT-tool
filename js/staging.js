@@ -787,7 +787,7 @@ const Staging = (() => {
   function render() {
     const filterBar = `
       <div style="position:sticky;top:64px;z-index:40;background:#F2F0EC;margin:0 -16px;padding:10px 16px 8px;border-bottom:1px solid #E2DFD8;">
-        <div class="flex gap-1.5 overflow-x-auto" style="-webkit-overflow-scrolling:touch;scrollbar-width:none;">
+        <div class="flex" style="flex-wrap:wrap;gap:6px;">
           ${CANCER_LIST.map(c => `
             <button id="sf-${c.id}" onclick="StagingFilter('${c.id}')"
               style="font-size:0.75rem;padding:5px 12px;border-radius:9999px;border-width:1px;border-style:solid;white-space:nowrap;cursor:pointer;${filterBtnStyle(c.id === activeCancer)}">
