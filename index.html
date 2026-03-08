@@ -5,72 +5,204 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <title>SELA RadOnc Tools</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     html, body { overscroll-behavior: none; }
-    body { font-family: 'Noto Sans TC', -apple-system, sans-serif; background: #E4E8F0; color: #1E2530; }
-    .mono { font-family: 'DM Mono', monospace !important; }
     ::-webkit-scrollbar { display: none; }
     * { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* ── Nordic Cool Palette ────────────────────────────── */
+    :root {
+      --bg:       #E8EEF5;   /* cool blue-gray background   */
+      --card:     #FFFFFF;
+      --border:   #CDD6E2;   /* soft slate border           */
+      --t1:       #1A2540;   /* primary text — deep navy    */
+      --t2:       #4E617A;   /* secondary text              */
+      --t3:       #8A9DB5;   /* muted / placeholder         */
+      --accent:   #2B4D8E;   /* slate blue — CTAs           */
+      --acc-bg:   #E4EAF5;   /* accent tint                 */
+      --hdr:      #1A2540;   /* header — same deep navy     */
+      --result:   #EDF2FA;   /* result panel background     */
+      --danger:   #C0392B;
+      --warn-bg:  #FEF3E8;
+      --warn:     #9A4A10;
+    }
+
+    body {
+      font-family: 'Noto Sans TC', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--t1);
+    }
+    .mono { font-family: 'DM Mono', monospace !important; }
     .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
     #app-main { transition: opacity 0.1s ease; }
 
-    /* ── Nordic cold palette ─────────────────────────────── */
-    :root {
-      --bg:      #E4E8F0;   /* cool blue-gray page bg */
-      --surface: #F0F2F6;   /* card surface */
-      --card2:   #EAECF2;   /* secondary surface */
-      --border:  #C8CDD8;
-      --ink1:    #1E2530;   /* primary text */
-      --ink2:    #4A5568;   /* secondary */
-      --ink3:    #9AA0AA;   /* muted */
-      --active:  #2C3A50;   /* dark slate — CTAs, selected */
+    /* ── Cards ──────────────────────────────────────────── */
+    .card {
+      background: var(--card);
+      border-radius: 14px;
+      border: 1px solid var(--border);
     }
 
-    /* Header — white surface on cold bg */
-    .sela-header { background: #F0F2F6; border-bottom: 1px solid #C8CDD8; }
+    /* ── Stepper button ─────────────────────────────────── */
+    .step-btn {
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--t1);
+      font-size: 18px;
+      line-height: 1;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.12s;
+    }
+    .step-btn:active { background: var(--acc-bg); }
 
-    /* Tab active */
-    .tab-active  { background: #FFFFFF; color: var(--active); box-shadow: 0 1px 4px rgba(0,0,0,.08); }
-    .tab-inactive { color: var(--ink3); }
+    /* ── Pill selector ──────────────────────────────────── */
+    .pill-opt {
+      flex: 1; padding: 6px 4px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--t2);
+      font-size: 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.12s;
+      line-height: 1.3;
+    }
+    .pill-opt.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
 
-    /* section label */
-    .section-label { font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--ink3); }
+    /* ── Section label ──────────────────────────────────── */
+    .sec-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--t3);
+    }
+
+    /* ── Chevron card ───────────────────────────────────── */
+    .tool-body { display: none; }
+    .tool-body.open { display: block; }
+
+    /* ── Nav active ─────────────────────────────────────── */
+    .nav-active { color: var(--accent) !important; }
+
+    /* ── Input base ─────────────────────────────────────── */
+    .inp {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 14px;
+      color: var(--t1);
+      background: #fff;
+      outline: none;
+      font-family: inherit;
+    }
+    .inp:focus { border-color: var(--accent); }
+    select.inp { appearance: none; background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%238A9DB5' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+
+    /* ── Calc button ────────────────────────────────────── */
+    .calc-btn {
+      width: 100%;
+      margin-top: 12px;
+      padding: 10px;
+      border-radius: 10px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.12s;
+    }
+    .calc-btn:active { opacity: 0.8; }
+
+    /* ── Result panel ───────────────────────────────────── */
+    .result-panel {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 12px;
+      background: var(--result);
+      border: 1px solid var(--border);
+    }
+    .result-val {
+      font-family: 'DM Mono', monospace;
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--t1);
+    }
+
+    /* ── Tabs ───────────────────────────────────────────── */
+    .tab-bar {
+      display: flex;
+      padding: 4px;
+      border-radius: 12px;
+      background: #D8E2EE;
+      margin-bottom: 14px;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 7px 4px;
+      border-radius: 9px;
+      font-size: 12px;
+      font-weight: 500;
+      text-align: center;
+      cursor: pointer;
+      color: var(--t2);
+      transition: all 0.15s;
+      border: none;
+      background: transparent;
+    }
+    .tab-btn.active {
+      background: #fff;
+      color: var(--accent);
+      box-shadow: 0 1px 4px rgba(0,0,0,.10);
+    }
   </style>
 </head>
-<body style="background:#E4E8F0; color:#1E2530;">
+<body>
 
   <div class="max-w-md mx-auto relative min-h-screen">
 
     <!-- ── Header ──────────────────────────────────────── -->
     <header class="fixed top-0 left-0 right-0 z-50 max-w-md mx-auto">
-      <div class="sela-header px-4 py-2.5 flex items-center justify-between" style="box-shadow:0 1px 8px rgba(0,0,0,.18);">
+      <div class="px-4 py-2.5 flex items-center justify-between"
+           style="background:var(--hdr);box-shadow:0 1px 8px rgba(0,0,0,.22);">
         <div class="flex items-center gap-3">
-          <img src="assets/logo.jpg" alt="SELA" class="w-10 h-10 rounded-xl object-cover">
+          <img src="assets/logo.jpg" alt="SELA" class="w-10 h-10 rounded-xl object-cover"
+               style="border:1.5px solid rgba(255,255,255,.15);">
           <div>
-            <div class="font-semibold text-base leading-tight tracking-wide" style="color:#1A1A1A;">RadOnc Tools</div>
-            <div class="text-xs leading-tight" style="color:#9E9A93;">放射腫瘤科臨床工具</div>
+            <div class="font-semibold text-base leading-tight text-white tracking-wide">RadOnc Tools</div>
+            <div class="text-xs leading-tight" style="color:rgba(255,255,255,.45);">放射腫瘤科臨床工具</div>
           </div>
         </div>
-        <div class="mono text-xs px-2.5 py-1 rounded-full font-medium" style="background:#F2F0EC;color:#5A5750;">V1.3</div>
+        <div class="mono text-xs px-2.5 py-1 rounded-full font-medium"
+             style="background:rgba(255,255,255,.10);color:rgba(255,255,255,.6);">V1.3.1</div>
       </div>
     </header>
 
     <!-- ── Main ────────────────────────────────────────── -->
-    <main id="app-main" class="pt-16 pb-24 min-h-screen" style="background:#E4E8F0;"></main>
+    <main id="app-main" class="pt-16 pb-24 min-h-screen"></main>
 
     <!-- ── Bottom Nav ──────────────────────────────────── -->
     <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto safe-bottom z-50"
-         style="background:#F0F2F6;border-top:1px solid #C8CDD8;">
+         style="background:#fff;border-top:1px solid var(--border);">
       <div class="flex items-stretch">
 
-        <!-- 工具 -->
         <button data-page="tools" onclick="App.navigate('tools')"
-          class="nav-btn flex-1 flex flex-col items-center justify-center py-2.5 gap-1 transition-colors" style="color:#1A1A1A;">
+          class="nav-btn flex-1 flex flex-col items-center justify-center py-2.5 gap-1 transition-colors nav-active">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
             <rect x="3" y="3" width="7" height="7" rx="1.5"/>
             <rect x="14" y="3" width="7" height="7" rx="1.5"/>
@@ -80,28 +212,24 @@
           <span class="text-xs font-medium">工具</span>
         </button>
 
-        <!-- 分期 -->
         <button data-page="staging" onclick="App.navigate('staging')"
-          class="nav-btn flex-1 flex flex-col items-center justify-center py-2.5 gap-1 transition-colors" style="color:#9E9A93;">
+          class="nav-btn flex-1 flex flex-col items-center justify-center py-2.5 gap-1 transition-colors" style="color:var(--t3);">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 18h16M4 12h10M4 6h6"/>
           </svg>
           <span class="text-xs font-medium">分期</span>
         </button>
 
-        <!-- 限制 -->
         <button data-page="constraints" onclick="App.navigate('constraints')"
-          class="nav-btn flex-1 flex flex-col items-center justify-center py-2.5 gap-1 transition-colors" style="color:#9E9A93;">
+          class="nav-btn flex-1 flex flex-col items-center justify-center py-2.5 gap-1 transition-colors" style="color:var(--t3);">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="9"/>
-            <path stroke-linecap="round" d="M12 7v5l3 3"/>
+            <circle cx="12" cy="12" r="9"/><path stroke-linecap="round" d="M12 7v5l3 3"/>
           </svg>
           <span class="text-xs font-medium">限制</span>
         </button>
 
-        <!-- ICD -->
         <button data-page="icd" onclick="App.navigate('icd')"
-          class="nav-btn flex-1 flex flex-col items-center justify-center py-2.5 gap-1 transition-colors" style="color:#9E9A93;">
+          class="nav-btn flex-1 flex flex-col items-center justify-center py-2.5 gap-1 transition-colors" style="color:var(--t3);">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6 4h12a1 1 0 011 1v14a1 1 0 01-1 1H6a1 1 0 01-1-1V5a1 1 0 011-1z"/>
             <path stroke-linecap="round" d="M9 9h6M9 13h4"/>
@@ -109,9 +237,8 @@
           <span class="text-xs font-medium">ICD</span>
         </button>
 
-        <!-- 設定 -->
         <button data-page="settings" onclick="App.navigate('settings')"
-          class="nav-btn flex-1 flex flex-col items-center justify-center py-2.5 gap-1 transition-colors" style="color:#9E9A93;">
+          class="nav-btn flex-1 flex flex-col items-center justify-center py-2.5 gap-1 transition-colors" style="color:var(--t3);">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
             <circle cx="12" cy="12" r="2.5"/>
             <path stroke-linecap="round" d="M12 5v2M12 17v2M5 12H3M21 12h-2M7.05 7.05 5.64 5.64M18.36 18.36l-1.41-1.41M7.05 16.95l-1.41 1.41M18.36 5.64l-1.41 1.41"/>
@@ -122,12 +249,13 @@
       </div>
     </nav>
 
-  </div><!-- /max-w-md -->
+  </div>
 
-  <!-- ── Data ────────────────────────────────────────────── -->
+  <!-- Data -->
   <script src="data/icd10.js"></script>
   <script src="data/constraints.js"></script>
-  <!-- ── Modules ─────────────────────────────────────────── -->
+  <!-- Modules -->
+  <script src="js/tools-rt.js"></script>
   <script src="js/tools-calc.js"></script>
   <script src="js/tools-score.js"></script>
   <script src="js/staging.js"></script>

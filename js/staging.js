@@ -36,13 +36,13 @@ const Staging = (() => {
   // ── Card toggle helper ────────────────────────────────────
   function stagingCard(id, icon, title, body) {
     return `
-    <div class="bg-white rounded-xl mb-3 overflow-hidden" style="border:1px solid #E2DFD8;">
+    <div class="card mb-3 overflow-hidden" >
       <button onclick="StagingToggle('${id}')" class="w-full px-4 py-3 flex items-center justify-between text-left">
         <div class="flex items-center gap-2.5">
-          <span class="flex-shrink-0 w-5 h-5 flex items-center justify-center" style="color:#5A5750;">${icon}</span>
-          <span class="font-medium text-sm" style="color:#1A1A1A;">${title}</span>
+          <span class="flex-shrink-0 w-5 h-5 flex items-center justify-center" style="color:var(--t2);">${icon}</span>
+          <span class="font-medium text-sm" style="color:var(--t1);">${title}</span>
         </div>
-        <svg id="${id}-chev" class="w-4 h-4 flex-shrink-0" style="color:#B5B2AB;transition:transform 0.2s" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg id="${id}-chev" class="w-4 h-4 flex-shrink-0" style="color:var(--t3);transition:transform 0.2s" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
         </svg>
       </button>
@@ -61,28 +61,28 @@ const Staging = (() => {
   // ── Result box ───────────────────────────────────────────
   function resultBox(stage, details, notes='') {
     return `
-    <div class="mt-4 rounded-xl p-4" style="background:#F2F0EC;border:1px solid #E2DFD8;">
+    <div class="result-panel mt-4">
       <div class="flex items-start justify-between gap-3">
         <div>
-          <div class="text-xs section-label mb-1">AJCC 9th</div>
-          <div class="text-2xl font-bold mono" style="color:#1A1A1A;">${stage}</div>
+          <div class="text-xs sec-label mb-1">AJCC 9th</div>
+          <div class="text-2xl font-bold mono" style="color:var(--t1);">${stage}</div>
         </div>
-        <div class="text-right text-xs" style="color:#5A5750; line-height:1.6;">${details}</div>
+        <div class="text-right text-xs" style="color:var(--t2); line-height:1.6;">${details}</div>
       </div>
-      ${notes ? `<div class="mt-3 pt-3 text-xs leading-relaxed" style="border-top:1px solid #E2DFD8;color:#5A5750;">${notes}</div>` : ''}
+      ${notes ? `<div class="mt-3 pt-3 text-xs leading-relaxed" style="border-top:1px solid var(--border);color:var(--t2);">${notes}</div>` : ''}
     </div>`;
   }
 
   function calcBtn(fn, label='判定分期') {
-    return `<button onclick="${fn}" class="w-full mt-3 rounded-lg py-2.5 text-sm font-medium transition-colors" style="background:#1A1A1A;color:#fff;">${label}</button>`;
+    return `<button onclick="${fn}" class="w-full mt-3 rounded-lg py-2.5 text-sm font-medium transition-colors" style="background:var(--t1);color:#fff;">${label}</button>`;
   }
 
   function sel(id, label, opts) {
     const options = opts.map(([v,t]) => `<option value="${v}">${t}</option>`).join('');
     return `
     <div class="mb-3">
-      <div class="text-xs mb-1.5" style="color:#5A5750;">${label}</div>
-      <select id="${id}" class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none" style="border-color:#E2DFD8;background:#fff;color:#1A1A1A;">
+      <div class="text-xs mb-1.5" style="color:var(--t2);">${label}</div>
+      <select id="${id}" class="inp" style="border-color:var(--border);background:var(--card);color:var(--t1);">
         ${options}
       </select>
     </div>`;
@@ -368,7 +368,7 @@ const Staging = (() => {
         ['M0','M0 — 無遠端轉移'],
         ['M1','M1 — 遠端轉移（臨床或影像確認）'],
       ])}
-      <div class="mt-1 mb-2 text-xs" style="color:#9E9A93;">※ 此為 Anatomic Stage；Prognostic Stage 需加入 ER/PR/HER2/Grade</div>
+      <div class="mt-1 mb-2 text-xs" style="color:var(--t3);">※ 此為 Anatomic Stage；Prognostic Stage 需加入 ER/PR/HER2/Grade</div>
       <div id="br-result"></div>
       ${calcBtn('StagingBreast()')}`;
     return stagingCard('breast', ICONS.breast, 'Breast — AJCC 9th (Anatomic)', body);
@@ -405,20 +405,19 @@ const Staging = (() => {
   // ── Main render ──────────────────────────────────────────
   function render() {
     return `
-    <div class="p-4">
       <div class="mb-3">
-        <div class="text-base font-semibold" style="color:#1A1A1A;">腫瘤分期</div>
-        <div class="text-xs mt-0.5" style="color:#9E9A93;">AJCC 9th Edition (2024)</div>
+        <div class="text-base font-semibold" style="color:var(--t1);">腫瘤分期</div>
+        <div class="text-xs mt-0.5" style="color:var(--t3);">AJCC 9th Edition (2024)</div>
       </div>
       ${renderLung()}
       ${renderRectum()}
       ${renderProstate()}
       ${renderHCC()}
       ${renderBreast()}
-      <div class="mt-2 text-xs leading-relaxed rounded-xl p-3" style="background:#ECEAE5;color:#5A5750;">
+      <div class="mt-2 text-xs leading-relaxed rounded-xl p-3 mb-2" style="background:var(--bg);color:var(--t2);border:1px solid var(--border);">
         分期結果僅供參考，請依 AJCC 9th 原始文獻及多專科會議決策為準。Breast Prognostic Stage 需加入生物標記資料。
       </div>
-    </div>`;
+    `;
   }
 
   return { render };

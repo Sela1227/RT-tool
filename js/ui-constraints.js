@@ -34,7 +34,6 @@ const UIConstraints = (() => {
 
   function render() {
     return `
-    <div class="p-4">
       <h2 class="text-lg font-bold mb-3">劑量限制查詢</h2>
 
       <!-- Search -->
@@ -49,7 +48,7 @@ const UIConstraints = (() => {
       <div class="flex gap-1.5 overflow-x-auto pb-1 mb-2" style="-webkit-overflow-scrolling:touch">
         ${TECHS.map(t => `
           <button onclick="ConTech('${t}')" data-tech="${t}"
-            class="con-tech-btn flex-shrink-0 text-xs px-3 py-1.5 rounded-full border transition-colors ${t===techFilter?'border-gray-800 text-white" style="background:#222220;':' text-gray-600 border-gray-200'}">
+            class="con-tech-btn flex-shrink-0 text-xs px-3 py-1.5 rounded-full border transition-colors ${t===techFilter?'border-gray-800 text-white" style="background:var(--accent);':' text-gray-600 border-gray-200'}">
             ${TECH_LABELS[t]}
           </button>`).join('')}
       </div>
@@ -156,7 +155,7 @@ const UIConstraints = (() => {
     techFilter = t;
     document.querySelectorAll('.con-tech-btn').forEach(b => {
       const active = b.dataset.tech === t;
-      b.className = b.className.replace(/border-gray-800 text-white" style="background:#222220;| text-gray-600 border-gray-200/g,'');
+      b.className = b.className.replace(/border-gray-800 text-white" style="background:var(--accent);| text-gray-600 border-gray-200/g,'');
       if(active) b.classList.add('','text-white','border-gray-500');
       else b.classList.add('','text-gray-600','border-gray-200');
     });
@@ -256,11 +255,11 @@ const UIConstraints = (() => {
   };
 
   function mInput(label, id, val, type='text') {
-    return `<div><label class="text-xs text-gray-500 mb-1 block">${label}</label><input type="${type}" id="${id}" value="${val}" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300"></div>`;
+    return `<div><label class="text-xs text-gray-500 mb-1 block">${label}</label><input type="${type}" id="${id}" value="${val}" class="inp"></div>`;
   }
   function mSelect(label, id, current, opts) {
     const options = opts.map(o => `<option value="${o}" ${o===current?'selected':''}>${o}</option>`).join('');
-    return `<div><label class="text-xs text-gray-500 mb-1 block">${label}</label><select id="${id}" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300 ">${options}</select></div>`;
+    return `<div><label class="text-xs text-gray-500 mb-1 block">${label}</label><select id="${id}" class="inp">${options}</select></div>`;
   }
 
   window.ConCloseModal = function() {

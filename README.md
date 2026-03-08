@@ -1,3 +1,31 @@
+### V1.3.1 — 大改版：RT 獨立 / 北歐冷調 / Stepper UI
+
+**改善**
+
+**RT 工具獨立**
+- 工具頁新增第三 Tab「放療 RT」
+- BED/EQD2 一次輸入，自動列出三種組織（α/β 10/3/1.5）的 BED 與 EQD2 對照表
+- Treatment Gap、Hypofractionation Converter 移至 RT Tab
+
+**北歐冷調配色**
+- 整體背景：#E8EEF5（冷藍灰）
+- Header：深藍板（#1A2540）
+- Accent：石板藍（#2B4D8E）
+- 結果面板：#EDF2FA
+- 告別暖米色，全面升級冷調
+
+**Stepper UI（減少手輸）**
+- 所有數值輸入改為 − value + 步進按鈕
+- 選項類改為 pill 點選（性別、分組、部位等）
+- 保留鍵盤直接輸入作為 fallback
+
+**頁面一致性**
+- 全站統一 pageWrap（px-4 pt-4）
+- 卡片統一 .card 類（border + rounded-xl）
+- 所有顏色改用 CSS variables
+
+---
+
 ### V1.3 — Phase 4：AJCC 9th 分期工具
 
 **新增功能**
