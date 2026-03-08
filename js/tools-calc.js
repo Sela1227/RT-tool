@@ -25,7 +25,7 @@ const ToolsCalc = (() => {
 
   function cardWrap(id, icon, title, body) {
     return `
-    <div class="bg-white rounded-xl shadow-sm mb-3 overflow-hidden">
+    <div class="bg-white rounded-xl mb-3 overflow-hidden" style="border:1px solid #E2DFD8;">
       <button onclick="toggleCard('${id}')" class="w-full px-4 py-3 flex items-center justify-between text-left">
         <div class="flex items-center gap-2">
           <span class="text-lg">${icon}</span>
@@ -41,7 +41,7 @@ const ToolsCalc = (() => {
     return `
     <div class="mb-2">
       <label class="text-xs text-gray-500 mb-1 block">${label}${unit ? ` <span class="text-gray-400">(${unit})</span>` : ''}</label>
-      <input type="${type}" id="${id}" placeholder="${placeholder}" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 bg-white">
+      <input type="${type}" id="${id}" placeholder="${placeholder}" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300 bg-white">
     </div>`;
   }
 
@@ -50,12 +50,12 @@ const ToolsCalc = (() => {
     return `
     <div class="mb-2">
       <label class="text-xs text-gray-500 mb-1 block">${label}</label>
-      <select id="${id}" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 bg-white">${opts}</select>
+      <select id="${id}" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300 bg-white">${opts}</select>
     </div>`;
   }
 
   function calcBtn(fn) {
-    return `<button onclick="${fn}" class="w-full mt-3 bg-orange-500 text-white rounded-lg py-2 text-sm font-medium hover:bg-orange-600 active:bg-orange-700 transition-colors">計算</button>`;
+    return `<button onclick="${fn}" class="w-full mt-3 rounded-lg py-2 text-sm font-medium transition-colors" style="background:#222220;color:#fff;">計算</button>`;
   }
 
   // ── 1. BED / EQD2 ───────────────────────────────────────
@@ -66,10 +66,10 @@ const ToolsCalc = (() => {
       <div class="mb-2">
         <label class="text-xs text-gray-500 mb-1 block">α/β ratio</label>
         <div class="flex gap-2">
-          <button onclick="setBedAB(10)" class="ab-btn flex-1 text-xs py-1.5 rounded-lg border border-gray-200 hover:border-orange-400 hover:text-orange-500 transition-colors" data-ab="10">10 (腫瘤)</button>
-          <button onclick="setBedAB(3)" class="ab-btn flex-1 text-xs py-1.5 rounded-lg border border-gray-200 hover:border-orange-400 hover:text-orange-500 transition-colors" data-ab="3">3 (晚期)</button>
-          <button onclick="setBedAB(1.5)" class="ab-btn flex-1 text-xs py-1.5 rounded-lg border border-gray-200 hover:border-orange-400 hover:text-orange-500 transition-colors" data-ab="1.5">1.5</button>
-          <input type="number" id="bed-ab" placeholder="自訂" class="flex-1 border border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-orange-300" value="10">
+          <button onclick="setBedAB(10)" class="ab-btn flex-1 text-xs py-1.5 rounded-lg border border-gray-200 hover:border-gray-400  transition-colors" data-ab="10">10 (腫瘤)</button>
+          <button onclick="setBedAB(3)" class="ab-btn flex-1 text-xs py-1.5 rounded-lg border border-gray-200 hover:border-gray-400  transition-colors" data-ab="3">3 (晚期)</button>
+          <button onclick="setBedAB(1.5)" class="ab-btn flex-1 text-xs py-1.5 rounded-lg border border-gray-200 hover:border-gray-400  transition-colors" data-ab="1.5">1.5</button>
+          <input type="number" id="bed-ab" placeholder="自訂" class="flex-1 border border-gray-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-gray-300" value="10">
         </div>
       </div>
       ${calcBtn('calcBED()')}
@@ -80,8 +80,8 @@ const ToolsCalc = (() => {
   window.setBedAB = function(v) {
     const el = inp('bed-ab'); if(el) el.value = v;
     document.querySelectorAll('.ab-btn').forEach(b => {
-      b.classList.toggle('border-orange-400', parseFloat(b.dataset.ab) === v);
-      b.classList.toggle('text-orange-500', parseFloat(b.dataset.ab) === v);
+      b.classList.toggle('border-gray-700', parseFloat(b.dataset.ab) === v);
+      b.classList.toggle('style="color:#1A1A1A;"', parseFloat(b.dataset.ab) === v);
     });
   };
 
@@ -252,7 +252,7 @@ const ToolsCalc = (() => {
     setHTML('tg-result', resultCard(`
       <div class="text-center">
         <div class="text-xs text-gray-500">需額外補償劑量</div>
-        <div class="mono text-2xl font-bold text-orange-600">${extra.toFixed(1)} Gy</div>
+        <div class="mono text-2xl font-bold style="color:#1A1A1A;"">${extra.toFixed(1)} Gy</div>
         <div class="text-xs text-gray-500">${days}天 × ${factor} Gy/天</div>
       </div>
     `,'warn'));
@@ -327,7 +327,7 @@ const ToolsCalc = (() => {
     setHTML('calvert-result', resultCard(`
       <div class="grid grid-cols-2 gap-3 text-center">
         <div><div class="text-xs text-gray-500">估算 GFR (CG)</div><div class="font-bold mono">${crcl.toFixed(0)} mL/min</div></div>
-        <div><div class="text-xs text-gray-500">Carboplatin 劑量</div><div class="font-bold mono text-lg text-orange-600">${dose.toFixed(0)} mg</div></div>
+        <div><div class="text-xs text-gray-500">Carboplatin 劑量</div><div class="font-bold mono text-lg style="color:#1A1A1A;"">${dose.toFixed(0)} mg</div></div>
       </div>
       <div class="text-xs text-gray-400 text-center mt-1">AUC ${auc} × (${crcl.toFixed(0)} + 25)</div>
     `,'ok'));
@@ -411,7 +411,7 @@ const ToolsCalc = (() => {
           ${warn ? '<span class="text-xs text-red-500 font-bold">⚠️ ≥300 mg/m²</span>' : ''}
         </div>
         <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
-          <div class="h-2 rounded-full transition-all ${warn?'bg-red-500':'bg-orange-400'}" style="width:${Math.min(total/300*100,100).toFixed(0)}%"></div>
+          <div class="h-2 rounded-full transition-all ${warn?'bg-red-500':'bg-gray-700'}" style="width:${Math.min(total/300*100,100).toFixed(0)}%"></div>
         </div>
         <div class="mono text-right text-sm font-bold mt-1 ${warn?'text-red-600':'text-gray-700'}">${total.toFixed(0)} / 300 mg</div>
       </div>
@@ -423,7 +423,7 @@ const ToolsCalc = (() => {
           ${inputRow('BSA','cisp-bsa','m²','m²')}
           ${inputRow('劑量','cisp-dose','mg/m²','mg/m²')}
         </div>
-        <button onclick="addCisplatin()" class="w-full mt-2 bg-orange-500 text-white rounded-lg py-2 text-sm font-medium hover:bg-orange-600 transition-colors">新增</button>
+        <button onclick="addCisplatin()" class="w-full mt-2 rounded-lg py-2 text-sm font-medium transition-colors" style="background:#222220;color:#fff;">新增</button>
         ${doses.length ? `<button onclick="clearCisplatin()" class="w-full mt-2 text-xs text-gray-400 hover:text-red-500 transition-colors">清除所有記錄</button>` : ''}
       </div>`;
     return cardWrap('cisplatin','💉','Cisplatin 累積劑量',body);

@@ -8,37 +8,63 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <title>SELA RadOnc Tools</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     html, body { overscroll-behavior: none; }
-    body { font-family: 'Noto Sans TC', -apple-system, sans-serif; background: #f9fafb; }
+    body { font-family: 'Noto Sans TC', -apple-system, sans-serif; background: #F2F0EC; color: #1A1A1A; }
     .mono { font-family: 'DM Mono', monospace !important; }
     ::-webkit-scrollbar { display: none; }
     * { -ms-overflow-style: none; scrollbar-width: none; }
-    /* safe area padding */
     .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
-    /* smooth transitions */
     #app-main { transition: opacity 0.1s ease; }
-    /* Tailwind overrides for toggle */
-    .after\:content-\[\''\'\]:after { content: ''; }
+
+    /* ── Nordic palette overrides ─────────────────────── */
+    :root {
+      --bg:      #F2F0EC;
+      --card:    #FFFFFF;
+      --border:  #E2DFD8;
+      --text1:   #1A1A1A;
+      --text2:   #5A5750;
+      --accent:  #222220;        /* dark charcoal — active states */
+      --accent-s:#ECEAE5;        /* light tint */
+    }
+
+    /* Header stays brand-orange for the logo */
+    .sela-header { background: #E8550A; }
+
+    /* Nav active replaces orange with charcoal */
+    .nav-btn.active svg, .nav-btn.active span { color: var(--accent) !important; }
+
+    /* Card base */
+    .card { background: var(--card); border-radius: 14px; border: 1px solid var(--border); }
+
+    /* Section headings */
+    .section-label { font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text2); }
+
+    /* Toggle — charcoal when checked */
+    input.tool-toggle:checked + div { background: var(--accent) !important; }
+
+    /* Tabs */
+    .tab-active  { background: #fff; color: var(--accent); box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+    .tab-inactive{ color: var(--text2); }
   </style>
 </head>
-<body class="bg-gray-50 text-gray-900">
+<body style="background:#F2F0EC; color:#1A1A1A;">
 
   <div class="max-w-md mx-auto relative min-h-screen">
 
     <!-- ── Header ──────────────────────────────────────── -->
     <header class="fixed top-0 left-0 right-0 z-50 max-w-md mx-auto">
-      <div class="bg-orange-500 text-white px-4 py-3 flex items-center justify-between shadow-md">
+      <div class="sela-header px-4 py-2.5 flex items-center justify-between" style="box-shadow:0 1px 8px rgba(0,0,0,.18);">
         <div class="flex items-center gap-3">
-          <div class="w-9 h-9 bg-orange-600 rounded-xl flex items-center justify-center text-xl shadow-sm">🦎</div>
+          <img src="assets/logo.jpg" alt="SELA" class="w-10 h-10 rounded-xl object-cover" style="border:2px solid rgba(255,255,255,.25);">
           <div>
-            <div class="font-bold text-base leading-tight">SELA RadOnc</div>
-            <div class="text-xs text-orange-200 leading-tight">放射腫瘤科臨床工具</div>
+            <div class="font-semibold text-base leading-tight text-white tracking-wide">RadOnc Tools</div>
+            <div class="text-xs leading-tight" style="color:rgba(255,255,255,.65);">放射腫瘤科臨床工具</div>
           </div>
         </div>
-        <div class="font-medium text-xs bg-orange-700 px-2.5 py-1 rounded-full mono tracking-wide">V1.2.1</div>
+        <div class="mono text-xs px-2.5 py-1 rounded-full font-medium" style="background:rgba(0,0,0,.2);color:rgba(255,255,255,.85);">V1.2.1</div>
       </div>
     </header>
 
@@ -46,46 +72,57 @@
     <main id="app-main" class="pt-16 pb-24 min-h-screen"></main>
 
     <!-- ── Bottom Nav ──────────────────────────────────── -->
-    <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-gray-100 z-50 safe-bottom">
+    <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto safe-bottom z-50"
+         style="background:#fff;border-top:1px solid #E2DFD8;">
       <div class="flex items-stretch">
 
+        <!-- 工具 -->
         <button data-page="tools" onclick="App.navigate('tools')"
-          class="nav-btn flex-1 flex flex-col items-center justify-center py-2.5 gap-1 text-orange-500 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M4 19h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          class="nav-btn flex-1 flex flex-col items-center justify-center py-2.5 gap-1 transition-colors" style="color:#1A1A1A;">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
+            <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+            <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+            <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+            <rect x="14" y="14" width="7" height="7" rx="1.5"/>
           </svg>
           <span class="text-xs font-medium">工具</span>
         </button>
 
+        <!-- 分期 -->
         <button data-page="staging" onclick="App.navigate('staging')"
-          class="nav-btn flex-1 flex flex-col items-center justify-center py-2.5 gap-1 text-gray-400 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+          class="nav-btn flex-1 flex flex-col items-center justify-center py-2.5 gap-1 transition-colors" style="color:#9E9A93;">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 18h16M4 12h10M4 6h6"/>
           </svg>
           <span class="text-xs font-medium">分期</span>
         </button>
 
+        <!-- 限制 -->
         <button data-page="constraints" onclick="App.navigate('constraints')"
-          class="nav-btn flex-1 flex flex-col items-center justify-center py-2.5 gap-1 text-gray-400 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          class="nav-btn flex-1 flex flex-col items-center justify-center py-2.5 gap-1 transition-colors" style="color:#9E9A93;">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="9"/>
+            <path stroke-linecap="round" d="M12 7v5l3 3"/>
           </svg>
           <span class="text-xs font-medium">限制</span>
         </button>
 
+        <!-- ICD -->
         <button data-page="icd" onclick="App.navigate('icd')"
-          class="nav-btn flex-1 flex flex-col items-center justify-center py-2.5 gap-1 text-gray-400 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          class="nav-btn flex-1 flex flex-col items-center justify-center py-2.5 gap-1 transition-colors" style="color:#9E9A93;">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 4h12a1 1 0 011 1v14a1 1 0 01-1 1H6a1 1 0 01-1-1V5a1 1 0 011-1z"/>
+            <path stroke-linecap="round" d="M9 9h6M9 13h4"/>
           </svg>
           <span class="text-xs font-medium">ICD</span>
         </button>
 
+        <!-- 設定 -->
         <button data-page="settings" onclick="App.navigate('settings')"
-          class="nav-btn flex-1 flex flex-col items-center justify-center py-2.5 gap-1 text-gray-400 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+          class="nav-btn flex-1 flex flex-col items-center justify-center py-2.5 gap-1 transition-colors" style="color:#9E9A93;">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="2.5"/>
+            <path stroke-linecap="round" d="M12 5v2M12 17v2M5 12H3M21 12h-2M7.05 7.05 5.64 5.64M18.36 18.36l-1.41-1.41M7.05 16.95l-1.41 1.41M18.36 5.64l-1.41 1.41"/>
           </svg>
           <span class="text-xs font-medium">設定</span>
         </button>

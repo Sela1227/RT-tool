@@ -15,7 +15,7 @@ const ToolsScore = (() => {
 
   function cardWrap(id, icon, title, body) {
     return `
-    <div class="bg-white rounded-xl shadow-sm mb-3 overflow-hidden">
+    <div class="bg-white rounded-xl mb-3 overflow-hidden" style="border:1px solid #E2DFD8;">
       <button onclick="toggleCard('${id}')" class="w-full px-4 py-3 flex items-center justify-between text-left">
         <div class="flex items-center gap-2">
           <span class="text-lg">${icon}</span>
@@ -29,15 +29,15 @@ const ToolsScore = (() => {
 
   function selectRow(label, id, options) {
     const opts = options.map(([v,t]) => `<option value="${v}">${t}</option>`).join('');
-    return `<div class="mb-2"><label class="text-xs text-gray-500 mb-1 block">${label}</label><select id="${id}" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 bg-white">${opts}</select></div>`;
+    return `<div class="mb-2"><label class="text-xs text-gray-500 mb-1 block">${label}</label><select id="${id}" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300 bg-white">${opts}</select></div>`;
   }
 
   function inputRow(label, id, placeholder, unit='') {
-    return `<div class="mb-2"><label class="text-xs text-gray-500 mb-1 block">${label}${unit?` <span class="text-gray-400">(${unit})</span>`:''}</label><input type="number" id="${id}" placeholder="${placeholder}" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 bg-white"></div>`;
+    return `<div class="mb-2"><label class="text-xs text-gray-500 mb-1 block">${label}${unit?` <span class="text-gray-400">(${unit})</span>`:''}</label><input type="number" id="${id}" placeholder="${placeholder}" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300 bg-white"></div>`;
   }
 
   function calcBtn(fn) {
-    return `<button onclick="${fn}" class="w-full mt-3 bg-orange-500 text-white rounded-lg py-2 text-sm font-medium hover:bg-orange-600 active:bg-orange-700 transition-colors">計算</button>`;
+    return `<button onclick="${fn}" class="w-full mt-3 rounded-lg py-2 text-sm font-medium transition-colors" style="background:#222220;color:#fff;">計算</button>`;
   }
 
   // ── 1. GPA Score (DS-GPA) ───────────────────────────────
@@ -244,8 +244,8 @@ const ToolsScore = (() => {
       [4,  20,  '病重，需積極支持'],
       [4,  10,  '病危'],
     ].map(([ecog,kps,desc]) => `
-      <tr class="border-b border-gray-50 hover:bg-orange-50 transition-colors">
-        <td class="py-1.5 px-2 text-center font-bold mono text-orange-600">${ecog}</td>
+      <tr class="border-b border-gray-50 hover:bg--50 transition-colors">
+        <td class="py-1.5 px-2 text-center font-bold mono style="color:#1A1A1A;"">${ecog}</td>
         <td class="py-1.5 px-2 text-center mono">${kps}</td>
         <td class="py-1.5 px-2 text-xs text-gray-600">${desc}</td>
       </tr>
@@ -256,11 +256,11 @@ const ToolsScore = (() => {
         <div class="grid grid-cols-2 gap-2">
           <div>
             <label class="text-xs text-gray-500 mb-1 block">輸入 ECOG (0-4)</label>
-            <input type="number" id="ek-ecog" min="0" max="4" placeholder="0-4" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300" oninput="convertECOG()">
+            <input type="number" id="ek-ecog" min="0" max="4" placeholder="0-4" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300" oninput="convertECOG()">
           </div>
           <div>
             <label class="text-xs text-gray-500 mb-1 block">輸入 KPS (10-100)</label>
-            <input type="number" id="ek-kps" min="10" max="100" step="10" placeholder="10-100" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300" oninput="convertKPS()">
+            <input type="number" id="ek-kps" min="10" max="100" step="10" placeholder="10-100" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-300" oninput="convertKPS()">
           </div>
         </div>
         <div id="ek-result" class="mt-2"></div>
@@ -280,13 +280,13 @@ const ToolsScore = (() => {
     if(isNaN(ecog)||ecog<0||ecog>4) return;
     const kpsVals = ECOG_MAP.filter(([e])=>e===ecog).map(([,k])=>k);
     const kpsStr = kpsVals.join(' / ');
-    setHTML('ek-result', `<div class="text-xs bg-orange-50 rounded-lg px-3 py-2">ECOG ${ecog} → KPS <span class="font-bold mono">${kpsStr}</span></div>`);
+    setHTML('ek-result', `<div class="text-xs bg--50 rounded-lg px-3 py-2">ECOG ${ecog} → KPS <span class="font-bold mono">${kpsStr}</span></div>`);
   };
   window.convertKPS = function() {
     const kps = parseInt(inp('ek-kps')?.value);
     if(isNaN(kps)||kps<10||kps>100) return;
     const closest = ECOG_MAP.reduce((a,b) => Math.abs(b[1]-kps)<Math.abs(a[1]-kps)?b:a);
-    setHTML('ek-result', `<div class="text-xs bg-orange-50 rounded-lg px-3 py-2">KPS ${kps} → ECOG <span class="font-bold mono">${closest[0]}</span></div>`);
+    setHTML('ek-result', `<div class="text-xs bg--50 rounded-lg px-3 py-2">KPS ${kps} → ECOG <span class="font-bold mono">${closest[0]}</span></div>`);
   };
 
   // ── Render all ──────────────────────────────────────────

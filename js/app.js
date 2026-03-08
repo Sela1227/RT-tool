@@ -50,11 +50,10 @@ const App = (() => {
   function updateNav() {
     document.querySelectorAll('.nav-btn').forEach(btn => {
       const p = btn.getAttribute('data-page');
-      btn.querySelector('.nav-dot')?.remove();
       if(p === state.page) {
-        btn.classList.add('text-orange-500'); btn.classList.remove('text-gray-400');
+        btn.style.color = '#1A1A1A';
       } else {
-        btn.classList.remove('text-orange-500'); btn.classList.add('text-gray-400');
+        btn.style.color = '#9E9A93';
       }
     });
   }
@@ -76,9 +75,9 @@ const App = (() => {
     const tab = state.toolsTab;
     return `
     <div class="p-4">
-      <div class="flex bg-gray-100 rounded-xl p-1 mb-4">
-        <button onclick="App.setToolsTab('calc')" class="flex-1 py-2 rounded-lg text-sm font-medium transition-all ${tab==='calc'?'bg-white text-orange-500 shadow-sm':'text-gray-500 hover:text-gray-700'}">計算工具</button>
-        <button onclick="App.setToolsTab('score')" class="flex-1 py-2 rounded-lg text-sm font-medium transition-all ${tab==='score'?'bg-white text-orange-500 shadow-sm':'text-gray-500 hover:text-gray-700'}">評分工具</button>
+      <div class="flex rounded-xl p-1 mb-4" style="background:#E8E5DF;">
+        <button onclick="App.setToolsTab('calc')" class="flex-1 py-2 rounded-lg text-sm font-medium transition-all ${tab==='calc'?'tab-active':'tab-inactive'}">計算工具</button>
+        <button onclick="App.setToolsTab('score')" class="flex-1 py-2 rounded-lg text-sm font-medium transition-all ${tab==='score'?'tab-active':'tab-inactive'}">評分工具</button>
       </div>
       ${tab==='calc' ? ToolsCalc.render(state.settings) : ToolsScore.render(state.settings)}
     </div>`;
@@ -112,44 +111,47 @@ const App = (() => {
       {key:'ecogkps',label:'ECOG ↔ KPS'},
     ];
     const toggle = (t) => `
-      <div class="flex items-center justify-between py-2.5 border-b border-gray-50 last:border-0">
-        <span class="text-sm text-gray-700">${t.label}</span>
+      <div class="flex items-center justify-between py-2.5 border-b last:border-0" style="border-color:#F0EDE8;">
+        <span class="text-sm" style="color:#1A1A1A;">${t.label}</span>
         <label class="relative inline-flex items-center cursor-pointer">
           <input type="checkbox" class="sr-only peer tool-toggle" data-key="${t.key}" ${en[t.key]!==false?'checked':''}>
-          <div class="w-10 h-5 bg-gray-200 peer-checked:bg-orange-500 rounded-full transition-colors after:content-[''] after:absolute after:left-0.5 after:top-0.5 after:bg-white after:w-4 after:h-4 after:rounded-full after:transition-all peer-checked:after:translate-x-5"></div>
+          <div class="w-10 h-5 rounded-full transition-colors" style="background:#D5D2CC;" 
+               onclick="this.style.background=this.previousElementSibling.checked?'#222220':'#D5D2CC'"
+               ></div>
+          <div class="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all peer-checked:translate-x-5"></div>
         </label>
       </div>`;
     return `
     <div class="p-4 space-y-4">
       <h2 class="text-lg font-bold">設定</h2>
-      <div class="bg-white rounded-xl p-4 shadow-sm">
-        <div class="text-xs font-semibold text-gray-500 mb-3 uppercase tracking-wide">快速預設</div>
+      <div class="bg-white rounded-xl p-4" style="border:1px solid #E2DFD8;">
+        <div class="section-label mb-3">快速預設</div>
         <div class="flex gap-2">
-          <button onclick="App.applyPreset('all')" class="flex-1 py-2 text-xs bg-orange-50 text-orange-600 rounded-lg font-semibold hover:bg-orange-100 transition-colors">全開</button>
-          <button onclick="App.applyPreset('radonc')" class="flex-1 py-2 text-xs bg-blue-50 text-blue-600 rounded-lg font-semibold hover:bg-blue-100 transition-colors">放腫核心</button>
-          <button onclick="App.applyPreset('minimal')" class="flex-1 py-2 text-xs bg-gray-100 text-gray-600 rounded-lg font-semibold hover:bg-gray-200 transition-colors">精簡</button>
+          <button onclick="App.applyPreset('all')" class="flex-1 py-2 text-xs rounded-lg font-semibold transition-colors" style="background:#F2F0EC;color:#1A1A1A;">全開</button>
+          <button onclick="App.applyPreset('radonc')" class="flex-1 py-2 text-xs rounded-lg font-semibold transition-colors" style="background:#F2F0EC;color:#1A1A1A;">放腫核心</button>
+          <button onclick="App.applyPreset('minimal')" class="flex-1 py-2 text-xs rounded-lg font-semibold transition-colors" style="background:#F2F0EC;color:#1A1A1A;">精簡</button>
         </div>
       </div>
-      <div class="bg-white rounded-xl p-4 shadow-sm">
-        <div class="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">計算工具</div>
+      <div class="bg-white rounded-xl p-4" style="border:1px solid #E2DFD8;">
+        <div class="section-label mb-2">計算工具</div>
         ${calcTools.map(toggle).join('')}
       </div>
-      <div class="bg-white rounded-xl p-4 shadow-sm">
-        <div class="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wide">評分工具</div>
+      <div class="bg-white rounded-xl p-4" style="border:1px solid #E2DFD8;">
+        <div class="section-label mb-2">評分工具</div>
         ${scoreTools.map(toggle).join('')}
       </div>
-      <div class="bg-white rounded-xl p-4 shadow-sm">
-        <div class="text-xs font-semibold text-gray-500 mb-3 uppercase tracking-wide">資料管理</div>
+      <div class="bg-white rounded-xl p-4" style="border:1px solid #E2DFD8;">
+        <div class="section-label mb-3">資料管理</div>
         <div class="flex gap-2">
-          <button onclick="App.exportData()" class="flex-1 py-2 text-xs bg-green-50 text-green-600 rounded-lg font-semibold hover:bg-green-100 transition-colors">匯出 JSON</button>
-          <button onclick="App.importData()" class="flex-1 py-2 text-xs bg-blue-50 text-blue-600 rounded-lg font-semibold hover:bg-blue-100 transition-colors">匯入 JSON</button>
+          <button onclick="App.exportData()" class="flex-1 py-2 text-xs rounded-lg font-semibold" style="background:#F2F0EC;color:#1A1A1A;">匯出 JSON</button>
+          <button onclick="App.importData()" class="flex-1 py-2 text-xs rounded-lg font-semibold" style="background:#F2F0EC;color:#1A1A1A;">匯入 JSON</button>
         </div>
         <input type="file" id="import-file" accept=".json" class="hidden" onchange="App.handleImport(event)">
       </div>
-      <div class="bg-gray-50 rounded-xl p-4 text-xs text-gray-500 leading-relaxed">
+      <div class="rounded-xl p-4 text-xs leading-relaxed" style="background:#ECEAE5;color:#5A5750;">
         本工具僅供臨床參考，所有醫療決策請依據最新指引及臨床判斷。計算結果不能取代專業醫療意見。劑量限制數據以原始文獻為準，使用前請核對最新版本。
       </div>
-      <div class="text-center text-xs text-gray-300 mono pb-2">SELA RadOnc ${VERSION}</div>
+      <div class="text-center text-xs mono pb-2" style="color:#B5B2AB;">SELA RadOnc ${VERSION}</div>
     </div>`;
   }
 
