@@ -27,9 +27,9 @@ const ToolsCalc = (() => {
     return `
     <div class="bg-white rounded-xl mb-3 overflow-hidden" style="border:1px solid #E2DFD8;">
       <button onclick="toggleCard('${id}')" class="w-full px-4 py-3 flex items-center justify-between text-left">
-        <div class="flex items-center gap-2">
-          <span class="text-lg">${icon}</span>
-          <span class="font-medium text-sm text-gray-800">${title}</span>
+        <div class="flex items-center gap-2.5">
+          <span class="flex-shrink-0 w-5 h-5 flex items-center justify-center" style="color:#5A5750;">${icon}</span>
+          <span class="font-medium text-sm" style="color:#1A1A1A;">${title}</span>
         </div>
         <svg id="${id}-chev" class="w-4 h-4 text-gray-400 flex-shrink-0" style="transition:transform 0.2s" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
       </button>
@@ -74,7 +74,11 @@ const ToolsCalc = (() => {
       </div>
       ${calcBtn('calcBED()')}
       <div id="bed-result"></div>`;
-    return cardWrap('bed','⚡','BED / EQD2',body);
+    return cardWrap('bed',`<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+  <path d="M2 14 C2 14 4 4 9 4 C14 4 16 14 16 14"/>
+  <line x1="2" y1="14" x2="16" y2="14"/>
+  <line x1="9" y1="4" x2="9" y2="2"/>
+</svg>`,'BED / EQD2',body);
   }
 
   window.setBedAB = function(v) {
@@ -114,7 +118,11 @@ const ToolsCalc = (() => {
       ${inputRow('PT 延長時間','cp-pt','秒','sec')}
       ${calcBtn('calcChildPugh()')}
       <div id="cp-result"></div>`;
-    return cardWrap('childpugh','🫁','Child-Pugh + BCLC',body);
+    return cardWrap('childpugh',`<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+  <path d="M9 3 C5 3 3 5.5 3 8 C3 11.5 5.5 13.5 9 15 C12.5 13.5 15 11.5 15 8 C15 5.5 13 3 9 3Z"/>
+  <line x1="9" y1="8" x2="9" y2="12"/>
+  <line x1="7" y1="10" x2="11" y2="10"/>
+</svg>`,'Child-Pugh + BCLC',body);
   }
 
   window.calcChildPugh = function() {
@@ -150,7 +158,14 @@ const ToolsCalc = (() => {
       ${selectRow('T stage','roach-t',[['T1','T1'],['T2a','T2a'],['T2b','T2b'],['T2c','T2c'],['T3','T3'],['T4','T4']])}
       ${calcBtn('calcRoach()')}
       <div id="roach-result"></div>`;
-    return cardWrap('roach','🎯','Roach Formula + D\'Amico',body);
+    return cardWrap('roach',`<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+  <circle cx="9" cy="9" r="6"/>
+  <circle cx="9" cy="9" r="2.5"/>
+  <line x1="9" y1="1" x2="9" y2="4"/>
+  <line x1="9" y1="14" x2="9" y2="17"/>
+  <line x1="1" y1="9" x2="4" y2="9"/>
+  <line x1="14" y1="9" x2="17" y2="9"/>
+</svg>`,'Roach Formula + D\'Amico',body);
   }
 
   window.calcRoach = function() {
@@ -183,7 +198,12 @@ const ToolsCalc = (() => {
       ${inputRow('白蛋白','albi-alb','g/L','g/L')}
       ${calcBtn('calcALBI()')}
       <div id="albi-result"></div>`;
-    return cardWrap('albi','📊','ALBI Score',body);
+    return cardWrap('albi',`<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <rect x="2" y="11" width="3" height="5" rx="0.5"/>
+  <rect x="7.5" y="7" width="3" height="9" rx="0.5"/>
+  <rect x="13" y="4" width="3" height="12" rx="0.5"/>
+  <polyline points="3.5,11 9,7 14.5,4"/>
+</svg>`,'ALBI Score',body);
   }
 
   window.calcALBI = function() {
@@ -209,7 +229,11 @@ const ToolsCalc = (() => {
       ${inputRow('INR','meld-inr','e.g. 1.2','')}
       ${calcBtn('calcMELD()')}
       <div id="meld-result"></div>`;
-    return cardWrap('meld','🩸','MELD Score',body);
+    return cardWrap('meld',`<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+  <path d="M2 14 A7 7 0 0 1 16 14"/>
+  <line x1="9" y1="14" x2="13.5" y2="7.5"/>
+  <line x1="2" y1="14" x2="16" y2="14"/>
+</svg>`,'MELD Score',body);
   }
 
   window.calcMELD = function() {
@@ -238,7 +262,12 @@ const ToolsCalc = (() => {
       ${inputRow('中斷天數','tg-days','天','天')}
       ${calcBtn('calcTreatmentGap()')}
       <div id="tg-result"></div>`;
-    return cardWrap('treatmentgap','📅','Treatment Gap Correction',body);
+    return cardWrap('treatmentgap',`<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+  <rect x="2" y="4" width="5" height="11" rx="1"/>
+  <rect x="11" y="4" width="5" height="11" rx="1"/>
+  <line x1="8" y1="9" x2="10" y2="9" stroke-dasharray="1 1.5"/>
+  <line x1="9" y1="6" x2="9" y2="12"/>
+</svg>`,'Treatment Gap Correction',body);
   }
 
   window.calcTreatmentGap = function() {
@@ -275,7 +304,10 @@ const ToolsCalc = (() => {
       </div>
       ${calcBtn('calcHypofrac()')}
       <div id="hf-result"></div>`;
-    return cardWrap('hypofrac','🔄','Hypofractionation Converter',body);
+    return cardWrap('hypofrac',`<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <polyline points="2,13 5,8 8,11 11,5 14,8 16,4"/>
+  <line x1="2" y1="16" x2="16" y2="16"/>
+</svg>`,'Hypofractionation Converter',body);
   }
 
   window.calcHypofrac = function() {
@@ -314,7 +346,11 @@ const ToolsCalc = (() => {
       ${inputRow('血清肌酸酐','calvert-scr','mg/dL','mg/dL')}
       ${calcBtn('calcCalvert()')}
       <div id="calvert-result"></div>`;
-    return cardWrap('calvert','💊','Calvert Formula (Carboplatin)',body);
+    return cardWrap('calvert',`<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+  <path d="M6 3 L6 8 C6 12 4 14 4 14 L14 14 C14 14 12 12 12 8 L12 3"/>
+  <line x1="4.5" y1="3" x2="13.5" y2="3"/>
+  <circle cx="9" cy="10" r="1.5"/>
+</svg>`,'Calvert Formula (Carboplatin)',body);
   }
 
   window.calcCalvert = function() {
@@ -342,7 +378,12 @@ const ToolsCalc = (() => {
       ${inputRow('血清肌酸酐','cg-scr','mg/dL','mg/dL')}
       ${calcBtn('calcCG()')}
       <div id="cg-result"></div>`;
-    return cardWrap('cockcroftgault','🧪','Cockcroft-Gault (CrCl)',body);
+    return cardWrap('cockcroftgault',`<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+  <path d="M5 4 C5 4 3 6 3 9 C3 12 5 14 9 14 C13 14 15 12 15 9 C15 6 13 4 13 4"/>
+  <path d="M6 6 C6 6 5 7.5 5 9 C5 11 6.5 13 9 13"/>
+  <line x1="9" y1="2" x2="9" y2="5"/>
+  <line x1="7.5" y1="2" x2="10.5" y2="2"/>
+</svg>`,'Cockcroft-Gault (CrCl)',body);
   }
 
   window.calcCG = function() {
@@ -370,7 +411,14 @@ const ToolsCalc = (() => {
       ${inputRow('體重','bsa-wt','kg','kg')}
       ${calcBtn('calcBSA()')}
       <div id="bsa-result"></div>`;
-    return cardWrap('bsa','📏','BSA Calculator',body);
+    return cardWrap('bsa',`<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <circle cx="9" cy="4" r="2"/>
+  <path d="M5 8 C5 8 4 11 4 14"/>
+  <path d="M13 8 C13 8 14 11 14 14"/>
+  <path d="M5 8 L9 10 L13 8"/>
+  <line x1="6.5" y1="11" x2="5.5" y2="15"/>
+  <line x1="11.5" y1="11" x2="12.5" y2="15"/>
+</svg>`,'BSA Calculator',body);
   }
 
   window.calcBSA = function() {
@@ -426,7 +474,12 @@ const ToolsCalc = (() => {
         <button onclick="addCisplatin()" class="w-full mt-2 rounded-lg py-2 text-sm font-medium transition-colors" style="background:#222220;color:#fff;">新增</button>
         ${doses.length ? `<button onclick="clearCisplatin()" class="w-full mt-2 text-xs text-gray-400 hover:text-red-500 transition-colors">清除所有記錄</button>` : ''}
       </div>`;
-    return cardWrap('cisplatin','💉','Cisplatin 累積劑量',body);
+    return cardWrap('cisplatin',`<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+  <line x1="9" y1="2" x2="9" y2="5"/>
+  <rect x="6" y="5" width="6" height="9" rx="3"/>
+  <line x1="6.5" y1="10" x2="11.5" y2="10"/>
+  <path d="M7 14 L6 16 M11 14 L12 16"/>
+</svg>`,'Cisplatin 累積劑量',body);
   }
 
   window.addCisplatin = function() {

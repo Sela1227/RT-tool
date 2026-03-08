@@ -17,8 +17,10 @@ const ToolsScore = (() => {
     return `
     <div class="bg-white rounded-xl mb-3 overflow-hidden" style="border:1px solid #E2DFD8;">
       <button onclick="toggleCard('${id}')" class="w-full px-4 py-3 flex items-center justify-between text-left">
-        <div class="flex items-center gap-2">
-          <span class="text-lg">${icon}</span>
+        <div class="flex items-center gap-2.5">
+          <span class="flex-shrink-0 w-5 h-5 flex items-center justify-center" style="color:#5A5750;">${icon}</span>
+          <span class="font-medium text-sm" style="color:#1A1A1A;">${title}</span>
+        </div>
           <span class="font-medium text-sm text-gray-800">${title}</span>
         </div>
         <svg id="${id}-chev" class="w-4 h-4 text-gray-400 flex-shrink-0" style="transition:transform 0.2s" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
@@ -50,7 +52,9 @@ const ToolsScore = (() => {
       <div id="gpa-inputs"></div>
       ${calcBtn('calcGPA()')}
       <div id="gpa-result"></div>`;
-    return cardWrap('gpa','⭐','GPA Score (DS-GPA)',body);
+    return cardWrap('gpa',`<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M9 2 L10.5 7 L16 7 L11.5 10.5 L13 15.5 L9 12.5 L5 15.5 L6.5 10.5 L2 7 L7.5 7 Z"/>
+</svg>`,'GPA Score (DS-GPA)',body);
   }
 
   // GPA scoring tables by cancer type
@@ -143,7 +147,13 @@ const ToolsScore = (() => {
       ${selectRow('6. 後外側受侵','sins-poster',[['3','雙側 — 3'],['1','單側 — 1'],['0','無 — 0']])}
       ${calcBtn('calcSINS()')}
       <div id="sins-result"></div>`;
-    return cardWrap('sins','🦴','SINS Score（脊椎不穩定）',body);
+    return cardWrap('sins',`<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+  <rect x="6" y="2" width="6" height="4" rx="1"/>
+  <rect x="6" y="7" width="6" height="4" rx="1"/>
+  <rect x="6" y="12" width="6" height="4" rx="1"/>
+  <line x1="9" y1="6" x2="9" y2="7"/>
+  <line x1="9" y1="11" x2="9" y2="12"/>
+</svg>`,'SINS Score（脊椎不穩定）',body);
   }
 
   window.calcSINS = function() {
@@ -171,7 +181,14 @@ const ToolsScore = (() => {
       ${selectRow('5. 脊髓癱瘓 (Frankel)','toku-palsy',[['0','完全癱 (A,B) — 0'],['1','不完全癱 (C,D) — 1'],['2','無 (E) — 2']])}
       ${calcBtn('calcTokuhashi()')}
       <div id="toku-result"></div>`;
-    return cardWrap('tokuhashi','📋','Tokuhashi Score（脊椎轉移）',body);
+    return cardWrap('tokuhashi',`<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+  <rect x="6" y="2" width="6" height="4" rx="1"/>
+  <rect x="6" y="7" width="6" height="4" rx="1"/>
+  <rect x="6" y="12" width="6" height="4" rx="1"/>
+  <line x1="9" y1="6" x2="9" y2="7"/>
+  <line x1="9" y1="11" x2="9" y2="12"/>
+  <polyline points="11,5 14,9 11,13"/>
+</svg>`,'Tokuhashi Score（脊椎轉移）',body);
   }
 
   window.calcTokuhashi = function() {
@@ -199,7 +216,11 @@ const ToolsScore = (() => {
       ${selectRow('顱外轉移','rpa-ecm',[['no','無'],['yes','有']])}
       ${calcBtn('calcRPA()')}
       <div id="rpa-result"></div>`;
-    return cardWrap('rpa','🧠','RPA Class（腦轉移）',body);
+    return cardWrap('rpa',`<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+  <path d="M4 16 C4 10 6 4 9 3 C12 4 14 10 14 16"/>
+  <path d="M6.5 10 C6.5 10 7.5 8 9 8 C10.5 8 11.5 10 11.5 10"/>
+  <line x1="9" y1="8" x2="9" y2="6"/>
+</svg>`,'RPA Class（腦轉移）',body);
   }
 
   window.calcRPA = function() {
@@ -271,7 +292,15 @@ const ToolsScore = (() => {
         </tr></thead>
         <tbody>${rows}</tbody>
       </table>`;
-    return cardWrap('ecogkps','🏃','ECOG ↔ KPS 換算',body);
+    return cardWrap('ecogkps',`<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <circle cx="9" cy="3.5" r="1.5"/>
+  <line x1="9" y1="5" x2="9" y2="11"/>
+  <polyline points="6,8 9,11 12,8"/>
+  <line x1="7" y1="13" x2="9" y2="11"/>
+  <line x1="11" y1="13" x2="9" y2="11"/>
+  <line x1="5.5" y1="16" x2="7" y2="13"/>
+  <line x1="12.5" y1="16" x2="11" y2="13"/>
+</svg>`,'ECOG ↔ KPS 換算',body);
   }
 
   const ECOG_MAP = [[0,100],[0,90],[1,80],[1,70],[2,60],[2,50],[3,40],[3,30],[4,20],[4,10]];
