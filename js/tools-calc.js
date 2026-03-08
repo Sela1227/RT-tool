@@ -473,21 +473,28 @@ const ToolsCalc = (() => {
   };
 
   // ── Render all ───────────────────────────────────────────
-  function render(settings) {
+  const CALC_ALL = [
+    {key:'childpugh',     fn:renderChildPugh, label:'Child-Pugh'},
+    {key:'roach',         fn:renderRoach,     label:'Roach'},
+    {key:'albi',          fn:renderALBI,      label:'ALBI'},
+    {key:'meld',          fn:renderMELD,      label:'MELD'},
+    {key:'calvert',       fn:renderCalvert,   label:'Calvert'},
+    {key:'cockcroftgault',fn:renderCG,        label:'CrCl'},
+    {key:'bsa',           fn:renderBSA,       label:'BSA'},
+    {key:'cisplatin',     fn:renderCisplatin, label:'Cisplatin'},
+  ];
+
+  function getVisibleCalc(settings) {
     const en = settings?.enabledTools || {};
-    const tools = [
-      {key:'childpugh',    fn:renderChildPugh},
-      {key:'roach',        fn:renderRoach},
-      {key:'albi',         fn:renderALBI},
-      {key:'meld',         fn:renderMELD},
-      {key:'calvert',      fn:renderCalvert},
-      {key:'cockcroftgault',fn:renderCG},
-      {key:'bsa',          fn:renderBSA},
-      {key:'cisplatin',    fn:renderCisplatin},
-    ];
-    const html = tools.filter(t=>en[t.key]!==false).map(t=>t.fn()).join('');
-    return html || `<div class="text-center text-sm py-8" style="color:var(--t3);">計算工具已全部關閉</div>`;
+    return CALC_ALL.filter(t => en[t.key] !== false);
   }
 
-  return { render };
+  function render(settings, activeTool) {
+    const visible = getVisibleCalc(settings);
+    if (!visible.length) return `<div class="text-center text-sm py-8" style="color:var(--t3);">計算工具已全部關閉</div>`;
+    const tool = visible.find(t => t.key === activeTool) || visible[0];
+    return tool.fn();
+  }
+
+  return { render, getTools: getVisibleCalc };
 })();

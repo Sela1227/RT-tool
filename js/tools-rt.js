@@ -324,25 +324,28 @@ const ToolsRT = (() => {
   };
 
   // ─── Render ───────────────────────────────────────────────
-  function render(settings) {
+  const RT_ALL = [
+    {key:'bed',         fn:renderBED,          label:'BED/EQD2'},
+    {key:'treatmentgap',fn:renderTreatmentGap, label:'Gap 修正'},
+    {key:'hypofrac',    fn:renderHypofrac,     label:'分次換算'},
+    {key:'electron',    fn:renderElectron,     label:'電子線'},
+    {key:'mu-calc',     fn:renderMU,           label:'MU 計算'},
+    {key:'ssd-corr',    fn:renderSSD,          label:'SSD 修正'},
+    {key:'isl',         fn:renderISL,          label:'ISL'},
+    {key:'hvl',         fn:renderHVL,          label:'HVL 屏蔽'},
+  ];
+
+  function getVisible(settings) {
     const en = settings?.enabledTools || {};
-    const allTools = [
-      {key:'bed',       fn:renderBED,       label:'BED/EQD2'},
-      {key:'treatmentgap',fn:renderTreatmentGap,label:'Gap 修正'},
-      {key:'hypofrac',  fn:renderHypofrac,  label:'分次換算'},
-      {key:'electron',  fn:renderElectron,  label:'電子線'},
-      {key:'mu-calc',   fn:renderMU,        label:'MU 計算'},
-      {key:'ssd-corr',  fn:renderSSD,       label:'SSD 修正'},
-      {key:'isl',       fn:renderISL,       label:'ISL'},
-      {key:'hvl',       fn:renderHVL,       label:'HVL 屏蔽'},
-    ];
-    const visible = allTools.filter(t => en[t.key] !== false);
-    if (!visible.length) return `<div class="text-center text-sm py-8" style="color:var(--t3);">放療工具已全部關閉</div>`;
-    const index = `<div class="flex flex-wrap gap-1.5 mb-3">${
-      visible.map(t=>`<button onclick="jumpTo('${t.key}')" class="text-xs px-2.5 py-1 rounded-full" style="background:var(--acc-bg);color:var(--accent);border:1px solid var(--border);">${t.label}</button>`).join('')
-    }</div>`;
-    return index + visible.map(t => t.fn()).join('');
+    return RT_ALL.filter(t => en[t.key] !== false);
   }
 
-  return { render };
+  function render(settings, activeTool) {
+    const visible = getVisible(settings);
+    if (!visible.length) return `<div class="text-center text-sm py-8" style="color:var(--t3);">放療工具已全部關閉</div>`;
+    const tool = visible.find(t => t.key === activeTool) || visible[0];
+    return tool.fn();
+  }
+
+  return { render, getTools: getVisible };
 })();

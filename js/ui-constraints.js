@@ -126,55 +126,56 @@ const UIConstraints = (() => {
 
   function render() {
     return `
-      <div class="text-base font-semibold mb-3" style="color:var(--t1);">劑量限制查詢</div>
+      <div style="position:sticky;top:64px;z-index:40;background:var(--bg);margin:0 -16px;padding:10px 16px 8px;border-bottom:1px solid var(--border);">
 
-      <!-- Search -->
-      <div class="relative mb-3">
-        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style="color:var(--t3);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-        </svg>
-        <input type="text" id="con-search" placeholder="搜尋器官、參數…" value="${query}"
-          class="inp" style="padding-left:36px;" oninput="ConSearch(this.value)">
-      </div>
-
-      <!-- Region group filter -->
-      <div class="mb-2">
-        <div class="text-xs mb-1.5" style="color:var(--t3);">部位</div>
-        <div class="flex gap-1.5 overflow-x-auto pb-1" style="-webkit-overflow-scrolling:touch;">
-          ${Object.entries(GROUP_LABELS).map(([k,lbl]) =>
-            `<button onclick="ConGroup('${k}')" data-group="${k}"
-              class="con-grp-btn flex-shrink-0 text-xs px-3 py-1.5 rounded-full transition-colors"
-              style="${k===groupFilter ? 'background:var(--accent);color:#fff;border:1px solid var(--accent);' : 'background:var(--card);color:var(--t2);border:1px solid var(--border);'}">${lbl}</button>`
-          ).join('')}
+        <!-- Search -->
+        <div class="relative mb-2">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style="color:var(--t3);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          <input type="text" id="con-search" placeholder="搜尋器官、參數…" value="${query}"
+            class="inp" style="padding-left:36px;" oninput="ConSearch(this.value)">
         </div>
-      </div>
 
-      <!-- Tech filter -->
-      <div class="mb-2">
-        <div class="text-xs mb-1.5" style="color:var(--t3);">技術</div>
-        <div class="flex gap-1.5 overflow-x-auto pb-1" style="-webkit-overflow-scrolling:touch;">
-          ${TECHS.map(t =>
-            `<button onclick="ConTech('${t}')" data-tech="${t}"
-              class="con-tech-btn flex-shrink-0 text-xs px-3 py-1.5 rounded-full transition-colors"
-              style="${t===techFilter ? 'background:var(--accent);color:#fff;border:1px solid var(--accent);' : 'background:var(--card);color:var(--t2);border:1px solid var(--border);'}">${TECH_LABELS[t]}</button>`
-          ).join('')}
+        <!-- Region group filter -->
+        <div class="mb-1.5">
+          <div class="text-xs mb-1" style="color:var(--t3);">部位</div>
+          <div class="flex gap-1.5 overflow-x-auto" style="-webkit-overflow-scrolling:touch;scrollbar-width:none;">
+            ${Object.entries(GROUP_LABELS).map(([k,lbl]) =>
+              `<button onclick="ConGroup('${k}')" data-group="${k}"
+                class="con-grp-btn flex-shrink-0 text-xs px-3 py-1.5 rounded-full"
+                style="${k===groupFilter ? 'background:var(--accent);color:#fff;border:1px solid var(--accent);' : 'background:var(--card);color:var(--t2);border:1px solid var(--border);'}">${lbl}</button>`
+            ).join('')}
+          </div>
         </div>
-      </div>
 
-      <!-- Source filter -->
-      <div class="mb-3">
-        <div class="text-xs mb-1.5" style="color:var(--t3);">來源</div>
-        <div class="flex gap-1.5 overflow-x-auto pb-1" style="-webkit-overflow-scrolling:touch;">
-          ${['All','RTOG','QUANTEC','TG-101','NCCN','Custom'].map(s =>
-            `<button onclick="ConSource('${s}')" data-source="${s}"
-              class="con-src-btn flex-shrink-0 text-xs px-3 py-1.5 rounded-full transition-colors"
-              style="${s===sourceFilter ? 'background:var(--accent);color:#fff;border:1px solid var(--accent);' : 'background:var(--card);color:var(--t2);border:1px solid var(--border);'}">${s}</button>`
-          ).join('')}
+        <!-- Tech filter -->
+        <div class="mb-1.5">
+          <div class="text-xs mb-1" style="color:var(--t3);">技術</div>
+          <div class="flex gap-1.5 overflow-x-auto" style="-webkit-overflow-scrolling:touch;scrollbar-width:none;">
+            ${TECHS.map(t =>
+              `<button onclick="ConTech('${t}')" data-tech="${t}"
+                class="con-tech-btn flex-shrink-0 text-xs px-3 py-1.5 rounded-full"
+                style="${t===techFilter ? 'background:var(--accent);color:#fff;border:1px solid var(--accent);' : 'background:var(--card);color:var(--t2);border:1px solid var(--border);'}">${TECH_LABELS[t]}</button>`
+            ).join('')}
+          </div>
+        </div>
+
+        <!-- Source filter -->
+        <div>
+          <div class="text-xs mb-1" style="color:var(--t3);">來源</div>
+          <div class="flex gap-1.5 overflow-x-auto" style="-webkit-overflow-scrolling:touch;scrollbar-width:none;">
+            ${['All','RTOG','QUANTEC','TG-101','NCCN','Custom'].map(s =>
+              `<button onclick="ConSource('${s}')" data-source="${s}"
+                class="con-src-btn flex-shrink-0 text-xs px-3 py-1.5 rounded-full"
+                style="${s===sourceFilter ? 'background:var(--accent);color:#fff;border:1px solid var(--accent);' : 'background:var(--card);color:var(--t2);border:1px solid var(--border);'}">${s}</button>`
+            ).join('')}
+          </div>
         </div>
       </div>
 
       <!-- Results -->
-      <div id="con-results">${renderResults()}</div>
+      <div class="mt-3" id="con-results">${renderResults()}</div>
 
       <!-- Modal -->
       <div id="con-modal" class="hidden fixed inset-0 z-50 flex items-end justify-center" style="background:rgba(0,0,0,.4);">

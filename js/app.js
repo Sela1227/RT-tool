@@ -18,7 +18,7 @@ const App = (() => {
     }
   };
 
-  let state = { page:'tools', toolsTab:'rt', settings:null, cisplatinDoses:[] };
+  let state = { page:'tools', toolsTab:'rt', settings:null, cisplatinDoses:[], activeTools:{rt:'bed', calc:'childpugh', score:'gpa'} };
 
   // ── Storage ──────────────────────────────────────────────
   function loadSettings() {
@@ -46,6 +46,7 @@ const App = (() => {
     updateNav();
   }
   function setToolsTab(tab) { state.toolsTab = tab; render(); }
+  function setActiveTool(tab, key) { state.activeTools[tab] = key; render(); }
 
   function updateNav() {
     document.querySelectorAll('.nav-btn').forEach(btn => {
@@ -55,51 +56,55 @@ const App = (() => {
   }
 
   // ── Page renders ─────────────────────────────────────────
-  function pageWrap(content) {
-    return `<div class="px-4 pt-4 pb-2">${content}</div>`;
+  // Sticky bar helper — sticks below the 64px fixed header
+  function stickyBar(html) {
+    return `<div class="page-sticky-bar" style="position:sticky;top:64px;z-index:40;background:var(--bg);margin:0 -16px;padding:10px 16px 8px;border-bottom:1px solid var(--border);">${html}</div>`;
   }
 
-  // Quick-jump index for long tool lists
-  function quickJump(items) {
-    return `<div class="flex flex-wrap gap-1.5 mb-3">${
-      items.map(i => `<button onclick="jumpTo('${i.id}')"
-        class="text-xs px-2.5 py-1 rounded-full" style="background:var(--acc-bg);color:var(--accent);border:1px solid var(--border);">${i.label}</button>`
-      ).join('')
-    }</div>`;
+  function pillBtn(label, active, onclick) {
+    const s = active
+      ? 'background:#222220;color:#fff;border-color:#222220;'
+      : 'background:#fff;color:#5A5750;border-color:#E2DFD8;';
+    return `<button onclick="${onclick}" style="font-size:0.75rem;padding:5px 12px;border-radius:9999px;border-width:1px;border-style:solid;white-space:nowrap;cursor:pointer;${s}">${label}</button>`;
+  }
+
+  function pillRow(items, activeKey, onclickFn) {
+    return `<div class="flex gap-1.5 overflow-x-auto" style="-webkit-overflow-scrolling:touch;scrollbar-width:none;">
+      ${items.map(i => pillBtn(i.label, i.key === activeKey, `${onclickFn}('${i.key}')`)).join('')}
+    </div>`;
   }
 
   function renderTools() {
     const tab = state.toolsTab;
+    const active = state.activeTools;
+
     const tabs = [
-      { id:'rt',    label:'放療 RT' },
-      { id:'calc',  label:'計算'    },
-      { id:'score', label:'評分'    },
+      {id:'rt', label:'放療 RT'}, {id:'calc', label:'計算'}, {id:'score', label:'評分'},
     ];
-    const tabBar = `<div class="tab-bar">${
+    const tabBar = `<div class="tab-bar" style="margin-bottom:0;">${
       tabs.map(t => `<button class="tab-btn${tab===t.id?' active':''}" onclick="App.setToolsTab('${t.id}')">${t.label}</button>`).join('')
     }</div>`;
 
-    let content, index = '';
+    let tools, content;
     if (tab === 'rt') {
-      content = ToolsRT.render(state.settings);
+      tools = ToolsRT.getTools(state.settings);
+      const activeKey = tools.find(t=>t.key===active.rt) ? active.rt : (tools[0]?.key||'bed');
+      const toolPills = pillRow(tools, activeKey, 'AppSetTool_rt');
+      content = ToolsRT.render(state.settings, activeKey);
+      return `<div class="px-4 pt-4 pb-2">${stickyBar(tabBar + '<div style="margin-top:8px;">' + toolPills + '</div>')}<div class="pt-3">${content}</div></div>`;
     } else if (tab === 'calc') {
-      index = quickJump([
-        {id:'childpugh',label:'Child-Pugh'},{id:'roach',label:'Roach'},
-        {id:'albi',label:'ALBI'},{id:'meld',label:'MELD'},
-        {id:'calvert',label:'Calvert'},{id:'cockcroftgault',label:'CrCl'},
-        {id:'bsa',label:'BSA'},{id:'cisplatin',label:'Cisplatin'},
-      ]);
-      content = ToolsCalc.render(state.settings);
+      tools = ToolsCalc.getTools(state.settings);
+      const activeKey = tools.find(t=>t.key===active.calc) ? active.calc : (tools[0]?.key||'childpugh');
+      const toolPills = pillRow(tools, activeKey, 'AppSetTool_calc');
+      content = ToolsCalc.render(state.settings, activeKey);
+      return `<div class="px-4 pt-4 pb-2">${stickyBar(tabBar + '<div style="margin-top:8px;">' + toolPills + '</div>')}<div class="pt-3">${content}</div></div>`;
     } else {
-      index = quickJump([
-        {id:'gpa',label:'GPA'},{id:'sins',label:'SINS'},
-        {id:'tokuhashi',label:'Tokuhashi'},{id:'rpa',label:'RPA'},
-        {id:'ecogkps',label:'ECOG/KPS'},
-      ]);
-      content = ToolsScore.render(state.settings);
+      tools = ToolsScore.getTools(state.settings);
+      const activeKey = tools.find(t=>t.key===active.score) ? active.score : (tools[0]?.key||'gpa');
+      const toolPills = pillRow(tools, activeKey, 'AppSetTool_score');
+      content = ToolsScore.render(state.settings, activeKey);
+      return `<div class="px-4 pt-4 pb-2">${stickyBar(tabBar + '<div style="margin-top:8px;">' + toolPills + '</div>')}<div class="pt-3">${content}</div></div>`;
     }
-
-    return pageWrap(tabBar + index + content);
   }
 
   function renderSettings() {
@@ -246,7 +251,7 @@ const App = (() => {
 
   function init() { loadSettings(); render(); updateNav(); }
 
-  return { navigate, setToolsTab, applyPreset, exportData, importData, handleImport, getCisplatinDoses, saveCisplatinDoses, init };
+  return { navigate, setToolsTab, setActiveTool, applyPreset, exportData, importData, handleImport, getCisplatinDoses, saveCisplatinDoses, init };
 })();
 
 // Global helper: open a card and scroll to it
@@ -262,5 +267,9 @@ window.jumpTo = function(id) {
     if (target) target.parentElement?.scrollIntoView({behavior:'smooth', block:'start'});
   }, 30);
 };
+
+window.AppSetTool_rt    = k => App.setActiveTool('rt',    k);
+window.AppSetTool_calc  = k => App.setActiveTool('calc',  k);
+window.AppSetTool_score = k => App.setActiveTool('score', k);
 
 document.addEventListener('DOMContentLoaded', App.init);

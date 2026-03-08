@@ -253,22 +253,30 @@ const ToolsScore = (() => {
   };
 
   // ── Render ────────────────────────────────────────────────
-  function render(settings) {
+  const SCORE_ALL = [
+    {key:'gpa',       fn:renderGPA,       label:'GPA'},
+    {key:'sins',      fn:renderSINS,      label:'SINS'},
+    {key:'tokuhashi', fn:renderTokuhashi, label:'Tokuhashi'},
+    {key:'rpa',       fn:renderRPA,       label:'RPA'},
+    {key:'ecogkps',   fn:renderECOGKPS,   label:'ECOG/KPS'},
+  ];
+
+  function getVisibleScore(settings) {
     const en = settings?.enabledTools || {};
-    const tools = [
-      {key:'gpa',fn:renderGPA},{key:'sins',fn:renderSINS},
-      {key:'tokuhashi',fn:renderTokuhashi},{key:'rpa',fn:renderRPA},
-      {key:'ecogkps',fn:renderECOGKPS},
-    ];
-    const html = tools.filter(t => en[t.key] !== false).map(t => t.fn()).join('');
-    // Init GPA inputs after render
-    setTimeout(() => {
-      updateGPAInputs();
-      // Show default ECOG
-      showECOG();
-    }, 50);
-    return html || `<div class="text-center text-sm py-8" style="color:var(--t3);">所有評分工具已關閉</div>`;
+    return SCORE_ALL.filter(t => en[t.key] !== false);
   }
 
-  return { render };
+  function render(settings, activeTool) {
+    const visible = getVisibleScore(settings);
+    if (!visible.length) return `<div class="text-center text-sm py-8" style="color:var(--t3);">所有評分工具已關閉</div>`;
+    const tool = visible.find(t => t.key === activeTool) || visible[0];
+    const html = tool.fn();
+    setTimeout(() => {
+      if (tool.key === 'gpa') updateGPAInputs();
+      if (tool.key === 'ecogkps') showECOG();
+    }, 50);
+    return html;
+  }
+
+  return { render, getTools: getVisibleScore };
 })();

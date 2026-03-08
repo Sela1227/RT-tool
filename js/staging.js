@@ -786,23 +786,21 @@ const Staging = (() => {
 
   function render() {
     const filterBar = `
-      <div class="flex gap-1.5 overflow-x-auto pb-2 mb-3" style="-webkit-overflow-scrolling:touch;">
-        ${CANCER_LIST.map(c => `
-          <button id="sf-${c.id}" onclick="StagingFilter('${c.id}')"
-            style="font-size:0.75rem;padding:0.375rem 0.75rem;border-radius:9999px;border-width:1px;border-style:solid;white-space:nowrap;cursor:pointer;${filterBtnStyle(c.id === activeCancer)}">
-            ${c.label}
-          </button>`).join('')}
+      <div style="position:sticky;top:64px;z-index:40;background:#F2F0EC;margin:0 -16px;padding:10px 16px 8px;border-bottom:1px solid #E2DFD8;">
+        <div class="flex gap-1.5 overflow-x-auto" style="-webkit-overflow-scrolling:touch;scrollbar-width:none;">
+          ${CANCER_LIST.map(c => `
+            <button id="sf-${c.id}" onclick="StagingFilter('${c.id}')"
+              style="font-size:0.75rem;padding:5px 12px;border-radius:9999px;border-width:1px;border-style:solid;white-space:nowrap;cursor:pointer;${filterBtnStyle(c.id === activeCancer)}">
+              ${c.label}
+            </button>`).join('')}
+        </div>
       </div>`;
 
     const initial = CANCER_LIST.find(c => c.id === activeCancer);
 
     return `
-      <div class="mb-3">
-        <div class="text-base font-semibold" style="color:#1A1A1A;">腫瘤分期</div>
-        <div class="text-xs mt-0.5" style="color:#9E9A93;">AJCC 9th Edition (2024)</div>
-      </div>
       ${filterBar}
-      <div id="staging-panel">
+      <div class="mt-3" id="staging-panel">
         ${initial ? initial.render() : ''}
       </div>
       <div class="mt-2 text-xs leading-relaxed rounded-xl p-3 mb-2"
