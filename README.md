@@ -99,6 +99,44 @@
 
 ## 更新歷程
 
+### V1.8 — 底部 Nav 穿透修復 + 劑量建議頁籤
+
+**Bug fix**
+- 底部導航列背景透明（兩個 `style` 屬性互相覆蓋）→ 合併修正，內容不再穿透
+- 桌機 FAB (+) 按鈕跑出容器外 → 改用 `calc(50% - 14rem + 16px)` 定位
+
+**新功能**
+- 「劑量」頁改為雙頁籤：**劑量建議**（NCCN）/ **劑量限制**（RTOG/QUANTEC/TG-101/NCCN）
+- 劑量建議：60 筆 NCCN 2024 各癌種建議劑量，可依癌別篩選（Lung / Breast / Prostate / Rectum / Liver / Esophagus / Stomach / Pancreas / H&N / CNS / Lymphoma / Bone/Mets）
+- 新增 `data/dose-recs.js` 資料檔
+
+---
+
+### V1.7 — 桌機導航修復 + 橫向捲軸改善
+
+**Bug fix**
+- 桌機 header/nav 無法置中（`fixed left-0 right-0 max-w-md mx-auto` 失效）→ 改用 `translateX(-50%)`
+- 所有 pill 篩選列改 `flex-wrap:wrap`，不再出現橫向捲軸
+
+---
+
+### V1.6 — 緊急修復：非工具頁白畫面
+
+**Bug fix**
+- 重構 Tools 頁時誤刪 `pageWrap()` 函式，導致 staging / constraints / icd / settings 全部白畫面
+
+---
+
+### V1.5 — 每頁單選篩選器 + Sticky 篩選列
+
+**改善**
+- 工具頁三個 Tab（RT/計算/評分）改為 pill 單選遮蔽，選了只顯示該工具
+- 分期、ICD、劑量限制篩選器全改 sticky（捲動時固定在 header 下方）
+- 新增 NCCN SBRT 劑量限制 43 筆（Lung/Liver/Spine/Prostate）
+
+---
+
+
 ### V1.2.2 — 視覺重設計
 
 **改善**

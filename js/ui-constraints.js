@@ -8,6 +8,8 @@ const UIConstraints = (() => {
   let techFilter = 'All';
   let sourceFilter = 'All';
   let groupFilter = 'All';
+  let conTab = 'recs';   // 'recs' | 'limits'
+  let recCancer = '全部';
   let modalData = null;
 
   const lsGet = (k,def) => { try { return JSON.parse(localStorage.getItem(k))||def; } catch { return def; } };
@@ -125,9 +127,77 @@ const UIConstraints = (() => {
   }
 
   function render() {
-    return `
-      <div style="position:sticky;top:64px;z-index:40;background:var(--bg);margin:0 -16px;padding:10px 16px 8px;border-bottom:1px solid var(--border);">
+    const tabBar = `
+      <div style="position:sticky;top:64px;z-index:40;background:var(--bg);margin:0 -16px;padding:10px 16px 0;border-bottom:1px solid var(--border);">
+        <div class="tab-bar" style="margin-bottom:0;">
+          <button class="tab-btn${conTab==='recs'?' active':''}" onclick="ConTab('recs')">劑量建議</button>
+          <button class="tab-btn${conTab==='limits'?' active':''}" onclick="ConTab('limits')">劑量限制</button>
+        </div>
+      </div>`;
 
+    if (conTab === 'recs') {
+      return tabBar + renderRecsPage();
+    } else {
+      return tabBar + renderLimitsPage();
+    }
+  }
+
+  // ── Recs page ─────────────────────────────────────────────
+  function renderRecsPage() {
+    const CANCERS = ['全部','Lung','Breast','Prostate','Rectum','Liver','Esophagus','Stomach','Pancreas','H&N','CNS','Lymphoma','Bone/Mets'];
+    const catBtns = CANCERS.map(k => {
+      const active = k === recCancer;
+      const s = active ? 'background:#222220;color:#fff;border-color:#222220;' : 'background:#fff;color:#5A5750;border-color:#E2DFD8;';
+      return `<button onclick="ConRecCancer('${k}')" style="font-size:0.72rem;padding:4px 10px;border-radius:9999px;border-width:1px;border-style:solid;white-space:nowrap;cursor:pointer;${s}">${k}</button>`;
+    }).join('');
+
+    let data = DOSE_RECS;
+    if (recCancer !== '全部') data = data.filter(d => d.cancer === recCancer);
+
+    // Group by cancer
+    const grouped = {};
+    data.forEach(d => { (grouped[d.cancer] = grouped[d.cancer]||[]).push(d); });
+
+    const TECH_BADGE = { 'SBRT':'background:#DDE5EF;color:#2C5282', 'IMRT/VMAT':'background:#E0EDE5;color:#1A4731', 'IMRT':'background:#E0EDE5;color:#1A4731', 'IMRT SIB':'background:#EDE8FF;color:#44337A', '3DCRT':'background:#EDECEA;color:#4A4640', 'WBI':'background:#FEF3E2;color:#7B341E', 'fSRS':'background:#DDE5EF;color:#2C5282', 'SRS':'background:#DDE5EF;color:#2C5282', 'PBSI/IORT':'background:#FCE8D8;color:#7B341E', '電子線/IMRT':'background:#E0EDE5;color:#1A4731', 'SBRT/SRS':'background:#DDE5EF;color:#2C5282' };
+
+    const cards = Object.entries(grouped).map(([cancer, items]) => `
+      <div class="mb-3">
+        <div class="text-xs font-semibold mb-1.5 uppercase tracking-wide" style="color:#9E9A93;">${cancer}</div>
+        ${items.map(d => {
+          const bs = TECH_BADGE[d.tech] || 'background:#EDECEA;color:#4A4640';
+          return `<div class="rounded-xl mb-2 p-3" style="background:#fff;border:1px solid #E2DFD8;">
+            <div class="flex items-start justify-between gap-2 mb-1">
+              <div class="text-sm font-medium leading-snug" style="color:#1A1A1A;">${d.site}</div>
+              <span class="flex-shrink-0 text-xs px-2 py-0.5 rounded-full" style="${bs}">${d.tech}</span>
+            </div>
+            <div class="flex items-center gap-3 mb-1">
+              <span class="mono font-bold text-base" style="color:#1A1A1A;">${d.dose} Gy</span>
+              <span class="text-xs" style="color:#5A5750;">${typeof d.fx === 'number' ? d.fx+'fx' : d.fx+' fx'}</span>
+            </div>
+            ${d.note ? `<div class="text-xs leading-relaxed" style="color:#9E9A93;">${d.note}</div>` : ''}
+            <div class="text-xs mt-1" style="color:#BBBBBB;">${d.source}</div>
+          </div>`;
+        }).join('')}
+      </div>`).join('');
+
+    return `
+      <div style="position:sticky;top:108px;z-index:39;background:var(--bg);margin:0 -16px;padding:8px 16px 6px;border-bottom:1px solid var(--border);">
+        <div class="flex" style="flex-wrap:wrap;gap:5px;">
+          ${catBtns}
+        </div>
+      </div>
+      <div class="mt-3">
+        ${cards || '<div class="text-center py-8 text-sm" style="color:#9E9A93;">無資料</div>'}
+      </div>
+      <div class="mt-2 text-xs p-3 rounded-xl mb-2" style="background:#F2F0EC;color:#5A5750;border:1px solid #E2DFD8;">
+        劑量建議僅供參考，請依最新 NCCN Guidelines 及多專科會議決策。
+      </div>`;
+  }
+
+  // ── Limits page (original constraints) ──────────────────
+  function renderLimitsPage() {
+    return `
+      <div style="position:sticky;top:108px;z-index:39;background:var(--bg);margin:0 -16px;padding:8px 16px 6px;border-bottom:1px solid var(--border);">
         <!-- Search -->
         <div class="relative mb-2">
           <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style="color:var(--t3);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -136,58 +206,77 @@ const UIConstraints = (() => {
           <input type="text" id="con-search" placeholder="搜尋器官、參數…" value="${query}"
             class="inp" style="padding-left:36px;" oninput="ConSearch(this.value)">
         </div>
-
         <!-- Region group filter -->
         <div class="mb-1.5">
           <div class="text-xs mb-1" style="color:var(--t3);">部位</div>
-          <div class="flex" style="flex-wrap:wrap;gap:6px;">
+          <div class="flex" style="flex-wrap:wrap;gap:5px;">
             ${Object.entries(GROUP_LABELS).map(([k,lbl]) =>
               `<button onclick="ConGroup('${k}')" data-group="${k}"
                 class="con-grp-btn flex-shrink-0 text-xs px-3 py-1.5 rounded-full"
-                style="${k===groupFilter ? 'background:var(--accent);color:#fff;border:1px solid var(--accent);' : 'background:var(--card);color:var(--t2);border:1px solid var(--border);'}">${lbl}</button>`
+                style="${k===groupFilter ? 'background:var(--accent);color:#fff;border:1px solid var(--accent);' : 'background:var(--card);color:var(--t2);border:1px solid var(--border);}">` + lbl + `</button>`
             ).join('')}
           </div>
         </div>
-
         <!-- Tech filter -->
         <div class="mb-1.5">
           <div class="text-xs mb-1" style="color:var(--t3);">技術</div>
-          <div class="flex" style="flex-wrap:wrap;gap:6px;">
+          <div class="flex" style="flex-wrap:wrap;gap:5px;">
             ${TECHS.map(t =>
               `<button onclick="ConTech('${t}')" data-tech="${t}"
                 class="con-tech-btn flex-shrink-0 text-xs px-3 py-1.5 rounded-full"
-                style="${t===techFilter ? 'background:var(--accent);color:#fff;border:1px solid var(--accent);' : 'background:var(--card);color:var(--t2);border:1px solid var(--border);'}">${TECH_LABELS[t]}</button>`
+                style="${t===techFilter ? 'background:var(--accent);color:#fff;border:1px solid var(--accent);' : 'background:var(--card);color:var(--t2);border:1px solid var(--border);}">` + TECH_LABELS[t] + `</button>`
             ).join('')}
           </div>
         </div>
-
         <!-- Source filter -->
         <div>
           <div class="text-xs mb-1" style="color:var(--t3);">來源</div>
-          <div class="flex" style="flex-wrap:wrap;gap:6px;">
+          <div class="flex" style="flex-wrap:wrap;gap:5px;">
             ${['All','RTOG','QUANTEC','TG-101','NCCN','Custom'].map(s =>
               `<button onclick="ConSource('${s}')" data-source="${s}"
                 class="con-src-btn flex-shrink-0 text-xs px-3 py-1.5 rounded-full"
-                style="${s===sourceFilter ? 'background:var(--accent);color:#fff;border:1px solid var(--accent);' : 'background:var(--card);color:var(--t2);border:1px solid var(--border);'}">${s}</button>`
+                style="${s===sourceFilter ? 'background:var(--accent);color:#fff;border:1px solid var(--accent);' : 'background:var(--card);color:var(--t2);border:1px solid var(--border);}">` + s + `</button>`
             ).join('')}
           </div>
         </div>
       </div>
-
-      <!-- Results -->
       <div class="mt-3" id="con-results">${renderResults()}</div>
-
       <!-- Modal -->
       <div id="con-modal" class="hidden fixed inset-0 z-50 flex items-end justify-center" style="background:rgba(0,0,0,.4);">
         <div id="con-modal-inner" class="w-full max-w-md rounded-t-2xl p-5 pb-8" style="background:var(--card);max-height:85vh;overflow-y:auto;"></div>
       </div>
-
       <!-- FAB Add -->
-      <button onclick="ConOpenAdd()" class="fixed bottom-24 right-4 w-12 h-12 text-white rounded-full flex items-center justify-center text-2xl z-40" style="background:var(--accent);box-shadow:0 4px 12px rgba(0,0,0,.2);">+</button>
-    `;
+      <button onclick="ConOpenAdd()" class="fixed w-12 h-12 text-white rounded-full flex items-center justify-center text-2xl z-40" style="bottom:88px;right:max(16px, calc(50% - 14rem + 16px));background:var(--accent);box-shadow:0 4px 12px rgba(0,0,0,.2);">+</button>`;
   }
 
   // ── Event handlers ───────────────────────────────────────
+  window.ConTab = function(tab) {
+    conTab = tab;
+    // Re-render whole page via App
+    const main = document.getElementById('app-main');
+    if (main) {
+      const content = UIConstraints.render();
+      // Find the pageWrap content area
+      const inner = main.querySelector('.px-4');
+      if (inner) inner.innerHTML = content;
+      else main.innerHTML = `<div class="px-4 pt-4 pb-2">${content}</div>`;
+    }
+    UIConstraints.bindEvents();
+  };
+
+  window.ConRecCancer = function(cancer) {
+    recCancer = cancer;
+    // Re-render just the recs content
+    const main = document.getElementById('app-main');
+    if (main) {
+      const inner = main.querySelector('.px-4');
+      if (inner) {
+        inner.innerHTML = UIConstraints.render();
+        UIConstraints.bindEvents();
+      }
+    }
+  };
+
   window.ConSearch = function(q) { query = q; refreshResults(); };
   window.ConGroup  = function(g) {
     groupFilter = g;

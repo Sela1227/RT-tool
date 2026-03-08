@@ -207,7 +207,7 @@
           </div>
         </div>
         <div class="mono text-xs px-2.5 py-1 rounded-full font-medium"
-             style="background:rgba(255,255,255,.10);color:rgba(255,255,255,.6);">V1.7</div>
+             style="background:rgba(255,255,255,.10);color:rgba(255,255,255,.6);">V1.8</div>
       </div>
     </header>
 
@@ -215,8 +215,7 @@
     <main id="app-main" class="pt-16 pb-24 min-h-screen"></main>
 
     <!-- ── Bottom Nav ──────────────────────────────────── -->
-    <nav class="fixed bottom-0 z-50 safe-bottom" style="left:50%;transform:translateX(-50%);width:100%;max-width:28rem;"
-         style="background:#fff;border-top:1px solid var(--border);">
+    <nav class="fixed bottom-0 z-50 safe-bottom" style="left:50%;transform:translateX(-50%);width:100%;max-width:28rem;background:#fff;border-top:1px solid var(--border);">
       <div class="flex items-stretch">
 
         <button data-page="tools" onclick="App.navigate('tools')"
@@ -243,7 +242,7 @@
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
             <circle cx="12" cy="12" r="9"/><path stroke-linecap="round" d="M12 7v5l3 3"/>
           </svg>
-          <span class="text-xs font-medium">限制</span>
+          <span class="text-xs font-medium">劑量</span>
         </button>
 
         <button data-page="icd" onclick="App.navigate('icd')"
@@ -272,6 +271,7 @@
   <!-- Data -->
   <script src="data/icd10.js"></script>
   <script src="data/constraints.js"></script>
+  <script src="data/dose-recs.js"></script>
   <!-- Modules -->
   <script src="js/tools-rt.js"></script>
   <script src="js/tools-calc.js"></script>
