@@ -3,7 +3,7 @@
 // ──────────────────────────────────────────────────────────
 
 const App = (() => {
-  const VERSION = 'V1.3.1';
+  const VERSION = 'V1.3.2';
 
   const DEFAULT_SETTINGS = {
     enabledTools: {
@@ -58,6 +58,16 @@ const App = (() => {
     return `<div class="px-4 pt-4 pb-2">${content}</div>`;
   }
 
+  // Quick-jump index for long tool lists
+  function quickJump(items) {
+    // items: [{id, label}]
+    return `<div class="flex flex-wrap gap-1.5 mb-3">${
+      items.map(i => `<button onclick="document.getElementById('${i.id}-body').classList.remove('hidden');document.getElementById('${i.id}-chev').style.transform='rotate(180deg)';document.getElementById('${i.id}-body').scrollIntoView({behavior:'smooth',block:'start'})"
+        class="text-xs px-2.5 py-1 rounded-full" style="background:var(--acc-bg);color:var(--accent);border:1px solid var(--border);">${i.label}</button>`
+      ).join('')
+    }</div>`;
+  }
+
   function renderTools() {
     const tab = state.toolsTab;
     const tabs = [
@@ -69,12 +79,27 @@ const App = (() => {
       tabs.map(t => `<button class="tab-btn${tab===t.id?' active':''}" onclick="App.setToolsTab('${t.id}')">${t.label}</button>`).join('')
     }</div>`;
 
-    let content;
-    if (tab === 'rt')    content = ToolsRT.render(state.settings);
-    else if (tab === 'calc')  content = ToolsCalc.render(state.settings);
-    else content = ToolsScore.render(state.settings);
+    let content, index = '';
+    if (tab === 'rt') {
+      content = ToolsRT.render(state.settings);
+    } else if (tab === 'calc') {
+      index = quickJump([
+        {id:'childpugh',label:'Child-Pugh'},{id:'roach',label:'Roach'},
+        {id:'albi',label:'ALBI'},{id:'meld',label:'MELD'},
+        {id:'calvert',label:'Calvert'},{id:'cockcroftgault',label:'CrCl'},
+        {id:'bsa',label:'BSA'},{id:'cisplatin',label:'Cisplatin'},
+      ]);
+      content = ToolsCalc.render(state.settings);
+    } else {
+      index = quickJump([
+        {id:'gpa',label:'GPA'},{id:'sins',label:'SINS'},
+        {id:'tokuhashi',label:'Tokuhashi'},{id:'rpa',label:'RPA'},
+        {id:'ecogkps',label:'ECOG/KPS'},
+      ]);
+      content = ToolsScore.render(state.settings);
+    }
 
-    return pageWrap(tabBar + content);
+    return pageWrap(tabBar + index + content);
   }
 
   function renderSettings() {

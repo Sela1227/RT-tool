@@ -1,3 +1,22 @@
+### V1.3.2 — 完整功能 + 北歐霧藍配色
+
+**新增**
+- Breast Prognostic Stage：補上 ER / PR / HER2 / Grade 欄位，內建 Anatomic ↔ Prognostic 切換 Tab
+- 分期頁頂部快速跳轉（肺癌 / 直腸 / 前列腺 / HCC / 乳癌）
+- 工具計算頁和評分頁頂部快速跳轉索引
+
+**配色更新（Nordic Mist）**
+- 背景：霧藍 #E8EAF0
+- 卡片：灰粉 #F7F5F6
+- 文字：暖灰黑 #2C2D35
+- 邊框：中性暖灰 #D6D4D8
+- Accent：消光板岩藍 #4A6D8C
+- 來源標籤：低飽和色（RTOG/QUANTEC/TG-101）
+
+**已完成所有 Phase 1–4 功能，待開發表格全部標記完成**
+
+---
+
 ### V1.3.1 — 大改版：RT 獨立 / 北歐冷調 / Stepper UI
 
 **改善**
@@ -182,11 +201,11 @@
 ### 待開發（Phase 4）
 | 工具 | 狀態 |
 |------|------|
-| AJCC 9th — Lung | ⏳ V1.3 |
-| AJCC 9th — Rectum | ⏳ V1.3 |
-| AJCC 9th — Prostate | ⏳ V1.3 |
-| AJCC 9th — HCC | ⏳ V1.3 |
-| AJCC 9th — Breast（Anatomic + Prognostic）| ⏳ V1.3 |
+| AJCC 9th — Lung | ✅ V1.3 |
+| AJCC 9th — Rectum | ✅ V1.3 |
+| AJCC 9th — Prostate | ✅ V1.3 |
+| AJCC 9th — HCC | ✅ V1.3 |
+| AJCC 9th — Breast（Anatomic + Prognostic）| ✅ V1.3.2 |
 
 ---
 

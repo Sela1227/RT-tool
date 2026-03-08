@@ -21,7 +21,7 @@ const UIConstraints = (() => {
   const TECHS = ['All','Conventional','SBRT_1fx','SBRT_3fx','SBRT_5fx'];
   const SOURCES = ['All','RTOG','QUANTEC','TG-101','Custom'];
   const TECH_LABELS = { All:'全部', Conventional:'Conventional', SBRT_1fx:'SBRT 1fx', SBRT_3fx:'SBRT 3fx', SBRT_5fx:'SBRT 5fx' };
-  const SOURCE_COLORS = { RTOG:'bg-blue-100 text-blue-700', QUANTEC:'bg-green-100 text-green-700', 'TG-101':'bg-purple-100 text-purple-700', Custom:' text-gray-700' };
+  const SOURCE_COLORS = { RTOG:'badge-rtog', QUANTEC:'badge-quantec', 'TG-101':'badge-tg101', Custom:' style="color:var(--t1);"' };
 
   function getAllData() {
     const overrides = getOverrides();
@@ -38,9 +38,9 @@ const UIConstraints = (() => {
 
       <!-- Search -->
       <div class="relative mb-3">
-        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 style="color:var(--t3);"" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
         <input type="text" id="con-search" placeholder="搜尋器官、參數..." value="${query}"
-          class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-300 "
+          class="w-full pl-9 pr-4 py-2.5 border style="border-color:var(--border);" rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-300 "
           oninput="ConSearch(this.value)">
       </div>
 
@@ -48,7 +48,7 @@ const UIConstraints = (() => {
       <div class="flex gap-1.5 overflow-x-auto pb-1 mb-2" style="-webkit-overflow-scrolling:touch">
         ${TECHS.map(t => `
           <button onclick="ConTech('${t}')" data-tech="${t}"
-            class="con-tech-btn flex-shrink-0 text-xs px-3 py-1.5 rounded-full border transition-colors ${t===techFilter?'border-gray-800 text-white" style="background:var(--accent);':' text-gray-600 border-gray-200'}">
+            class="con-tech-btn flex-shrink-0 text-xs px-3 py-1.5 rounded-full border transition-colors ${t===techFilter?'text-white" style="background:var(--accent);border-color:var(--accent);':' " style="color:var(--t2);border-color:var(--border);"  class="'}">
             ${TECH_LABELS[t]}
           </button>`).join('')}
       </div>
@@ -57,7 +57,7 @@ const UIConstraints = (() => {
       <div class="flex gap-1.5 overflow-x-auto pb-2 mb-3" style="-webkit-overflow-scrolling:touch">
         ${SOURCES.map(s => `
           <button onclick="ConSource('${s}')" data-source="${s}"
-            class="con-src-btn flex-shrink-0 text-xs px-3 py-1.5 rounded-full border transition-colors ${s===sourceFilter?'bg-gray-700 text-white border-gray-700':' text-gray-600 border-gray-200'}">
+            class="con-src-btn flex-shrink-0 text-xs px-3 py-1.5 rounded-full border transition-colors ${s===sourceFilter?'text-white" style="background:var(--accent);border-color:var(--accent);"  class="':' " style="color:var(--t2);border-color:var(--border);"  class="'}">
             ${s}
           </button>`).join('')}
       </div>
@@ -100,7 +100,7 @@ const UIConstraints = (() => {
       return as - bs || a.organ?.localeCompare(b.organ);
     });
 
-    if(!data.length) return '<div class="text-center text-gray-400 text-sm py-8">無符合結果</div>';
+    if(!data.length) return '<div class="text-center style="color:var(--t3);" text-sm py-8">無符合結果</div>';
 
     return data.map(d => renderCard(d, starred)).join('');
   }
@@ -111,7 +111,7 @@ const UIConstraints = (() => {
     const displayVal = override ? override.val : d.limit;
     const displayUnit = override ? (override.unit || d.unit) : d.unit;
     const techLabel = TECH_LABELS[d.tech] || d.tech;
-    const srcColor = SOURCE_COLORS[d.isCustom ? 'Custom' : d.source] || ' text-gray-600';
+    const srcColor = SOURCE_COLORS[d.isCustom ? 'Custom' : d.source] || ' style="color:var(--t2);"';
 
     return `
     <div class=" rounded-xl  mb-2 px-4 py-3">
@@ -120,18 +120,18 @@ const UIConstraints = (() => {
           <div class="flex items-center gap-2 flex-wrap mb-1">
             <span class="font-semibold text-sm text-gray-800">${d.organ}</span>
             <span class="text-xs px-2 py-0.5 rounded-full ${srcColor}">${d.isCustom ? 'Custom' : d.source}</span>
-            <span class="text-xs text-gray-400">${techLabel}</span>
+            <span class="text-xs style="color:var(--t3);"">${techLabel}</span>
           </div>
           <div class="flex items-baseline gap-1">
-            <span class="text-xs text-gray-500">${d.param}</span>
+            <span class="text-xs style="color:var(--t2);"">${d.param}</span>
             <span class="font-bold mono ">${displayVal} ${displayUnit}</span>
-            ${override ? `<span class="text-xs text-gray-400 line-through ml-1">${d.limit} ${d.unit}</span>` : ''}
+            ${override ? `<span class="text-xs style="color:var(--t3);" line-through ml-1">${d.limit} ${d.unit}</span>` : ''}
           </div>
-          ${d.notes ? `<div class="text-xs text-gray-400 mt-0.5">${d.notes}</div>` : ''}
+          ${d.notes ? `<div class="text-xs style="color:var(--t3);" mt-0.5">${d.notes}</div>` : ''}
         </div>
         <div class="flex flex-col items-end gap-1 flex-shrink-0">
           <button onclick="ConToggleStar('${d.id}')" class="text-${isStarred?'yellow-400':'gray-300'} hover:text-yellow-400 transition-colors text-lg leading-none">☆</button>
-          <button onclick="ConOpenEdit('${d.id}', ${d.isCustom})" class="text-xs text-gray-400 hover: transition-colors">編輯</button>
+          <button onclick="ConOpenEdit('${d.id}', ${d.isCustom})" class="text-xs style="color:var(--t3);" hover: transition-colors">編輯</button>
           ${d.isCustom ? `<button onclick="ConDelete('${d.id}')" class="text-xs text-red-300 hover:text-red-500 transition-colors">刪除</button>` : ''}
         </div>
       </div>
@@ -155,9 +155,9 @@ const UIConstraints = (() => {
     techFilter = t;
     document.querySelectorAll('.con-tech-btn').forEach(b => {
       const active = b.dataset.tech === t;
-      b.className = b.className.replace(/border-gray-800 text-white" style="background:var(--accent);| text-gray-600 border-gray-200/g,'');
+      b.className = b.className.replace(/text-white" style="background:var(--accent);border-color:var(--accent);| " style="color:var(--t2);border-color:var(--border);"  class="/g,'');
       if(active) b.classList.add('','text-white','border-gray-500');
-      else b.classList.add('','text-gray-600','border-gray-200');
+      else b.classList.add('','style="color:var(--t2);"','style="border-color:var(--border);"');
     });
     refreshResults();
   };
@@ -166,9 +166,9 @@ const UIConstraints = (() => {
     sourceFilter = s;
     document.querySelectorAll('.con-src-btn').forEach(b => {
       const active = b.dataset.source === s;
-      b.className = b.className.replace(/bg-gray-700 text-white border-gray-700| text-gray-600 border-gray-200/g,'');
+      b.className = b.className.replace(/text-white" style="background:var(--accent);border-color:var(--accent);"  class="| " style="color:var(--t2);border-color:var(--border);"  class="/g,'');
       if(active) b.classList.add('bg-gray-700','text-white','border-gray-700');
-      else b.classList.add('','text-gray-600','border-gray-200');
+      else b.classList.add('','style="color:var(--t2);"','style="border-color:var(--border);"');
     });
     refreshResults();
   };
@@ -199,9 +199,9 @@ const UIConstraints = (() => {
       <div class=" rounded-t-2xl w-full max-w-md p-5 max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
         <div class="flex items-center justify-between mb-4">
           <h3 class="font-bold">${isCustom?'編輯自訂':'覆蓋內建'}條目</h3>
-          <button onclick="ConCloseModal()" class="text-gray-400 hover:text-gray-600 text-xl">✕</button>
+          <button onclick="ConCloseModal()" class="style="color:var(--t3);" hover:style="color:var(--t2);" text-xl">✕</button>
         </div>
-        <div class="text-sm text-gray-600 mb-4">${d.organ} — ${d.param}</div>
+        <div class="text-sm style="color:var(--t2);" mb-4">${d.organ} — ${d.param}</div>
         ${isCustom ? `
           <div class="space-y-3">
             ${mInput('器官','edit-organ',d.organ)}
@@ -214,16 +214,16 @@ const UIConstraints = (() => {
           <button onclick="ConSaveCustomEdit('${id}')" class="w-full mt-4  text-white rounded-xl py-3 font-medium transition-colors">儲存</button>
         ` : `
           <div class="space-y-3">
-            <div class="text-xs text-gray-500">覆蓋值（空白則移除覆蓋）</div>
+            <div class="text-xs style="color:var(--t2);"">覆蓋值（空白則移除覆蓋）</div>
             ${mInput('新限制值','edit-val', ov.val||d.limit,'number')}
             ${mInput('新單位（可留空）','edit-unit', ov.unit||d.unit)}
-            <div class=" rounded-lg p-3 text-xs text-gray-500">
+            <div class=" rounded-lg p-3 text-xs style="color:var(--t2);"">
               原始值：${d.limit} ${d.unit}（${d.source}）
             </div>
           </div>
           <div class="flex gap-2 mt-4">
             <button onclick="ConSaveOverride('${id}')" class="flex-1  text-white rounded-xl py-3 font-medium transition-colors">儲存覆蓋</button>
-            <button onclick="ConRemoveOverride('${id}')" class="flex-1  text-gray-600 rounded-xl py-3 font-medium hover:bg-gray-200 transition-colors">移除覆蓋</button>
+            <button onclick="ConRemoveOverride('${id}')" class="flex-1  style="color:var(--t2);" rounded-xl py-3 font-medium hover:bg-gray-200 transition-colors">移除覆蓋</button>
           </div>
         `}
       </div>
@@ -238,7 +238,7 @@ const UIConstraints = (() => {
       <div class=" rounded-t-2xl w-full max-w-md p-5 max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
         <div class="flex items-center justify-between mb-4">
           <h3 class="font-bold">新增自訂條目</h3>
-          <button onclick="ConCloseModal()" class="text-gray-400 hover:text-gray-600 text-xl">✕</button>
+          <button onclick="ConCloseModal()" class="style="color:var(--t3);" hover:style="color:var(--t2);" text-xl">✕</button>
         </div>
         <div class="space-y-3">
           ${mInput('器官','edit-organ','')}
@@ -255,11 +255,11 @@ const UIConstraints = (() => {
   };
 
   function mInput(label, id, val, type='text') {
-    return `<div><label class="text-xs text-gray-500 mb-1 block">${label}</label><input type="${type}" id="${id}" value="${val}" class="inp"></div>`;
+    return `<div><label class="text-xs style="color:var(--t2);" mb-1 block">${label}</label><input type="${type}" id="${id}" value="${val}" class="inp"></div>`;
   }
   function mSelect(label, id, current, opts) {
     const options = opts.map(o => `<option value="${o}" ${o===current?'selected':''}>${o}</option>`).join('');
-    return `<div><label class="text-xs text-gray-500 mb-1 block">${label}</label><select id="${id}" class="inp">${options}</select></div>`;
+    return `<div><label class="text-xs style="color:var(--t2);" mb-1 block">${label}</label><select id="${id}" class="inp">${options}</select></div>`;
   }
 
   window.ConCloseModal = function() {

@@ -337,85 +337,167 @@ const Staging = (() => {
     if (el) el.outerHTML = resultBox(`Stage ${stage}`, `T: ${T}<br>N: ${N}<br>M: ${M}`, note);
   };
 
-  // ── 5. BREAST (Anatomic) ──────────────────────────────────
-  function renderBreast() {
-    const body = `
-      ${sel('br-t','T — 原發腫瘤',[
-        ['Tx','Tx — 無法評估'],
-        ['T0','T0 — 無原發腫瘤'],
+  // ── 5. BREAST (Anatomic + Prognostic) ────────────────────
+  let breastTab = 'anatomic';
+
+  window.breastSwitchTab = function(tab) {
+    breastTab = tab;
+    const a = document.getElementById('br-tab-anatomic');
+    const p = document.getElementById('br-tab-prognostic');
+    const fa = document.getElementById('br-fields-anatomic');
+    const fp = document.getElementById('br-fields-prognostic');
+    if (!a || !p) return;
+    [a,p].forEach(b => { b.classList.remove('active'); });
+    (tab === 'anatomic' ? a : p).classList.add('active');
+    if (fa) fa.style.display = tab === 'anatomic' ? '' : 'none';
+    if (fp) fp.style.display = tab === 'prognostic' ? '' : 'none';
+  };
+
+  function breastTNMFields(prefix) {
+    return `
+      ${sel(prefix+'-t','T — 原發腫瘤',[
         ['Tis','Tis — 原位癌（DCIS）'],
         ['T1mi','T1mi — 微侵犯 ≤0.1 cm'],
-        ['T1a','T1a — >0.1～0.5 cm'],
-        ['T1b','T1b — >0.5～1 cm'],
-        ['T1c','T1c — >1～2 cm'],
-        ['T2','T2 — >2～5 cm'],
-        ['T3','T3 — >5 cm'],
-        ['T4a','T4a — 胸壁侵犯（肋骨/肋間肌/前鋸肌）'],
-        ['T4b','T4b — 皮膚水腫/潰瘍/衛星結節'],
-        ['T4c','T4c — T4a + T4b'],
-        ['T4d','T4d — 發炎性乳癌（Inflammatory）'],
+        ['T1a','T1a — >0.1～0.5 cm'],['T1b','T1b — >0.5～1 cm'],['T1c','T1c — >1～2 cm'],
+        ['T2','T2 — >2～5 cm'],['T3','T3 — >5 cm'],
+        ['T4a','T4a — 胸壁侵犯'],['T4b','T4b — 皮膚水腫/潰瘍'],
+        ['T4c','T4c — T4a+T4b'],['T4d','T4d — 發炎性乳癌'],
       ])}
-      ${sel('br-n','N — 臨床 N（cN）',[
-        ['N0','N0 — 無淋巴結轉移'],
-        ['N1','N1 — 可移動同側第 I/II 腋下淋巴結'],
-        ['N2a','N2a — 固定同側腋下淋巴結'],
-        ['N2b','N2b — 臨床明顯同側內乳淋巴結（無腋下）'],
-        ['N3a','N3a — 同側鎖骨下（第 III 腋下）淋巴結'],
-        ['N3b','N3b — 同側內乳 + 腋下淋巴結'],
-        ['N3c','N3c — 同側鎖骨上淋巴結'],
+      ${sel(prefix+'-n','N — 臨床 N',[
+        ['N0','N0 — 無轉移'],['N1','N1 — 可移動腋下 I/II'],
+        ['N2a','N2a — 固定腋下'],['N2b','N2b — 內乳（無腋下）'],
+        ['N3a','N3a — 鎖骨下'],['N3b','N3b — 內乳+腋下'],['N3c','N3c — 鎖骨上'],
       ])}
-      ${sel('br-m','M — 遠端轉移',[
-        ['M0','M0 — 無遠端轉移'],
-        ['M1','M1 — 遠端轉移（臨床或影像確認）'],
-      ])}
-      <div class="mt-1 mb-2 text-xs" style="color:var(--t3);">※ 此為 Anatomic Stage；Prognostic Stage 需加入 ER/PR/HER2/Grade</div>
-      <div id="br-result"></div>
-      ${calcBtn('StagingBreast()')}`;
-    return stagingCard('breast', ICONS.breast, 'Breast — AJCC 9th (Anatomic)', body);
+      ${sel(prefix+'-m','M — 遠端轉移',[
+        ['M0','M0 — 無轉移'],['M1','M1 — 遠端轉移'],
+      ])}`;
   }
 
-  window.StagingBreast = function() {
-    const T = getV('br-t'), N = getV('br-n'), M = getV('br-m');
-    let stage = '—', note = '';
+  function getAnatomicStage(T, N, M) {
+    if (M === 'M1') return 'IV';
+    if (T === 'Tis') return '0';
+    if (T === 'T4d') return 'IIIB';
+    const tN = {'T1mi':1,'T1a':1,'T1b':1,'T1c':1,'T2':2,'T3':3,'T4a':4,'T4b':4,'T4c':4,'T4d':4}[T]||0;
+    const nN = {'N0':0,'N1':1,'N2a':2,'N2b':2,'N3a':3,'N3b':3,'N3c':3}[N]||0;
+    if (tN===4) return nN>=1 ? 'IIIC' : 'IIIB';
+    if (nN===3) return 'IIIC';
+    if (nN===2) return tN<=3 ? 'IIIA' : 'IIIB';
+    if (nN===1) return tN<=1 ? 'IIA' : tN===2 ? 'IIB' : 'IIIA';
+    return tN<=1 ? 'IA' : tN===2 ? 'IIA' : 'IIB';
+  }
 
-    if (M === 'M1') { stage = 'IV'; }
-    else if (T === 'Tis') { stage = '0'; }
-    else if (T === 'T4d') { stage = 'IIIB'; note = '發炎性乳癌至少 IIIB'; }
+  function renderBreast() {
+    const tabBar = `
+    <div class="flex gap-1.5 mb-3" style="background:var(--bg);border-radius:10px;padding:4px;">
+      <button id="br-tab-anatomic" class="pill-opt active" data-val="anatomic" data-group="br-tab"
+        onclick="breastSwitchTab('anatomic')">Anatomic</button>
+      <button id="br-tab-prognostic" class="pill-opt" data-val="prognostic" data-group="br-tab"
+        onclick="breastSwitchTab('prognostic')">Prognostic</button>
+    </div>`;
+
+    const anatomicFields = `
+    <div id="br-fields-anatomic">
+      ${breastTNMFields('bra')}
+      <div id="bra-result"></div>
+      ${calcBtn('StagingBreastA()')}
+    </div>`;
+
+    const prognosticFields = `
+    <div id="br-fields-prognostic" style="display:none;">
+      ${breastTNMFields('brp')}
+      <div class="sec-label mb-2 mt-1">生物標記</div>
+      ${sel('brp-er','ER 狀態',[['pos','陽性（ER+）'],['neg','陰性（ER-）']])}
+      ${sel('brp-pr','PR 狀態',[['pos','陽性（PR+）'],['neg','陰性（PR-）']])}
+      ${sel('brp-her2','HER2 狀態',[['neg','陰性（HER2-）'],['pos','陽性（HER2+）']])}
+      ${sel('brp-grade','組織學 Grade',[['1','Grade 1（低度）'],['2','Grade 2（中度）'],['3','Grade 3（高度）']])}
+      <div id="brp-result"></div>
+      ${calcBtn('StagingBreastP()')}
+    </div>`;
+
+    const body = tabBar + anatomicFields + prognosticFields;
+    return stagingCard('breast', ICONS.breast, 'Breast — AJCC 9th', body);
+  }
+
+  window.StagingBreastA = function() {
+    const T = getV('bra-t'), N = getV('bra-n'), M = getV('bra-m');
+    const stage = getAnatomicStage(T, N, M);
+    const el = document.getElementById('bra-result');
+    if (el) el.outerHTML = resultBox(
+      `Stage ${stage}`, `T: ${T}<br>N: ${N}<br>M: ${M}`, 'Anatomic staging'
+    );
+  };
+
+  window.StagingBreastP = function() {
+    const T = getV('brp-t'), N = getV('brp-n'), M = getV('brp-m');
+    const er = getV('brp-er'), pr = getV('brp-pr'), her2 = getV('brp-her2');
+    const grade = parseInt(getV('brp-grade')) || 1;
+
+    const aStage = getAnatomicStage(T, N, M);
+    // AJCC 9th Prognostic stage adjustments
+    let pStage = aStage;
+    let note = '';
+
+    if (M === 'M1') { pStage = 'IV'; }
+    else if (aStage === '0') { pStage = '0'; }
     else {
-      const tNum = {'T1mi':1,'T1a':1,'T1b':1,'T1c':1,'T2':2,'T3':3,'T4a':4,'T4b':4,'T4c':4,'T4d':4}[T] || 0;
-      const nNum = {'N0':0,'N1':1,'N2a':2,'N2b':2,'N3a':3,'N3b':3,'N3c':3}[N] || 0;
-      if (tNum === 4) { stage = nNum >= 1 ? 'IIIC' : 'IIIB'; }
-      else if (nNum === 3) { stage = 'IIIC'; }
-      else if (nNum === 2) { stage = tNum <= 3 ? 'IIIA' : 'IIIB'; }
-      else if (nNum === 1) {
-        if (tNum <= 1) stage = 'IIA';
-        else if (tNum === 2) stage = 'IIB';
-        else stage = 'IIIA';
-      } else { // N0
-        if (tNum <= 1) stage = 'IA';
-        else if (tNum === 2) stage = 'IIA';
-        else stage = 'IIB';
+      const tN = {'Tis':0,'T1mi':1,'T1a':1,'T1b':1,'T1c':1,'T2':2,'T3':3,'T4a':4,'T4b':4,'T4c':4,'T4d':4}[T]||0;
+      const nN = {'N0':0,'N1':1,'N2a':2,'N2b':2,'N3a':3,'N3b':3,'N3c':3}[N]||0;
+      const erPos = er === 'pos', her2Pos = her2 === 'pos';
+
+      // Simplified AJCC 9th Prognostic table (key adjustments)
+      if (her2Pos) {
+        // HER2+ generally upgrades or maintains; Grade/ER less impactful
+        if (tN <= 1 && nN === 0) pStage = 'IA';
+        else if (tN <= 2 && nN <= 1) pStage = 'IIA';
+        else pStage = aStage;
+        note = 'HER2+ 預後分期已調整';
+      } else if (!erPos) {
+        // ER- HER2- (Triple negative): Grade 3 → may upgrade
+        if (grade === 3) {
+          const upgrades = {'IA':'IB','IB':'IIA','IIA':'IIB'};
+          pStage = upgrades[aStage] || aStage;
+          note = 'ER- Grade 3 分期上調';
+        }
+      } else {
+        // ER+ HER2-: Grade 1 may downgrade
+        if (grade === 1 && erPos) {
+          const downgrades = {'IIA':'IB','IIB':'IIA','IIIA':'IIB'};
+          pStage = downgrades[aStage] || aStage;
+          note = 'ER+ Grade 1 分期下調';
+        }
       }
     }
 
-    const el = document.getElementById('br-result');
-    if (el) el.outerHTML = resultBox(`Stage ${stage}`, `T: ${T}<br>N: ${N}<br>M: ${M}`, note || 'Anatomic staging only');
+    const markers = `ER:${er==='pos'?'+':'-'} PR:${pr==='pos'?'+':'-'} HER2:${her2==='pos'?'+':'-'} G${grade}`;
+    const el = document.getElementById('brp-result');
+    if (el) el.outerHTML = resultBox(
+      `Stage ${pStage}`,
+      `Anatomic: ${aStage}<br>T:${T} N:${N} M:${M}<br>${markers}`,
+      note || '依 AJCC 9th Prognostic Table 8.7'
+    );
   };
 
   // ── Main render ──────────────────────────────────────────
   function render() {
+    const jump = `<div class="flex flex-wrap gap-1.5 mb-3">${
+      [['lung','肺癌'],['rectum','直腸'],['prostate','前列腺'],['hcc','HCC'],['breast','乳癌']].map(([id,lb]) =>
+        `<button onclick="document.getElementById('${id}-body').classList.remove('hidden');document.getElementById('${id}-chev').style.transform='rotate(180deg)';document.getElementById('${id}-body').scrollIntoView({behavior:'smooth',block:'start'})"
+          class="text-xs px-2.5 py-1 rounded-full" style="background:var(--acc-bg);color:var(--accent);border:1px solid var(--border);">${lb}</button>`
+      ).join('')
+    }</div>`;
     return `
       <div class="mb-3">
         <div class="text-base font-semibold" style="color:var(--t1);">腫瘤分期</div>
         <div class="text-xs mt-0.5" style="color:var(--t3);">AJCC 9th Edition (2024)</div>
       </div>
+      ${jump}
       ${renderLung()}
       ${renderRectum()}
       ${renderProstate()}
       ${renderHCC()}
       ${renderBreast()}
       <div class="mt-2 text-xs leading-relaxed rounded-xl p-3 mb-2" style="background:var(--bg);color:var(--t2);border:1px solid var(--border);">
-        分期結果僅供參考，請依 AJCC 9th 原始文獻及多專科會議決策為準。Breast Prognostic Stage 需加入生物標記資料。
+        分期結果僅供參考，請依 AJCC 9th 原始文獻及多專科會議決策為準。
       </div>
     `;
   }

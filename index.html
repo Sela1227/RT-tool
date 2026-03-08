@@ -14,21 +14,31 @@
     ::-webkit-scrollbar { display: none; }
     * { -ms-overflow-style: none; scrollbar-width: none; }
 
-    /* ── Nordic Cool Palette ────────────────────────────── */
+    /* ── Nordic Mist Palette ────────────────────────────── */
     :root {
-      --bg:       #E8EEF5;   /* cool blue-gray background   */
-      --card:     #FFFFFF;
-      --border:   #CDD6E2;   /* soft slate border           */
-      --t1:       #1A2540;   /* primary text — deep navy    */
-      --t2:       #4E617A;   /* secondary text              */
-      --t3:       #8A9DB5;   /* muted / placeholder         */
-      --accent:   #2B4D8E;   /* slate blue — CTAs           */
-      --acc-bg:   #E4EAF5;   /* accent tint                 */
-      --hdr:      #1A2540;   /* header — same deep navy     */
-      --result:   #EDF2FA;   /* result panel background     */
-      --danger:   #C0392B;
-      --warn-bg:  #FEF3E8;
-      --warn:     #9A4A10;
+      /* Surfaces */
+      --bg:       #E8EAF0;   /* fog blue — page bg          */
+      --card:     #F7F5F6;   /* gray-pink card              */
+      --card2:    #EEF0F5;   /* alt card (result panels)    */
+      --border:   #D6D4D8;   /* warm-cool neutral border    */
+
+      /* Text */
+      --t1:       #2C2D35;   /* near-black, slightly warm   */
+      --t2:       #5E5F6E;   /* medium gray-violet          */
+      --t3:       #9B9CAB;   /* muted placeholder           */
+
+      /* Accent — dusty teal-blue */
+      --accent:   #4A6D8C;   /* muted slate                 */
+      --acc-bg:   #DDE5EE;   /* accent surface              */
+
+      /* Header — dark fog */
+      --hdr:      #2E3440;   /* dark Nordic night           */
+
+      /* Feedback */
+      --result:   #EEF0F5;
+      --danger:   #8E3A30;
+      --warn-bg:  #F5EFE8;
+      --warn:     #7A4A20;
     }
 
     body {
@@ -45,6 +55,7 @@
       background: var(--card);
       border-radius: 14px;
       border: 1px solid var(--border);
+      box-shadow: 0 1px 3px rgba(44,45,53,.06);
     }
 
     /* ── Stepper button ─────────────────────────────────── */
@@ -134,7 +145,7 @@
       margin-top: 14px;
       padding: 14px;
       border-radius: 12px;
-      background: var(--result);
+      background: var(--card2);
       border: 1px solid var(--border);
     }
     .result-val {
@@ -149,7 +160,7 @@
       display: flex;
       padding: 4px;
       border-radius: 12px;
-      background: #D8E2EE;
+      background: #D8D8E4;
       margin-bottom: 14px;
     }
     .tab-btn {
@@ -170,6 +181,12 @@
       color: var(--accent);
       box-shadow: 0 1px 4px rgba(0,0,0,.10);
     }
+
+    /* ── Source badges ──────────────────────────────────── */
+    .badge-rtog    { background:#DDE5EF; color:#3A5A80; border-radius:6px; padding:1px 6px; font-size:11px; }
+    .badge-quantec { background:#E0EDE5; color:#2E6645; border-radius:6px; padding:1px 6px; font-size:11px; }
+    .badge-tg101   { background:#EAE0EF; color:#5A3A7A; border-radius:6px; padding:1px 6px; font-size:11px; }
+    .badge-custom  { background:#EDEAF0; color:#4A4560; border-radius:6px; padding:1px 6px; font-size:11px; }
   </style>
 </head>
 <body>
@@ -189,7 +206,7 @@
           </div>
         </div>
         <div class="mono text-xs px-2.5 py-1 rounded-full font-medium"
-             style="background:rgba(255,255,255,.10);color:rgba(255,255,255,.6);">V1.3.1</div>
+             style="background:rgba(255,255,255,.10);color:rgba(255,255,255,.6);">V1.3.2</div>
       </div>
     </header>
 
