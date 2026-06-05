@@ -1,0 +1,372 @@
+# 🦎 RT-Tool
+
+> 放射腫瘤臨床工具  
+> Mobile-first 設計，適用於 GitHub Pages 靜態部署
+
+---
+
+## 版本歷程
+
+### V3.2.1 — Roach 完整三公式 + CLAUDE.md 對齊 Kit
+
+- Roach Formula：補上 ECE（包膜外），修正 SV 公式（`PSA + 10×(GS-6)`，原為錯誤的 `PSA/3`），三列對照顯示
+- CLAUDE.md：按 SELA Starter Kit 章法重寫（當前狀態、業務對映表、坑編號累積）
+
+---
+
+### V3.2.0 — 腫瘤分期 cTNM / pTNM 區分
+
+**分期**
+- 所有癌種分期卡片頂部加入 `cTNM 臨床分期 / pTNM 病理分期` 切換 pill
+- 結果標示自動加前綴：cT2N0M0 或 pT2N0M0
+- **前列腺**：pTNM 切換後 T 選項重建（移除 pT1；pT2 為局限於前列腺，不再細分 a/b/c）
+- **食道**：pTNM 採獨立分期邏輯（AJCC 9th Table 17.8/17.9 簡化版），並加注需搭配 Grade 才能精確分組
+- **其他癌種**（肺/直腸/HCC/乳癌/胃/胰臟/頭頸）：Stage group table 相同，僅前綴區分
+
+**基礎架構**
+- `utils.js` 新增 `setStageResult(id, stage, details, note)` — 寫入穩定 wrapper div（不再用 outerHTML 替換造成 id 消失）
+- 所有 `e.outerHTML = U.stageResult(...)` 統一換為 `setStageResult(...)`
+
+---
+
+### V3.1 — 工具當掉根本修復
+
+**根本原因**
+`U.cardWrap()` 的工具 body 預設 `class="hidden"`，`app.js` 渲染完 `main.innerHTML` 後從未呼叫 `toggleCard()` 展開工具，導致切換工具或換頁回來後，整個工具體是折疊狀態、按鈕不可見，看起來「當掉」。
+
+**修復**
+- `app.js` render dispatch：`case 'tools'` 後立即呼叫 `toggleCard(activeKey)` 自動展開
+- 評分工具（GPA / ECOG 初始化）的 `setTimeout` 從 `ToolsScore.render()` 移至 `app.js`，與展開動作統一管理
+- `ToolsScore.render()` 移除多餘的 setTimeout，邏輯集中在 app.js
+- Gap 工具：移除從未被計算函式使用的死 UI（`gap-custom-row` 自訂補償率欄位）
+- NCCN 攝護腺：Very Low Risk 判斷邏輯修正（移除臨床上不可能的 `PSA < 0.3` 條件）
+
+---
+
+### V3.0 — 補齊建議工具清單：4 個新工具
+
+**新增（RT 工具）**
+- EQD2 累加 / 再程評估：兩療程各填 Dose/fx、Fractions、α/β，自動列出 Total / BED / EQD2 及合計，> 70 Gy 提示 OAR 注意，> 100 Gy 警示
+- 等效方形野（Equivalent Square）：Sterling 公式 2XY/(X+Y) + 等面積方邊 √(XY)，用於 TMR/Sc 查表
+
+**新增（計算工具）**
+- ANC 計算：WBC × 中性球% → CTCAE Grade 分級 + 化療調整建議
+- NCCN 攝護腺風險分組（2025）：PSA / Gleason GG / T 分期 / 陽性切片比例 → Very Low/Low/Intermediate Favorable/Unfavorable/High/Very High + RT 策略 + ADT 建議
+
+---
+
+### V2.9 — PSA DT 新工具 + BED 重設計 + 劑量建議 2025
+
+**新增**
+- PSA Doubling Time 計算器（最小二乘回歸，支援 2+ 筆資料點，自動風險分層）
+
+**改善**
+- BED/EQD2：移除 α/β 切換 pills，改為永遠顯示 α/β=10/3/1.5 三列，自訂值填入後即時加入第四列（accent 色標示）
+
+**資料更新**
+- 劑量建議庫更新至 NCCN 2025：65 筆
+  - 新增 PACIFIC Durvalumab 後維持、FAST-Forward 5fx 乳癌、TNT 直腸、SBRT 寡轉移前列腺 MDT、GBM TTFields、HA-WBRT + Memantine、分次 SRS、H&N 再程放療等
+
+---
+
+### V2.8 — Child-Pugh INR + header 配色
+
+- Child-Pugh PT 欄位：「PT 延長（秒）」→「PT / INR」（< 1.7 / 1.7–2.3 / > 2.3）
+- Header 背景：`#252831`（近黑）→ `#3C4257`（霧藍灰）
+
+---
+
+### V2.7 — 工具全面修復 + 配色修正
+
+**Bug fix**
+- BED / Hypofractionation「自訂 α/β」pill 點擊後輸入框不顯示 → 改由 `onBEDAbChange` / `onHypAbChange` 在 pill click 時立即展開，不再等 calcBED 才處理
+- 所有分期癌別（直腸/前列腺/HCC/乳癌/食道/胃/胰臟/H&N）的 N/M/G/PSA 仍使用已移除的 `sel()` → 全部換為 `selVal()`
+- 評分工具按鈕組（GPA/SINS/Tokuhashi/RPA）選中狀態用 inline style，`selBtn` reset 時清空導致樣式全丟 → 改用 CSS class `.sg-btn` / `.sg-on`
+- `U.pills()` 新增 `onChange` 可選參數，供 BED/Hypo 的 pill 點擊觸發 callback
+
+**配色修正**
+- Bottom nav `background:#fff` → `var(--card)`（北歐霧灰）
+- `.inp:focus` `background:#fff` → `var(--card)`
+
+---
+
+### V2.6 — 肺癌 AJCC 9th 完整修正
+
+**Bug fix**
+- M1c 拆分為 M1c1 / M1c2（AJCC 9th 新增）
+  - M1c1（多處轉移，同一胸外器官）→ Stage IV B
+  - M1c2（多處轉移，多個胸外器官）→ Stage IV C（9th 全新分期）
+- T1-2 N2b → Stage III B（9th 新增 N2a/N2b 區分；原錯誤給 III A）
+- 版本號 bump 機制修正：改用 regex 替換所有 Vx.x.x 格式
+
+---
+
+### V2.5 — Bug fix：GPA 工具失效 + 肺癌分期更正
+
+**Bug fix**
+- GPA / SINS / Tokuhashi / RPA / ECOG 全部失效：V2.2 重構移除 `setH` 時遺漏 tools-score.js 仍依賴此 helper，已補回
+- 肺癌分期邏輯錯誤（混用 AJCC 8th）：依 AJCC 9th（2024）完整重寫
+  - N 分類新增 N2a（單站）/ N2b（多站）區別
+  - M1c → Stage IV B（8th 無此 M1c→IVC 的錯誤分類已移除）
+  - M1a/M1b → Stage IV A（正確）
+  - N3 分 T1-2/T3-4 → III B / III C
+  - N2 分 T1-2/T3-4 → III A / III B
+  - T4 N0 → III A（原錯誤給 IIIA 已修正邏輯）
+
+---
+
+### V2.4 — 分期篩選器自動展開修復
+
+**Bug fix**
+- 點擊癌別篩選 pill 後，卡片 body 預設 `hidden`，視覺上像「沒反應」
+- `StagingFilter()` 切換後直接移除 `hidden` 並旋轉 chevron，確保卡片立即展開
+- 初始頁面載入透過 `Staging.afterRender()` 完成同樣的自動展開
+
+---
+
+### V2.3.1 — Bug fix：分期篩選器
+
+**Bug fix**
+- V2.2 重構移除 `el()` 時，`StagingFilter` 內的 `el('staging-panel')` 未同步替換為 `gel()` → 點選癌別後 panel 不更新。全面掃描 staging.js 中殘留的 `el()` 呼叫並替換。
+
+---
+
+### V2.3 — 移除非必要 UI 說明文字
+
+**清理**
+- 移除 BED/EQD2 卡片副標題「一組方案自動顯示…」
+- 移除 Hypofractionation 卡片副標題「輸入原方案…」
+- 移除電子線結果面板「公式依據：E(MeV) 近似法，僅供參考」
+- 移除肺癌分期副標題「Non-small cell lung cancer — T/N/M staging」
+- 移除乳癌分期副標題「Anatomic stage（不含生物標記）」
+- 移除口咽分期副標題「p16+ (HPV-associated)」
+- 移除分期頁面 header 「AJCC 9th Edition (2024)」
+- 移除分期頁面底部免責聲明段落
+- 移除設定頁免責聲明段落
+
+---
+
+### V2.2 — 程式碼優化：共用模組抽離
+
+**重構**
+- 新增 `js/utils.js`：統一所有模組依賴的 DOM util、互動控件、HTML builder
+  - DOM: `gel()` / `numVal()` / `selVal()`
+  - 控件: `toggleCard()` / `stepAdj()` / `stepClamp()` / `pillSelect()`
+  - HTML builder: `U.stepper` / `U.pills` / `U.fld` / `U.calcBtn` / `U.cardWrap` / `U.stageResult`
+- `tools-rt.js`：移除重複的 `v/el/setH/stepAdj/stepClamp/pillSelect/RTToggle/stepper/pills/cardWrap`，全改用 `U.*`
+- `tools-calc.js`：移除同上重複宣告；移除 `pillSelect` monkey-patch，改以獨立 `calvModeChange()` 處理 Calvert 模式切換
+- `tools-score.js`：移除重複 `gel/setH/toggleCard/cardWrap/calcBtn`
+- `staging.js`：移除重複 `v/el/sel/fld/calcBtn/stageResult/card2/StagingToggle`，`StagingToggle` 統一為 `toggleCard`
+- `index.html`：移除廢棄的 `.tab-bar/.tab-btn` CSS（已由 `.fpill` 取代）
+- 總行數：2706 → 2526（減少 180 行）
+
+---
+
+### V2.1 — 分期點選修復 + 篩選樣式統一
+
+**Bug fix**
+- staging.js 被清空導致分期頁面全部無法點選 → 完整重建
+- 頁籤（工具 RT/計算/評分）、劑量建議/限制 Tab、所有分類篩選 pill 全部統一使用 `.fpill` / `.fpill.on`
+- 移除 `.tab-bar` / `.tab-btn` 的差異化樣式，視覺語言一致
+
+---
+
+### V2.0 — 設定預設修復 + 北歐 UI 全面整理
+
+**Bug fix**
+- 設定頁「快速預設」按鈕固定顯示「放腫核心」為選中 → 加入 `activePreset` 狀態追蹤，按下後才反白對應按鈕
+
+**UI 全面整理**
+- 新增 `.fpill` / `.fpill.on` CSS class，取代所有篩選 pill 的 inline style
+- staging / ICD / 劑量頁所有篩選 pill 改用 `classList.toggle('on')` 更新
+- CSS 變數統整：所有頁面的硬編碼 hex 值全改為 `var(--t1/t2/t3/accent/bg/card/border)`
+- Tab bar 背景改用 `var(--border)` 取代固定灰值；input focus 加白底回饋
+- 北歐配色微調：`--bg #ECEEF3`、`--card #F7F7F9`、`--accent #3D6494`、`--hdr #252831`
+
+---
+
+### V1.9 — 劑量 Tab 點選修復
+
+**Bug fix**
+- 劑量頁 Tab / 癌別 pill 無法點選 → ConTab / ConRecCancer 改為呼叫 `App.navigate('constraints')` 重渲染
+- README 重整：版本號與歷程統一管理
+
+---
+
+### V1.8 — 劑量建議頁籤 + Nav 穿透修復
+
+**Bug fix**
+- 底部導航列背景消失（nav 上兩個 `style` 屬性互蓋）→ 合併修正，畫面不再穿透
+- 桌機 FAB (+) 跑出容器外 → 改用 `calc(50% - 14rem + 16px)` 定位
+
+**新功能**
+- 「劑量」頁改為雙頁籤：**劑量建議**（NCCN 2024）/ **劑量限制**（OAR constraints）
+- 劑量建議：60 筆各癌種建議劑量，按癌別 pill 篩選（Lung / Breast / Prostate / Rectum / Liver / Esophagus / Stomach / Pancreas / H&N / CNS / Lymphoma / Bone/Mets）
+- 新增 `data/dose-recs.js` 資料檔
+
+---
+
+### V1.7 — 桌機導航修復 + 橫向捲軸改善
+
+**Bug fix**
+- 桌機 header / nav 無法置中（`fixed left-0 right-0 max-w-md` 失效）→ 改用 `translateX(-50%)`
+- 所有 pill 篩選列改 `flex-wrap:wrap`，不再出現橫向捲軸
+
+---
+
+### V1.6 — 緊急修復：非工具頁白畫面
+
+**Bug fix**
+- 重構 Tools 頁時誤刪 `pageWrap()` 函式，導致 staging / constraints / icd / settings 全部白畫面
+
+---
+
+### V1.5 — 每頁單選篩選器 + Sticky 篩選列
+
+**改善**
+- 工具頁三個 Tab（RT / 計算 / 評分）改為 pill 單選遮蔽，選了只顯示該工具
+- 分期、ICD、劑量限制篩選器全改 sticky（捲動時固定在 header 下方）
+- NCCN SBRT 劑量限制新增 43 筆（Lung / Liver / Spine / Prostate）
+
+---
+
+### V1.4 — RT 工具擴充 + Nordic 重新設計
+
+**新增功能**
+- 電子線劑量計算、MU 計算（光子線）、SSD 修正（Mayneord）、ISL、HVL 屏蔽
+- 劑量限制按器官分組（CNS / HN / Thorax / Abdomen / Pelvis）
+- Nordic 配色系統（暖米白底 + 炭灰 accent）
+
+---
+
+### V1.3 — Phase 4：AJCC 9th 分期
+
+**新增功能**
+- 分期系統：肺癌 / 直腸 / 前列腺 / HCC / 乳癌 / 食道 / 胃癌 / 胰臟 / 頭頸（6 子部位）
+- AJCC 9th Edition（2024）互動查詢，pill 單選切換各癌種
+
+---
+
+### V1.2 — Phase 3：ICD-10 + 劑量限制查詢
+
+**新增功能**
+- ICD-10 查詢：100+ 筆腫瘤診斷碼，支援代碼 / 中文 / 英文模糊搜尋，11 個分類
+- 劑量限制查詢：100+ 筆 RTOG / QUANTEC / TG-101，技術 + 來源篩選
+- Lung SABR 專項限制（V20、V5、MLD、V12.5）
+- 個人化 Override / 新增自訂條目 / ☆ 收藏置頂
+
+---
+
+### V1.1 — Phase 2：計算 + 評分工具擴充
+
+**新增功能**
+
+計算工具：ALBI Score、MELD Score、Treatment Gap Correction、Hypofractionation Converter、Calvert Formula、Cockcroft-Gault、BSA Calculator、Cisplatin 累積劑量追蹤
+
+評分工具：GPA Score（DS-GPA，6 癌種）、SINS Score、Tokuhashi Score、RPA Class、ECOG ↔ KPS
+
+---
+
+### V1.0 — Phase 1：初版上線
+
+**新增功能**
+- 整體 App 框架：Bottom Navigation（工具 / 分期 / 劑量 / ICD / 設定）
+- SELA 品牌 Header：橘底白壁虎 Logo
+- BED / EQD2 計算器（α/β ratio 預設 10 / 3 / 1.5 及自訂）
+- Child-Pugh Score（Grade A/B/C + 存活率 + BCLC 分期串接）
+- Roach Formula（LN risk + SV risk + D'Amico Risk Group）
+- 設定頁：每個工具獨立開關、Preset（全開 / 放腫核心 / 精簡）
+- localStorage 自動儲存 + JSON 匯出/匯入
+
+---
+
+## 功能清單
+
+### 放療工具 (RT)
+| 工具 | 版本 |
+|------|------|
+| BED / EQD2 | V1.0 |
+| Child-Pugh + BCLC | V1.0 |
+| Roach Formula + D'Amico | V1.0 |
+| Treatment Gap Correction | V1.1 |
+| Hypofractionation Converter | V1.1 |
+| 電子線劑量計算 | V1.4 |
+| MU 計算（光子線） | V1.4 |
+| SSD 修正（Mayneord） | V1.4 |
+| ISL（平方反比定律） | V1.4 |
+| HVL 屏蔽計算 | V1.4 |
+
+### 計算工具
+| 工具 | 版本 |
+|------|------|
+| ALBI Score | V1.1 |
+| MELD Score | V1.1 |
+| Calvert Formula | V1.1 |
+| Cockcroft-Gault (CrCl) | V1.1 |
+| BSA Calculator | V1.1 |
+| Cisplatin 累積劑量 | V1.1 |
+
+### 評分工具
+| 工具 | 版本 |
+|------|------|
+| GPA Score (DS-GPA) | V1.1 |
+| SINS Score | V1.1 |
+| Tokuhashi Score | V1.1 |
+| RPA Class | V1.1 |
+| ECOG ↔ KPS | V1.1 |
+
+### 分期（AJCC 9th）
+| 癌種 | 版本 |
+|------|------|
+| 肺癌、直腸、前列腺、HCC、乳癌 | V1.3 |
+| 食道、胃癌、胰臟、頭頸（6 子部位） | V1.3 |
+
+### 劑量查詢
+| 功能 | 版本 |
+|------|------|
+| ICD-10 查詢 | V1.2 |
+| 劑量限制（RTOG / QUANTEC / TG-101 / NCCN） | V1.2 / V1.5 |
+| 劑量建議（NCCN 2024，各癌種） | V1.8 |
+
+---
+
+## 技術架構
+
+```
+rt-tool/
+├── index.html            主殼（HTML + CSS + Tailwind CDN）
+├── README.md             版本歷程
+├── assets/
+│   └── logo.jpg          SELA 壁虎 Logo
+├── data/
+│   ├── icd10.js          ICD-10 腫瘤診斷碼（107 筆）
+│   ├── constraints.js    劑量限制資料（132 筆）
+│   └── dose-recs.js      NCCN 劑量建議（60 筆）
+└── js/
+    ├── app.js            路由、設定、localStorage（VERSION）
+    ├── staging.js        AJCC 9th 分期（9 癌種）
+    ├── tools-rt.js       放療工具
+    ├── tools-calc.js     計算工具
+    ├── tools-score.js    評分工具
+    ├── ui-icd.js         ICD-10 查詢 UI
+    └── ui-constraints.js 劑量建議 + 劑量限制 UI
+```
+
+**技術選型**：Vanilla JS（零依賴）、Tailwind CSS CDN、Google Fonts、localStorage
+
+---
+
+## 部署
+
+```
+GitHub → Settings → Pages → Source: main / root
+https://{username}.github.io/{repo}/
+```
+
+注意：`data/` 與 `js/` 資料夾必須與 `index.html` 同層。
+
+---
+
+## 免責聲明
+
+本工具僅供臨床參考，所有醫療決策請依據最新指引及臨床判斷。計算結果不能取代專業醫療意見。劑量限制與建議數據以原始文獻為準，使用前請核對最新版本。
