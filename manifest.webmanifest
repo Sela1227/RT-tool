@@ -1,0 +1,17 @@
+{
+  "name": "RT-Tool 放射腫瘤臨床工具",
+  "short_name": "RT-Tool",
+  "description": "放射腫瘤科臨床工具：BED/EQD2、腫瘤分期、劑量限制、ICD-10 查詢",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ECEEF3",
+  "theme_color": "#3C4257",
+  "lang": "zh-TW",
+  "icons": [
+    { "src": "assets/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

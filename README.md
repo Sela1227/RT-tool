@@ -1,11 +1,132 @@
-# 🦎 RT-Tool
-
-> 放射腫瘤臨床工具  
-> Mobile-first 設計，適用於 GitHub Pages 靜態部署
+<div align="center">
+  <img src="assets/sela.svg" width="110" alt="SELA"/>
+  <h1>RT-Tool</h1>
+  <p>放射腫瘤臨床工具 — Mobile-first PWA，GitHub Pages 靜態部署</p>
+</div>
 
 ---
 
 ## 版本歷程
+
+### V3.6.2 — 對齊 Kit V1.25.0
+
+**修正（醫院網路真 bug）**
+- **PWA 在醫院網路失去樣式**：Service Worker 對跨域資源直接放行、從不快取，導致封鎖 CDN 或離線時 Tailwind / 字型載不到，app 開得起來但完全沒有樣式（原本宣稱的「離線可用」實為假）
+  - 修法：本地 App Shell 用 `addAll`（保證完整）、CDN 用 `Promise.allSettled`（封鎖時降級不擋安裝）；fetch handler 納入 CDN 快取，並修正 opaque response（`status===0`）永不快取的判斷式
+- **localStorage 資料救回**：V3.2.0 更名時把 `sela_*` 改為 `rttool_*` 卻沒寫 migration，舊使用者的設定 / Cisplatin 記錄 / 自訂限制全部讀不到。補一次性 `migrateLegacyKeys()`（僅在新 key 不存在時搬移），key 自此凍結
+
+**對齊 Kit V1.25.0**
+- README 標頭加入 SELA logo、移除 emoji
+- 補 `assets/sela.svg` + `favicon.ico`
+- 煙霧測試新增資料筆數 count assertion 與 PWA / 版本號一致性檢查
+- CLAUDE.md 新增坑 #13（CDN PWA 醫院網路）、#14（localStorage key 凍結）
+- 產出 SELA-handoff.md（Kit 鐵律 #0）
+- 優化體檢：0 項可升級（OPT-2 明確背書現行 `DEFAULT_SETTINGS` 寫法）
+
+---
+
+### V3.6.1 — 修正分期頁版面裁切
+
+- **分期頁卡片內容被裁切**：癌別分期卡片只顯示標題與半截 cTNM/pTNM 按鈕，下方被擋住
+  - 根因：V3.3.0 的卡片展開動畫用 `max-height` 會裁掉較高內容；且分期頁自己的展開邏輯仍用舊的 `hidden` class，與新 CSS 不相容
+  - 修法：卡片展開改用 `display:none` + `.open{display:block}` + 淡入（永不裁切）；所有展開路徑統一走 `toggleCard`
+- **移除頁面淡入轉場**：V3.5.0 的 `requestAnimationFrame` 淡入在部分裝置會殘影，移除以確保穩定
+
+---
+
+### V3.6.0 — 手機優化 + 全向量圖示介面
+
+**移除所有 emoji，改為向量 SVG 圖示**
+- `utils.js` 新增 `ICO` 圖示命名空間（星形實心/空心、編輯、警告、雙向箭頭）
+- 劑量限制頁：收藏（實心/空心星）與編輯（鉛筆）改為向量圖示，選中填 accent 色
+- EQD2 累加 / Cisplatin 的警告標記改為向量警告三角
+- 工具分頁（放療/計算/評分）加入向量圖示
+- 匯入成功/失敗 alert 移除 emoji
+
+**手機優化**
+- `-webkit-font-smoothing`、`text-rendering:optimizeLegibility` 抗鋸齒
+- 全域移除點擊藍框（`-webkit-tap-highlight-color:transparent`）
+- `-webkit-text-size-adjust:100%` 防止橫置字體跳大
+
+**北歐風格維持**：霧藍配色、stroke-based 線性圖示、留白節制
+
+---
+
+### V3.5.0 — PWA + HyTEC 劑量限制
+
+**PWA（可安裝、離線使用）**
+- 新增 `manifest.webmanifest` + `sw.js` service worker
+- 可「加入主畫面」，離線可用（app shell 快取）
+- theme-color 用 header 板岩藍 `#3C4257`（非 SELA 橘，遵循 Kit 坑 #42）
+- 從 logo 產生 192/512/maskable/apple-touch 圖示
+- Service worker 只快取同源 GET，跨域 CDN 直接放行（Kit 坑 #13）
+- `CACHE_VERSION` 跟隨 app 版本（Kit 坑 #14）
+
+**HyTEC 劑量限制來源（新版範圍）**
+- 劑量限制頁新增「HyTEC」來源篩選 + 藍綠色 badge
+- 脊髓 SBRT（Sahgal）：1fx 12.4、3fx 20.3、5fx 25.3 Gy（1–5% 脊髓病變）
+- 臂神經叢（Lindberg）：3fx 25、5fx 32 Gy（<10% RIBP）
+- 視神經/視交叉（Milano）：單次 10 Gy（<1% RION）
+- 可與 TG-101 並列對照，臨床自行取捨
+
+---
+
+### V3.4.1 — OAR 劑量限制查核修正
+
+SBRT 值對照官方 TG-101/HyTEC 整合表逐項查核，修正 7 處轉錄錯誤：
+- 視神經/視交叉 1fx：12 → **10 Gy**（TG-101；HyTEC 上限 12）
+- 小腸 3fx：22.2 → **25.2 Gy**（原為十二指腸值）
+- 臂神經叢 5fx：32 → **30.5 Gy**
+- 胃 1fx：18 → **12.4 Gy**；胃 5fx：35 → **32 Gy**
+- 十二指腸 1fx：16 → **12.4 Gy**
+- 補上大血管 5fx：Dmax 53 Gy（原缺）
+
+Conventional（QUANTEC）值已逐項核對，維持原值。
+
+---
+
+### V3.4.0 — 腫瘤分期版本正名 + 邏輯修正
+
+**版本標示修正（重要）**
+AJCC 自 2024 年改為逐癌別發布「Version 9」，並非整套換版。經查核：
+- **肺癌** → AJCC/IASLC 第9版（2025 生效）
+- **鼻咽** → AJCC 第9版（2024）
+- **其餘（直腸/前列腺/HCC/乳癌/食道/胃/胰臟/口腔/喉/下咽）** → 仍為 AJCC 第8版
+- 原本全部誤標為「9th」，已逐卡更正
+
+**分期邏輯修正**
+- **肺癌 9th**：N2a/N2b、M1c1/M1c2 stage group 全面重寫並窮舉驗證（23 組合全對）
+  - T1N1→IIA、T1N2a→IIB、T1N2b→IIIA、T2N2b→IIIB、T3N2a→IIIA、T4N2a→IIIB、M1c1/c2 皆→IVB
+- **鼻咽 9th**：改為 IA/IB/II/III/IVA/IVB 分組，N3 納入進階 ENE，M1a(≤3)/M1b(>3)
+- **前列腺 8th**：prognostic stage group 修正（T4N0 原誤判 IVA→應 IIIB；Grade Group 對應 IIC/IIIA/IIIC 修正）
+- **胰臟**：清理冗餘判斷式
+
+---
+
+### V3.3.0 — Apple 設計師視角 UI 全面優化
+
+- **Safe area**：Header 加入 `env(safe-area-inset-top)` — iPhone 劉海 / Dynamic Island 機型不再被擋
+- **觸控目標**：`step-btn` 36→40px；`fpill` padding 4→6px；所有按鈕達 Apple HIG 最小規格
+- **按壓回饋**：`step-btn`、`pill-opt`、`fpill`、`calc-btn`、card header 全部加 `:active` 狀態（scale + 背景色）；移除 `tap-highlight` 藍框
+- **卡片展開動畫**：從瞬間顯隱改為 `max-height` CSS transition（0.24s cubic-bezier）
+- **Card header divider**：展開時自動套用 `card-hdr-open` 邊線（原本定義了但從未套用）
+- **Nav active 狀態**：從 inline style 改為 CSS class，移除所有殘留 `style="color:..."`
+- **頁面切換淡入**：`render()` 加 `requestAnimationFrame` fade
+- **排版細節**：`sec-label` 10→11px；card title 14→15px；`result-val` 加 `line-height:1.2`
+- **數字排版**：`font-variant-numeric: tabular-nums` — 小數點對齊
+- **iOS 鍵盤**：stepper input 加 `inputmode="decimal"` — 正確觸發數字鍵盤
+
+---
+
+### V3.2.2 — 對齊 Kit V1.21.0
+
+- 補 `.gitignore`
+- CLAUDE.md：補煙霧測試（五節）、升版必讀（八節）、一句話總結（九節）
+- zip 命名改為空格格式 `RT-Tool V3.2.2.zip`
+- 新增坑 #8（Claude 環境重置）、#9（Python 切片吞夾層）
+- Kit 版本更新至 V1.21.0
+
+---
 
 ### V3.2.1 — Roach 完整三公式 + CLAUDE.md 對齊 Kit
 
@@ -253,7 +374,7 @@
 - ICD-10 查詢：100+ 筆腫瘤診斷碼，支援代碼 / 中文 / 英文模糊搜尋，11 個分類
 - 劑量限制查詢：100+ 筆 RTOG / QUANTEC / TG-101，技術 + 來源篩選
 - Lung SABR 專項限制（V20、V5、MLD、V12.5）
-- 個人化 Override / 新增自訂條目 / ☆ 收藏置頂
+- 個人化 Override / 新增自訂條目 / 收藏置頂
 
 ---
 

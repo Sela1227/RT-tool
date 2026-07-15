@@ -294,7 +294,7 @@ const ToolsRT = (() => {
 
     let warn = '', warnColor = 'var(--t2)';
     if (sumEQD2 > 100 && r1.ab === r2.ab) {
-      warn = '⚠️ 累計 EQD2 > 100 Gy，再程需嚴格評估 OAR 耐受度';
+      warn = `${ICO.warn} 累計 EQD2 > 100 Gy，再程需嚴格評估 OAR 耐受度`;
       warnColor = 'var(--danger)';
     } else if (sumEQD2 > 70) {
       warn = '注意累計劑量，需核對脊髓、直腸、膀胱等 OAR 限制';

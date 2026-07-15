@@ -382,7 +382,7 @@ const ToolsCalc = (() => {
     const body = `
       <div id="cisplatin-body">
         ${warn ? `<div class="mb-3 p-3 rounded-xl" style="background:var(--warn-bg);border:1px solid #F0C48A;">
-          <div class="text-xs font-semibold" style="color:var(--warn);">⚠ 累積劑量 ≥ 300 mg/m²，注意腎毒性/耳毒性</div>
+          <div class="text-xs font-semibold" style="color:var(--warn);">${ICO.warn} 累積劑量 ≥ 300 mg/m²，注意腎毒性/耳毒性</div>
         </div>` : ''}
         <div class="mb-3">
           <div class="sec-label mb-1">累積總量</div>

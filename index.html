@@ -6,6 +6,14 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <title>RT-Tool</title>
+  <meta name="description" content="放射腫瘤科臨床工具：BED/EQD2、腫瘤分期、劑量限制、ICD-10">
+  <meta name="theme-color" content="#3C4257">
+  <meta name="apple-mobile-web-app-title" content="RT-Tool">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="assets/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
@@ -41,7 +49,13 @@
       background: var(--bg);
       color: var(--t1);
       line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      -webkit-text-size-adjust: 100%;
+      -webkit-tap-highlight-color: transparent;
+      text-rendering: optimizeLegibility;
     }
+    button { -webkit-tap-highlight-color: transparent; }
     .mono { font-family: 'DM Mono', monospace !important; }
     .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
     #app-main { transition: opacity 0.12s ease; }
@@ -56,54 +70,59 @@
 
     /* ── Stepper ─────────────────────────────────────────── */
     .step-btn {
-      width: 36px; height: 36px;
-      border-radius: 9px;
+      width: 40px; height: 40px;
+      border-radius: 10px;
       border: 1px solid var(--border);
       background: var(--card);
       color: var(--t1);
       font-size: 18px; line-height: 1;
       display: flex; align-items: center; justify-content: center;
       cursor: pointer; flex-shrink: 0;
-      transition: background 0.1s;
+      transition: background 0.1s, transform 0.08s;
+      -webkit-tap-highlight-color: transparent;
     }
-    .step-btn:active { background: var(--acc-bg); }
+    .step-btn:active { background: var(--acc-bg); transform: scale(0.93); }
 
     /* ── Pill selector (α/β, etc.) ───────────────────────── */
     .pill-opt {
-      flex: 1; padding: 6px 4px;
+      flex: 1; padding: 7px 4px;
       border-radius: 8px;
       border: 1px solid var(--border);
       background: var(--card);
       color: var(--t2);
       font-size: 12px; text-align: center;
       cursor: pointer; transition: all 0.12s; line-height: 1.3;
+      -webkit-tap-highlight-color: transparent;
     }
     .pill-opt.active {
       background: var(--accent);
       color: #fff;
       border-color: var(--accent);
     }
+    .pill-opt:active:not(.active) { background: var(--acc-bg); }
 
     /* ── Filter pill (top bar selectors) ─────────────────── */
     .fpill {
       font-size: 0.72rem;
-      padding: 4px 11px;
+      padding: 6px 12px;
       border-radius: 9999px;
       border: 1px solid var(--border);
       background: var(--card);
       color: var(--t2);
       white-space: nowrap; cursor: pointer;
       transition: background 0.1s, color 0.1s, border-color 0.1s;
+      -webkit-tap-highlight-color: transparent;
     }
     .fpill.on {
       background: var(--accent);
       color: #fff;
       border-color: var(--accent);
     }
+    .fpill:active:not(.on) { background: var(--acc-bg); }
 
     /* ── Section label ───────────────────────────────────── */
     .sec-label {
-      font-size: 10px; font-weight: 600;
+      font-size: 11px; font-weight: 600;
       letter-spacing: .10em; text-transform: uppercase;
       color: var(--t3);
     }
@@ -147,7 +166,7 @@
       transition: opacity 0.12s;
       letter-spacing: .02em;
     }
-    .calc-btn:active { opacity: 0.82; }
+    .calc-btn:active { opacity: 0.88; transform: scale(0.98); }
 
     /* ── Result panel ────────────────────────────────────── */
     .result-panel {
@@ -160,6 +179,7 @@
       font-family: 'DM Mono', monospace;
       font-size: 22px; font-weight: 500;
       color: var(--t1);
+      line-height: 1.2;
     }
 
 
@@ -183,10 +203,31 @@
     .badge-quantec { background:#D8EDE2; color:#245B3A; border-radius:5px; padding:2px 7px; font-size:11px; }
     .badge-tg101   { background:#E4DCF2; color:#4A2E7A; border-radius:5px; padding:2px 7px; font-size:11px; }
     .badge-nccn    { background:#F2EBD6; color:#7A5010; border-radius:5px; padding:2px 7px; font-size:11px; }
+    .badge-hytec   { background:#DCEEF0; color:#1E5A66; border-radius:5px; padding:2px 7px; font-size:11px; }
     .badge-custom  { background:#E4E2EC; color:#3E3A55; border-radius:5px; padding:2px 7px; font-size:11px; }
 
     /* ── Card header divider when open ──────────────────── */
     .card-hdr-open { border-bottom: 1px solid var(--border); }
+
+    /* ── Card body reveal (clip-proof: display + fade, no max-height) ── */
+    .card-body { display: none; }
+    .card-body.open {
+      display: block;
+      animation: cardReveal 0.2s cubic-bezier(0.33, 1, 0.68, 1);
+    }
+    @keyframes cardReveal {
+      from { opacity: 0; transform: translateY(-4px); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    /* ── Nav ─────────────────────────────────────────────── */
+    .nav-btn { color: var(--t3); }
+    .nav-btn.nav-active { color: var(--accent) !important; }
+    .nav-btn:active { background: var(--acc-bg); border-radius: 10px; }
+
+    /* ── Tabular numbers for result values ───────────────── */
+    .result-val, .mono { font-variant-numeric: tabular-nums; }
+
   </style>
 </head>
 <body>
@@ -195,8 +236,8 @@
 
     <!-- ── Header ──────────────────────────────────────── -->
     <header class="fixed top-0 z-50" style="left:50%;transform:translateX(-50%);width:100%;max-width:28rem;">
-      <div class="px-4 py-2.5 flex items-center justify-between"
-           style="background:var(--hdr);box-shadow:0 1px 6px rgba(0,0,0,.14);">
+      <div class="px-4 flex items-center justify-between"
+           style="background:var(--hdr);box-shadow:0 1px 6px rgba(0,0,0,.14);padding-top:calc(0.625rem + env(safe-area-inset-top, 0px));padding-bottom:0.625rem;">
         <div class="flex items-center gap-3">
           <img src="assets/logo.jpg" alt="SELA" class="w-10 h-10 rounded-xl object-cover"
                style="border:1.5px solid rgba(255,255,255,.15);">
@@ -206,12 +247,12 @@
           </div>
         </div>
         <div class="mono text-xs px-2.5 py-1 rounded-full font-medium"
-             style="background:rgba(255,255,255,.10);color:rgba(255,255,255,.6);">V3.2.1</div>
+             style="background:rgba(255,255,255,.10);color:rgba(255,255,255,.6);">V3.6.2</div>
       </div>
     </header>
 
     <!-- ── Main ────────────────────────────────────────── -->
-    <main id="app-main" class="pt-16 pb-24 min-h-screen"></main>
+    <main id="app-main" class="pb-24 min-h-screen" style="padding-top:calc(4rem + env(safe-area-inset-top, 0px));"></main>
 
     <!-- ── Bottom Nav ──────────────────────────────────── -->
     <nav class="fixed bottom-0 z-50 safe-bottom" style="left:50%;transform:translateX(-50%);width:100%;max-width:28rem;background:var(--card);border-top:1px solid var(--border);">
@@ -229,7 +270,7 @@
         </button>
 
         <button data-page="staging" onclick="App.navigate('staging')"
-          class="nav-btn flex-1 flex flex-col items-center justify-center py-2.5 gap-1 transition-colors" style="color:var(--t3);">
+          class="nav-btn flex-1 flex flex-col items-center justify-center py-2.5 gap-1 transition-colors">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 18h16M4 12h10M4 6h6"/>
           </svg>
@@ -237,7 +278,7 @@
         </button>
 
         <button data-page="constraints" onclick="App.navigate('constraints')"
-          class="nav-btn flex-1 flex flex-col items-center justify-center py-2.5 gap-1 transition-colors" style="color:var(--t3);">
+          class="nav-btn flex-1 flex flex-col items-center justify-center py-2.5 gap-1 transition-colors">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
             <circle cx="12" cy="12" r="9"/><path stroke-linecap="round" d="M12 7v5l3 3"/>
           </svg>
@@ -245,7 +286,7 @@
         </button>
 
         <button data-page="icd" onclick="App.navigate('icd')"
-          class="nav-btn flex-1 flex flex-col items-center justify-center py-2.5 gap-1 transition-colors" style="color:var(--t3);">
+          class="nav-btn flex-1 flex flex-col items-center justify-center py-2.5 gap-1 transition-colors">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6 4h12a1 1 0 011 1v14a1 1 0 01-1 1H6a1 1 0 01-1-1V5a1 1 0 011-1z"/>
             <path stroke-linecap="round" d="M9 9h6M9 13h4"/>
@@ -254,7 +295,7 @@
         </button>
 
         <button data-page="settings" onclick="App.navigate('settings')"
-          class="nav-btn flex-1 flex flex-col items-center justify-center py-2.5 gap-1 transition-colors" style="color:var(--t3);">
+          class="nav-btn flex-1 flex flex-col items-center justify-center py-2.5 gap-1 transition-colors">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
             <circle cx="12" cy="12" r="2.5"/>
             <path stroke-linecap="round" d="M12 5v2M12 17v2M5 12H3M21 12h-2M7.05 7.05 5.64 5.64M18.36 18.36l-1.41-1.41M7.05 16.95l-1.41 1.41M18.36 5.64l-1.41 1.41"/>
@@ -280,6 +321,15 @@
   <script src="js/ui-icd.js"></script>
   <script src="js/ui-constraints.js"></script>
   <script src="js/app.js"></script>
+
+  <!-- PWA: register service worker (relative path — pitfall #39/#60) -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+  </script>
 
 </body>
 </html>

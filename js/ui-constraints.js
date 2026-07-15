@@ -33,7 +33,7 @@ const UIConstraints = (() => {
   };
   const GROUP_LABELS = { All:'全部', CNS:'CNS', HN:'頭頸', Thorax:'胸腔', Abdomen:'腹部', Pelvis:'骨盆', Other:'其他' };
 
-  const SOURCE_BADGE = { RTOG:'badge-rtog', QUANTEC:'badge-quantec', 'TG-101':'badge-tg101', NCCN:'badge-nccn' };
+  const SOURCE_BADGE = { RTOG:'badge-rtog', QUANTEC:'badge-quantec', 'TG-101':'badge-tg101', NCCN:'badge-nccn', HyTEC:'badge-hytec' };
 
   function getAllData() {
     const overrides = getOverrides(), custom = getCustom();
@@ -110,10 +110,10 @@ const UIConstraints = (() => {
               ${d.notes ? `<div class="text-xs mt-0.5" style="color:var(--t3);">${d.notes}</div>` : ''}
             </div>
             <div class="flex gap-1 flex-shrink-0 mt-0.5">
-              <button onclick="ConToggleStar('${d.id}')" class="w-7 h-7 flex items-center justify-center rounded-lg" style="background:var(--bg);">
-                <span style="font-size:13px;">${isStarred ? '★' : '☆'}</span>
+              <button onclick="ConToggleStar('${d.id}')" class="w-8 h-8 flex items-center justify-center rounded-lg" style="background:var(--bg);color:${isStarred?'var(--accent)':'var(--t3)'};-webkit-tap-highlight-color:transparent;">
+                ${ICO.star(isStarred)}
               </button>
-              <button onclick="ConOpenEdit('${d.id}','${d.isCustom?'custom':'override'}')" class="w-7 h-7 flex items-center justify-center rounded-lg text-xs" style="background:var(--bg);color:var(--t2);">✏</button>
+              <button onclick="ConOpenEdit('${d.id}','${d.isCustom?'custom':'override'}')" class="w-8 h-8 flex items-center justify-center rounded-lg" style="background:var(--bg);color:var(--t2);-webkit-tap-highlight-color:transparent;">${ICO.edit}</button>
             </div>
           </div>
         </div>`;
@@ -233,7 +233,7 @@ const UIConstraints = (() => {
         <div>
           <div class="text-xs mb-1" style="color:var(--t3);">來源</div>
           <div class="flex" style="flex-wrap:wrap;gap:5px;">
-            ${['All','RTOG','QUANTEC','TG-101','NCCN','Custom'].map(s => {
+            ${['All','RTOG','QUANTEC','TG-101','HyTEC','NCCN','Custom'].map(s => {
               return `<button onclick="ConSource('${s}')" data-source="${s}" class="fpill con-src-btn ${pillSty(s===sourceFilter)}">${s}</button>`;
             }).join('')}
           </div>

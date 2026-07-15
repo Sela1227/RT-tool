@@ -1,3 +1,5 @@
+// OAR constraints — QUANTEC (conventional) + TG-101/HyTEC (SBRT) + RTOG/NCCN
+// SBRT values verified against consolidated TG-101/HyTEC table (2024 review)
 const CONSTRAINTS_DATA = [
   // ── Spinal Cord ──────────────────────────────────────
   {id:1,organ:"Spinal Cord",param:"Dmax",limit:45,unit:"Gy",tech:"Conventional",source:"RTOG",notes:"Serial OAR"},
@@ -14,8 +16,8 @@ const CONSTRAINTS_DATA = [
   // ── Optic Nerve / Chiasm ──────────────────────────────
   {id:11,organ:"Optic Nerve",param:"Dmax",limit:54,unit:"Gy",tech:"Conventional",source:"QUANTEC",notes:"<1% neuropathy"},
   {id:12,organ:"Optic Chiasm",param:"Dmax",limit:54,unit:"Gy",tech:"Conventional",source:"QUANTEC",notes:""},
-  {id:13,organ:"Optic Nerve",param:"Dmax",limit:12,unit:"Gy",tech:"SBRT_1fx",source:"TG-101",notes:""},
-  {id:14,organ:"Optic Chiasm",param:"Dmax",limit:12,unit:"Gy",tech:"SBRT_1fx",source:"TG-101",notes:""},
+  {id:13,organ:"Optic Nerve",param:"Dmax",limit:10,unit:"Gy",tech:"SBRT_1fx",source:"TG-101",notes:"HyTEC 上限 12 Gy"},
+  {id:14,organ:"Optic Chiasm",param:"Dmax",limit:10,unit:"Gy",tech:"SBRT_1fx",source:"TG-101",notes:"HyTEC 上限 12 Gy"},
   // ── Cochlea ───────────────────────────────────────────
   {id:15,organ:"Cochlea",param:"Dmean",limit:35,unit:"Gy",tech:"Conventional",source:"QUANTEC",notes:"<30% hearing loss"},
   {id:16,organ:"Cochlea",param:"Dmean",limit:45,unit:"Gy",tech:"Conventional",source:"RTOG 0225",notes:""},
@@ -59,7 +61,7 @@ const CONSTRAINTS_DATA = [
   {id:47,organ:"Small Bowel",param:"V45",limit:195,unit:"cc",tech:"Conventional",source:"QUANTEC",notes:"<10% grade≥3 toxicity"},
   {id:48,organ:"Small Bowel",param:"Dmax",limit:50,unit:"Gy",tech:"Conventional",source:"RTOG",notes:""},
   {id:49,organ:"Small Bowel",param:"Dmax",limit:15.4,unit:"Gy",tech:"SBRT_1fx",source:"TG-101",notes:""},
-  {id:50,organ:"Small Bowel",param:"Dmax",limit:22.2,unit:"Gy",tech:"SBRT_3fx",source:"TG-101",notes:""},
+  {id:50,organ:"Small Bowel",param:"Dmax",limit:25.2,unit:"Gy",tech:"SBRT_3fx",source:"TG-101",notes:"Jejunum/ileum"},
   {id:51,organ:"Small Bowel",param:"Dmax",limit:35,unit:"Gy",tech:"SBRT_5fx",source:"TG-101",notes:""},
   // ── Colon / Rectum ────────────────────────────────────
   {id:52,organ:"Rectum",param:"V50",limit:50,unit:"%",tech:"Conventional",source:"QUANTEC",notes:"Prostate RT"},
@@ -80,7 +82,7 @@ const CONSTRAINTS_DATA = [
   {id:64,organ:"Brachial Plexus",param:"Dmax",limit:66,unit:"Gy",tech:"Conventional",source:"QUANTEC",notes:"<5% neuropathy"},
   {id:65,organ:"Brachial Plexus",param:"Dmax",limit:17.5,unit:"Gy",tech:"SBRT_1fx",source:"TG-101",notes:""},
   {id:66,organ:"Brachial Plexus",param:"Dmax",limit:24,unit:"Gy",tech:"SBRT_3fx",source:"TG-101",notes:""},
-  {id:67,organ:"Brachial Plexus",param:"Dmax",limit:32,unit:"Gy",tech:"SBRT_5fx",source:"TG-101",notes:""},
+  {id:67,organ:"Brachial Plexus",param:"Dmax",limit:30.5,unit:"Gy",tech:"SBRT_5fx",source:"TG-101",notes:""},
   // ── Trachea / Bronchus ────────────────────────────────
   {id:68,organ:"Trachea/Bronchus",param:"Dmax",limit:20.2,unit:"Gy",tech:"SBRT_1fx",source:"TG-101",notes:"Proximal airway"},
   {id:69,organ:"Trachea/Bronchus",param:"Dmax",limit:30,unit:"Gy",tech:"SBRT_3fx",source:"TG-101",notes:""},
@@ -88,17 +90,18 @@ const CONSTRAINTS_DATA = [
   // ── Great Vessels ─────────────────────────────────────
   {id:71,organ:"Great Vessels",param:"Dmax",limit:37,unit:"Gy",tech:"SBRT_1fx",source:"TG-101",notes:"Aorta, SVC, IVC, PA"},
   {id:72,organ:"Great Vessels",param:"Dmax",limit:45,unit:"Gy",tech:"SBRT_3fx",source:"TG-101",notes:""},
+  {id:133,organ:"Great Vessels",param:"Dmax",limit:53,unit:"Gy",tech:"SBRT_5fx",source:"TG-101",notes:"Aorta, SVC, IVC, PA"},
   // ── Brain ─────────────────────────────────────────────
   {id:73,organ:"Brain",param:"Dmax",limit:72,unit:"Gy",tech:"Conventional",source:"QUANTEC",notes:"<5% necrosis"},
   {id:74,organ:"Brain",param:"V60",limit:3,unit:"%",tech:"Conventional",source:"RTOG",notes:"SRS context"},
   {id:75,organ:"Lens",param:"Dmax",limit:7,unit:"Gy",tech:"Conventional",source:"QUANTEC",notes:"<5% cataract"},
   {id:76,organ:"Retina",param:"Dmax",limit:50,unit:"Gy",tech:"Conventional",source:"QUANTEC",notes:""},
   // ── Stomach ───────────────────────────────────────────
-  {id:77,organ:"Stomach",param:"Dmax",limit:18,unit:"Gy",tech:"SBRT_1fx",source:"TG-101",notes:""},
+  {id:77,organ:"Stomach",param:"Dmax",limit:12.4,unit:"Gy",tech:"SBRT_1fx",source:"TG-101",notes:""},
   {id:78,organ:"Stomach",param:"Dmax",limit:22.2,unit:"Gy",tech:"SBRT_3fx",source:"TG-101",notes:""},
-  {id:79,organ:"Stomach",param:"Dmax",limit:35,unit:"Gy",tech:"SBRT_5fx",source:"TG-101",notes:""},
+  {id:79,organ:"Stomach",param:"Dmax",limit:32,unit:"Gy",tech:"SBRT_5fx",source:"TG-101",notes:""},
   // ── Duodenum ──────────────────────────────────────────
-  {id:80,organ:"Duodenum",param:"Dmax",limit:16,unit:"Gy",tech:"SBRT_1fx",source:"TG-101",notes:""},
+  {id:80,organ:"Duodenum",param:"Dmax",limit:12.4,unit:"Gy",tech:"SBRT_1fx",source:"TG-101",notes:""},
   {id:81,organ:"Duodenum",param:"Dmax",limit:22.2,unit:"Gy",tech:"SBRT_3fx",source:"TG-101",notes:""},
   {id:82,organ:"Duodenum",param:"V25",limit:45,unit:"cc",tech:"Conventional",source:"QUANTEC",notes:"Pancreas/UGI RT"},
   // ── Mandible ──────────────────────────────────────────
@@ -162,4 +165,15 @@ const CONSTRAINTS_DATA = [
   {id:130,organ:"Femoral Head",param:"V30",limit:5,unit:"%",tech:"SBRT_5fx",source:"NCCN",notes:"Prostate SBRT"},
   {id:131,organ:"Penile Bulb",param:"V29.5",limit:50,unit:"%",tech:"SBRT_5fx",source:"NCCN",notes:"Prostate SBRT"},
   {id:132,organ:"Urethra",param:"Dmax",limit:42,unit:"Gy",tech:"SBRT_5fx",source:"NCCN",notes:"Prostate SBRT 36.25 Gy/5fx"},
+  // ── HyTEC (Hypofractionated Treatment Effects in the Clinic) ──
+  // Spinal cord — Sahgal et al, de novo SBRT, 1–5% RM risk (thecal sac Dmax)
+  {id:134,organ:"Spinal Cord",param:"Dmax",limit:12.4,unit:"Gy",tech:"SBRT_1fx",source:"HyTEC",notes:"1–5% 脊髓病變風險；1fx 12.4–14 Gy"},
+  {id:135,organ:"Spinal Cord",param:"Dmax",limit:20.3,unit:"Gy",tech:"SBRT_3fx",source:"HyTEC",notes:"1–5% 風險（thecal sac）"},
+  {id:136,organ:"Spinal Cord",param:"Dmax",limit:25.3,unit:"Gy",tech:"SBRT_5fx",source:"HyTEC",notes:"1–5% 風險（thecal sac）"},
+  // Brachial plexus — Lindberg et al, <10% RIBP risk
+  {id:137,organ:"Brachial Plexus",param:"Dmax",limit:25,unit:"Gy",tech:"SBRT_3fx",source:"HyTEC",notes:"<10% 臂神經叢病變（下緣）"},
+  {id:138,organ:"Brachial Plexus",param:"Dmax",limit:32,unit:"Gy",tech:"SBRT_5fx",source:"HyTEC",notes:"<10% 臂神經叢病變（下緣）"},
+  // Optic apparatus — Milano et al, <1% RION single fraction
+  {id:139,organ:"Optic Nerve",param:"Dmax",limit:10,unit:"Gy",tech:"SBRT_1fx",source:"HyTEC",notes:"<1% 視神經病變（單次）"},
+  {id:140,organ:"Optic Chiasm",param:"Dmax",limit:10,unit:"Gy",tech:"SBRT_1fx",source:"HyTEC",notes:"<1% 視神經病變（單次）"},
 ];

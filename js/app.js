@@ -3,7 +3,7 @@
 // ──────────────────────────────────────────────────────────
 
 const App = (() => {
-  const VERSION = 'V3.2.1';
+  const VERSION = 'V3.6.2';
 
   const DEFAULT_SETTINGS = {
     enabledTools: {
@@ -22,7 +22,31 @@ const App = (() => {
   let state = { page:'tools', toolsTab:'rt', settings:null, cisplatinDoses:[], activeTools:{rt:'bed', calc:'childpugh', score:'gpa'}, activePreset: null };
 
   // ── Storage ──────────────────────────────────────────────
+  // Kit 坑 #69: localStorage key 是資料層 ID。V3.6.2 從 sela_* 改名 rttool_* 時
+  // 沒寫 migration，舊使用者資料等同消失。此為一次性補救（key 已凍結，不再更名）。
+  function migrateLegacyKeys() {
+    if (localStorage.getItem('rttool_migrated_v320')) return;
+    const MAP = {
+      sela_settings:             'rttool_settings',
+      sela_cisplatin:            'rttool_cisplatin',
+      sela_custom_constraints:   'rttool_custom_constraints',
+      sela_starred_constraints:  'rttool_starred_constraints',
+      sela_override_constraints: 'rttool_override_constraints',
+    };
+    try {
+      for (const [oldK, newK] of Object.entries(MAP)) {
+        const v = localStorage.getItem(oldK);
+        // 只在新 key 不存在時搬（不覆蓋使用者改名後的新資料）
+        if (v !== null && localStorage.getItem(newK) === null) {
+          localStorage.setItem(newK, v);
+        }
+      }
+      localStorage.setItem('rttool_migrated_v320', '1');
+    } catch { /* 隱私模式等禁寫情境：略過，不影響使用 */ }
+  }
+
   function loadSettings() {
+    migrateLegacyKeys();
     try {
       const s = localStorage.getItem('rttool_settings');
       state.settings = s ? Object.assign({}, DEFAULT_SETTINGS, JSON.parse(s)) : Object.assign({}, DEFAULT_SETTINGS);
@@ -52,7 +76,8 @@ const App = (() => {
   function updateNav() {
     document.querySelectorAll('.nav-btn').forEach(btn => {
       const p = btn.getAttribute('data-page');
-      btn.style.color = p === state.page ? 'var(--accent)' : 'var(--t3)';
+      btn.classList.toggle('nav-active', p === state.page);
+      btn.style.color = '';  // clear any legacy inline color
     });
   }
 
@@ -80,11 +105,16 @@ const App = (() => {
     const tab = state.toolsTab;
     const active = state.activeTools;
 
+    const tabIco = {
+      rt:    `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 17c2-6 4-9 6-9s3 3 6 3 4-2 6-2"/><line x1="3" y1="21" x2="21" y2="21"/></svg>`,
+      calc:  `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="4" y="3" width="16" height="18" rx="2"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="8" y2="11"/><line x1="12" y1="11" x2="12" y2="11"/><line x1="16" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="8" y2="15"/><line x1="12" y1="15" x2="12" y2="15"/></svg>`,
+      score: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 6-6"/><path d="M20 6v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h9"/></svg>`,
+    };
     const tabs = [
-      {id:'rt', label:'放療 RT'}, {id:'calc', label:'計算'}, {id:'score', label:'評分'},
+      {id:'rt', label:'放療'}, {id:'calc', label:'計算'}, {id:'score', label:'評分'},
     ];
     const tabBar = `<div class="flex gap-1.5">${
-      tabs.map(t => `<button onclick="App.setToolsTab('${t.id}')" class="fpill${tab===t.id?' on':''}">${t.label}</button>`).join('')
+      tabs.map(t => `<button onclick="App.setToolsTab('${t.id}')" class="fpill flex items-center gap-1${tab===t.id?' on':''}"><span style="display:inline-flex;vertical-align:middle;">${tabIco[t.id]}</span>${t.label}</button>`).join('')
     }</div>`;
 
     let tools, content;
@@ -268,8 +298,8 @@ const App = (() => {
         if (d.customConstraints)   localStorage.setItem('rttool_custom_constraints', JSON.stringify(d.customConstraints));
         if (d.starredConstraints)  localStorage.setItem('rttool_starred_constraints', JSON.stringify(d.starredConstraints));
         if (d.overrideConstraints) localStorage.setItem('rttool_override_constraints', JSON.stringify(d.overrideConstraints));
-        alert('✅ 匯入成功'); render();
-      } catch { alert('❌ 匯入失敗：格式錯誤'); }
+        alert('匯入成功'); render();
+      } catch { alert('匯入失敗：格式錯誤'); }
     };
     reader.readAsText(file);
   }
@@ -282,10 +312,7 @@ const App = (() => {
 // Global helper: open a card and scroll to it
 window.jumpTo = function(id) {
   const body = document.getElementById(id+'-body');
-  const chev = document.getElementById(id+'-chev');
-  const card = body?.closest('.card, [id$="-body"]')?.parentElement || body?.parentElement;
-  if (body) { body.classList.remove('hidden'); }
-  if (chev) { chev.style.transform = 'rotate(180deg)'; }
+  if (body && !body.classList.contains('open')) toggleCard(id);
   // Scroll after DOM settles
   setTimeout(() => {
     const target = document.getElementById(id+'-body');
